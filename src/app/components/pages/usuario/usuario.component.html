@@ -1,0 +1,132 @@
+<div class="grid">
+    <div class="col-12">
+
+        <div class="card px-6 py-6">    
+            <div>
+                <h2 class="m-4">Usuarios</h2>
+            </div>    
+            <p-toolbar styleClass="mb-4">
+                <ng-template pTemplate="left">
+                    <div class="my-2">
+                        <button pButton pRipple label="Nuevo" icon="pi pi-plus" class="p-button-success mr-2" (click)="openNew()"></button>                        
+                    </div>
+                </ng-template>
+
+                <ng-template pTemplate="right">                    
+                    <button pButton pRipple label="Exportar" icon="pi pi-upload" class="p-button-help" (click)="exportToExcel()"></button>
+                </ng-template>
+            </p-toolbar>
+            
+            <p-table #dt [value]="listUsuarios"  responsiveLayout="scroll" [rows]="10" [globalFilterFields]="['nombre','cedula','email', 'estado']" [paginator]="true" [rowsPerPageOptions]="[5,10,15]" [showCurrentPageReport]="true" currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} registros" [rowHover]="true" dataKey="id" >
+                <ng-template pTemplate="caption">
+                    <div class="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
+                        <span class="block mt-2 md:mt-0 p-input-icon-left">
+                            <i class="pi pi-search"></i>
+                            <input pInputText type="text" (input)="onGlobalFilter(dt, $event)" placeholder="Buscar..."  class="w-full sm:w-auto"/>
+                        </span>
+                    </div>
+                </ng-template>
+                <ng-template pTemplate="header">
+                    <tr>                        
+                        <th pSortableColumn="nombre">Nombre<p-sortIcon field="nombre"></p-sortIcon></th>
+                        <th pSortableColumn="cedula">Cédula<p-sortIcon field="cedula"></p-sortIcon></th>                        
+                        <th pSortableColumn="email">Email<p-sortIcon field="email"></p-sortIcon></th>                       
+                        <th pSortableColumn="acciones">Acciones</th>
+
+                        <th></th>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-usuario>
+                    <tr>                        
+                        <td style="width:30%; min-width:5rem;"><span class="p-column-title">Nombre</span>
+                            {{ usuario.nombre }}
+                        </td>
+                        <td style="width:20%; min-width:10rem;">
+                            <span class="p-column-title">Cédula</span>
+                            {{ usuario.cedula }}
+                        </td>                        
+                        <td style="width:30%; min-width:8rem;">
+                            <span class="p-column-title">Email</span>
+                            {{ usuario.email }}
+                        </td>                   
+                        <td style="width:30%; min-width: 5rem;">
+                            <span class="p-column-title">Estado</span>
+                            <div class="d-flex align-items-center">
+                                <p-inputSwitch class="mr-2" [(ngModel)]="usuario.estado" (click)="showConfirmation(usuario)"></p-inputSwitch>
+                                <button pButton pRipple icon="pi pi-pencil" class="p-button-rounded p-button-success mr-2" (click)="editProduct(usuario.id)"></button>
+                            </div>
+                        </td>
+                        
+
+                    </tr>
+                </ng-template>
+            </p-table>            
+        </div>
+
+        <p-dialog [(visible)]="productDialog" [style]="{width: '650px'}" header="Nuevo Usuario" [modal]="true" class="p-fluid">            
+                <form [formGroup]="formUsuario" (ngSubmit)="addUsuario()">
+                    
+                    <div class="formgrid grid" style="margin-top: 20px;">
+                        <div class="field col">
+                            <span class="p-float-label">
+                                <input formControlName="nombre" id="nombre" type="text" pInputText>
+                                <label for="nombre">Nombre</label>
+                            </span>
+                            <span *ngIf="formUsuario.get('nombre')?.hasError('required') && formUsuario.get('nombre')?.touched" style="color: red;">
+                                El nombre es <strong>requerido</strong>
+                            </span>                       
+                        </div>
+                        <div class="field col">
+                            <span class="p-float-label">
+                                <input formControlName="cedula" id="cedula" type="text"  pInputText>
+                                <label for="cedula">Cédula</label>
+                            </span>
+                            <span *ngIf="formUsuario.get('cedula')?.hasError('required') && formUsuario.get('cedula')?.touched" style="color: red;">
+                                La Cédula es <strong>requerida</strong>
+                            </span>
+                        </div>
+                    </div>
+
+
+                    <div class="formgrid grid" style="margin-top: 20px;">
+                        <div class="field col">
+                            <span class="p-float-label">
+                                <input formControlName="email" id="email" type="text" pInputText>
+                                <label for="email">Email</label>
+                            </span>
+                            <span *ngIf="formUsuario.get('email')?.hasError('required') && formUsuario.get('email')?.touched" style="color: red;">
+                                El Email es <strong>requerido</strong>
+                            </span>
+                        </div>
+                    </div>
+                        
+                    <div style="display: flex; justify-content: center; align-items: center;">
+                        <div class="field">
+                          <button type="button" pButton pRipple label="Cancelar" class="p-button-rounded p-button-danger" (click)="hideDialog()"></button>
+                        </div>
+                        <div class="field" style="margin-left: 8px;"> 
+                          <button type="submit" pButton pRipple label="Guardar" class="p-button-rounded p-button-success"></button>
+                        </div>
+                    </div>
+                      
+                </form>                 
+        </p-dialog>
+
+        
+        <p-dialog
+            [(visible)]="showConfirmationDialog"
+            header="Confirmación"
+            [modal]="true"
+            [closable]="false"
+            >
+            <p>
+                ¿Está seguro de y desea
+                {{ usuarioSeleccionado?.estado ? 'activar' : 'desactivar' }} el usuario?
+            </p>
+            <button pButton type="button" label="Sí" icon="pi pi-check" (click)="confirmAction(true)"></button>
+            <button pButton type="button" label="No" icon="pi pi-times" (click)="confirmAction(false)"></button>
+        </p-dialog>
+
+          
+    </div>
+</div>

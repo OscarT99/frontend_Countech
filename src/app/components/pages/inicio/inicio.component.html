@@ -1,0 +1,14 @@
+<div class="card">
+    <h4>inicio works!</h4>
+</div>
+
+<div class="col-12 md:col-6">
+    <div class="card">
+        <h5>Left Align</h5>
+        <p-timeline [value]="events">
+            <ng-template pTemplate="content" let-event>
+                {{event.status}}
+            </ng-template>
+        </p-timeline>
+    </div>
+</div>

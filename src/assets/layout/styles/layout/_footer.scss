@@ -1,0 +1,27 @@
+.layout-footer {
+    transition: margin-left $transitionDuration;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding-top: 1rem;
+    border-top: 1px solid var(--surface-border);
+}
+
+.footer-pedido {
+    position: sticky;
+    bottom: 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-evenly;
+    padding: 0.5rem;
+    border-top: 1px solid var(--surface-border);
+    background-color: white;
+    width: 100%; /* Ahora ocupa el 100% del ancho de la card */
+    z-index: 1000; /* Ajusta el índice Z para asegurar que esté sobre el contenido de la card */
+    margin-bottom: 0;
+}
+
+.footer-pedido div {
+    display: flex;
+    gap: 8px; /* O el valor que desees */
+}
