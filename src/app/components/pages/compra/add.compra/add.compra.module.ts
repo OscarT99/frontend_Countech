@@ -20,7 +20,7 @@ import { AutoCompleteModule } from "primeng/autocomplete";
 import { InputSwitchModule } from 'primeng/inputswitch';
 import { CalendarModule } from 'primeng/calendar';
 import { MultiSelectModule } from "primeng/multiselect";
-
+import { TooltipModule } from 'primeng/tooltip';
 
 @NgModule({
     imports: [
@@ -44,7 +44,8 @@ import { MultiSelectModule } from "primeng/multiselect";
         ReactiveFormsModule,
         InputSwitchModule,
         CalendarModule,
-        MultiSelectModule,                             
+        MultiSelectModule,
+        TooltipModule                             
     ],
     declarations: [AddCompraComponent],     
 })

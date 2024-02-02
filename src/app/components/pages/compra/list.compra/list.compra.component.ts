@@ -46,18 +46,9 @@ export class ListCompraComponent implements OnInit {
         })        
     }
 
-    onGlobalFilter(table: Table, event: Event) {
-        table.filterGlobal((event.target as HTMLInputElement).value, 'contains');
-    }
-        
-    editarCompra(id: number): void {
-        this.router.navigate(['/pages/compra/add', id]);
-      }
-
-      async mostrarDetalleCompra(id: number) {
+    async mostrarDetalleCompra(id: number) {
         try {
             this.detalleCompra = await this._compraService.getCompra(id).toPromise();
-            console.log('Detalle de la compra:', this.detalleCompra);
             this.mostrarModalDetalle = true;
         } catch (error) {
             console.error('Error al obtener el detalle de la compra:', error);

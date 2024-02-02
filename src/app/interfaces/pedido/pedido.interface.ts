@@ -12,7 +12,6 @@
       estadoPedido?:boolean,
       motivoDeAnulacion?:string,
       estado?:string,
-
       referencia?: string;
       descripcion?: string;
       valorUnitario?: number;

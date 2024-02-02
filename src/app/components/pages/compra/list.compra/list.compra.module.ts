@@ -10,6 +10,7 @@ import { ToastModule } from 'primeng/toast';
 import { ToolbarModule } from 'primeng/toolbar';
 import { InputTextModule } from 'primeng/inputtext';
 import { DialogModule } from 'primeng/dialog';
+import { TooltipModule } from 'primeng/tooltip';
 
 @NgModule({
     imports: [
@@ -22,7 +23,8 @@ import { DialogModule } from 'primeng/dialog';
         ToastModule,
         ToolbarModule,
         InputTextModule,
-        DialogModule,                             
+        DialogModule, 
+        TooltipModule                            
     ],
     declarations: [ListCompraComponent]
 })
