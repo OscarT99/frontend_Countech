@@ -21,6 +21,7 @@ import { AuthService } from './services/login/login.service';
 import { VentaService } from './services/venta/venta.service';
 import { AbonoVentaService } from './services/abonoVenta/abonoVenta.service';
 import { CompraService } from './services/compra/compra.service';
+import { AbonoCompraService } from './services/abonoCompra/abonoCompra.service';
 
 
 
@@ -43,7 +44,7 @@ import { CompraService } from './services/compra/compra.service';
   ],
   providers: [
     { provide: LocationStrategy, useClass: HashLocationStrategy },
-    ClienteService,UsuarioService,AuthService, VentaService, AbonoVentaService,PedidoService,CompraService
+    ClienteService,UsuarioService,AuthService, VentaService, AbonoVentaService,PedidoService,CompraService, AbonoCompraService
   ],
   bootstrap: [AppComponent]
 })

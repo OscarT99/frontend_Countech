@@ -81,29 +81,37 @@ export class UsuarioComponent implements OnInit {
 
 
     addUsuario(){
-      const usuario : Usuario = {
-       nombre: this.formUsuario.value.nombre,
-       cedula: this.formUsuario.value.cedula,
-       email: this.formUsuario.value.email,
-       contrasena: this.formUsuario.value.cedula,
-      }
- 
-      if(this.id !== 0){
-       usuario.id = this.id
-       this._usuarioService.putUsuario(this.id,usuario).subscribe(()=>{         
+      this.formUsuario.markAllAsTouched();
+
+      if (this.formUsuario.valid) {
+        const usuario : Usuario = {
+          nombre: this.formUsuario.value.nombre,
+          cedula: this.formUsuario.value.cedula,
+          email: this.formUsuario.value.email,
+          contrasena: this.formUsuario.value.cedula
+        }
+  
+        if(this.id !== 0){
+        usuario.id = this.id
+        this._usuarioService.putUsuario(this.id,usuario).subscribe(()=>{         
+          this.productDialog = false;
+          this.toastr.info(`El usuario ${usuario.nombre} fue actualizado con éxito`,`Usuario actualizado`)
+          this.getListUsuarios();         
+        })
+        }else{            
+        this._usuarioService.postUsuario(usuario).subscribe(() => {        
+          this.productDialog = false;
+          this.toastr.success(`El usuario ${usuario.nombre} fue registrado con éxito`,`Usuario agregado`)        
+          this.getListUsuarios();
+        })
+        }
+  
         this.productDialog = false;
-        this.toastr.info(`El usuario ${usuario.nombre} fue actualizado con exito`,`Usuario actualizado`)
-        this.getListUsuarios();         
-       })
-      }else{            
-       this._usuarioService.postUsuario(usuario).subscribe(() => {        
-        this.productDialog = false;
-        this.toastr.success(`El usuario ${usuario.nombre} fue registrado con exito`,`Usuario agregado`)        
-        this.getListUsuarios();
-       })
-      }
- 
-      this.productDialog = false;
+    } else{
+      this.toastr.error('Por favor, complete todos los campos obligatorios.', 'Error de validación');
+
+    }
+
     }
 
 
