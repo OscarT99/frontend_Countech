@@ -231,7 +231,7 @@
       } else {
         // Agregar un nuevo proceso
         const nuevoProceso: ProcesoReferenciaPedidoInstance = {    
-          id:uuidv4(),  
+          // id:uuidv4(),  
           proceso: proceso,
           tipoDeMaquina: tipoDeMaquina,
           ColorEnProcesoEnReferenciaEnPedidos: [], 
@@ -315,7 +315,7 @@
       } else {
         // Agregar nuevo color
         const nuevoColor: ColorProcesoReferenciaPedidoInstance = {
-          id: uuidv4(),
+          // id: uuidv4(),
           color: color,
           tallaS: tallaS,
           tallaM: tallaM,

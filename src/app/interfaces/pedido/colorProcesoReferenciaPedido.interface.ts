@@ -1,5 +1,5 @@
   export interface ColorProcesoReferenciaPedidoInstance {
-    id?: string;
+    id?: number;
     proceso?: number;
     color?: string;
     tallaS?:number;
