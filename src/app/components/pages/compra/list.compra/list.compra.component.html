@@ -10,20 +10,21 @@
                 </ng-template>
 
                 <ng-template pTemplate="right">
-                    <button pButton class="p-button-success" label="Excel" icon="pi pi-file-excel" pTooltip="Descargar"></button>
+                    <button pButton class="p-button-success" label="Excel" icon="pi pi-file-excel" pTooltip="Descargar" (click)="exportToExcel()"></button>
                 </ng-template>
             </p-toolbar>
 
-            <p-table #dt [value]="listCompras" responsiveLayout="scroll" [rows]="10" [globalFilterFields]="[]"
+            <p-table #dt [value]="listCompras" responsiveLayout="scroll" [rows]="5" [globalFilterFields]="['Proveedor.razonSocial','numeroFactura']"
                 [paginator]="true" [rowsPerPageOptions]="[5,10,15]" [showCurrentPageReport]="true"
-                currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries" [rowHover]="true"
+                currentPageReportTemplate="Mostrando del {first} al {last} de {totalRecords} compras" [rowHover]="true"
                 dataKey="id">
                 <ng-template pTemplate="caption">
                     <div class="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
                         <h5 class="m-0">Lista de Compras</h5>
                         <span class="block mt-2 md:mt-0 p-input-icon-left">
                             <i class="pi pi-search"></i>
-                            <input pInputText type="text" placeholder="Buscar..." class="w-full sm:w-auto" />
+                            <input pInputText type="text" placeholder="Buscar..." 
+                            (input)="onGlobalFilter(dt, $event)"  class="w-full sm:w-auto" />
                         </span>
                     </div>
                 </ng-template>
@@ -36,20 +37,22 @@
                         <!-- <th pSortableColumn="formaPago">Forma Pago<p-sortIcon field="formaPago"></p-sortIcon></th> -->
                         <th pSortableColumn="totalNeto">Valor Total<p-sortIcon field="totalNeto"></p-sortIcon></th>
                         <th pSortableColumn="estadoPago">Saldo<p-sortIcon field="estadoPago"></p-sortIcon></th>
-                        <th pSortableColumn="estadoCompra">Estado<p-sortIcon field="estadoCompra"></p-sortIcon></th>
+                        <th pSortableColumn="estadoCompra" (click)="alternarVistaEstadoCompra()">Estado<p-sortIcon field="estadoCompra"></p-sortIcon></th>
                         <th></th>
                     </tr>
                 </ng-template>
                 <ng-template pTemplate="body" let-compra>
-                    <tr>
-                        <td style="width:14%; min-width:5rem;"><span class="p-column-title">Proveedor</span>
-                            {{ compra.Proveedor.razonSocial }}
+                    <tr *ngIf="ffiltroEstadoCompra(compra, dt.filters)">
+                        <td style="min-width:10rem;"><span class="p-column-title">Proveedor</span>
+                            {{ compra.Proveedor.tipoIdentificacion !== 'NIT' ?
+                                    compra.Proveedor.razonSocial + ' ' + compra.Proveedor.nombreComercial :
+                                    compra.Proveedor.razonSocial }}
                         </td>
-                        <td style="width:14%; min-width:10rem;">
+                        <td style="min-width:10rem;">
                             <span class="p-column-title">N° Factura</span>
                             {{ compra.numeroFactura }}
                         </td>
-                        <td style="width:14%; min-width:8rem;">
+                        <td style=" min-width:8rem;">
                             <span class="p-column-title">Fecha Compra</span>
                             {{ compra.fechaCompra }}
                         </td>
@@ -57,25 +60,26 @@
                             <span class="p-column-title">Forma Pago</span>
                             {{ compra.formaPago }}
                         </td> -->
-                        <td style="width:14%; min-width:10rem;">
+                        <td style=" min-width:10rem;">
                             <span class="p-column-title">Total Neto</span>
-                            {{ compra.totalNeto }}
+                            $ {{ compra.totalNeto | number: '1.2-2' }}
                         </td>
-                        <td style="width:14%; min-width: 5rem;">
+                        <td style=" min-width: 5rem;">
                             <span class="p-column-title">Saldo</span>
                             {{ compra.estadoPago }}
                         </td>
-                        <td style="width:14%; min-width: 5rem;">
-                            <span class="p-column-title">Estado</span>
-                            {{ compra.estadoCompra }}
+                        <td style=" min-width: 5rem;">
+                            <span class="p-column-title">Estado 10 </span>
+                            <p-tag [value]="getEstadoLabel(compra.estadoCompra)" [severity]="getSeverityCompra(compra.estadoCompra)"></p-tag>
                         </td>
                         <td>
-                            <div class="flex">
-                                <button pButton pRipple icon="pi pi-file" class="p-button-rounded p-button-secondary mr-2"
-                                    (click)="mostrarDetalleCompra(compra.id)" pTooltip="Ver detalle"></button>
-                                <button *ngIf="compra.estadoCompra == true" pButton pRipple icon="pi pi-times"
-                                    class="p-button-rounded p-button-danger" (click)="anularCompra(compra)"
-                                    pTooltip="Anular"></button>
+                            <div class="flex flex-wrap gap-3 "> 
+                                <!-- <button  pTooltip="Editar" style="background:transparent;border:transparent"><i class="fa-sharp fa-solid fa-pencil fa-2xl mt-2" style="color: #FFD43B;"></i></button> -->
+                                
+                                <p-button icon="pi pi-file" [rounded]="true" severity="secondary"
+                                    (click)="mostrarDetalleCompra(compra.id)" pTooltip="Ver detalle"></p-button>
+                                <p-button *ngIf="compra.estadoCompra == true" icon="pi pi-times" [rounded]="true" severity="danger"
+                                    (click)="anularCompra(compra)" pTooltip="Anular"></p-button>
                             </div>
                         </td>
                     </tr>
@@ -86,24 +90,38 @@
                 [style]="{ width: '50vw' }">
                 <div *ngIf="detalleCompra">
                     <div class="grid mt-1">
+
                         <div class="col-4">
                             <span style="font-weight: bold;">Proveedor:</span>
-                            <span>{{ detalleCompra.Proveedor.razonSocial }}</span>
+                            <div >                            
+                                <span>{{ detalleCompra.Proveedor.tipoIdentificacion !== 'NIT' ?
+                                    detalleCompra.Proveedor.razonSocial + ' ' + detalleCompra.Proveedor.nombreComercial :
+                                    detalleCompra.Proveedor.razonSocial }}</span>
+                            </div>
                         </div>
+                        
                         <div class="col-4">
                             <span style="font-weight: bold;">Contacto:</span>
-                            <span>{{ detalleCompra.Proveedor.contacto }}</span>
+                            <div >                            
+                                <span>{{ detalleCompra.Proveedor.contacto }}</span>
+                            </div>
                         </div>
+
                         <div class="col-4">
                             <span style="font-weight: bold;">N° Factura:</span>
-                            <span>{{ detalleCompra.numeroFactura }}</span>
+                            <div>                            
+                                <span>{{ detalleCompra.numeroFactura }}</span>
+                            </div>
                         </div>
 
                         <div class="col-4">
                             <span style="font-weight: bold;">Fecha Compra:</span>
-                            <span>{{ detalleCompra.fechaCompra }}</span>
+                            <div >                            
+                                <span>{{ detalleCompra.fechaCompra }}</span>
+                            </div>
                         </div>
 
+                        
                         <div class="col-12">
                             <p-table [value]="detalleCompra.DetalleEnCompras" styleClass="p-datatable-sm">
                                 <ng-template pTemplate="header">
@@ -117,11 +135,11 @@
                                 </ng-template>
                                 <ng-template pTemplate="body" let-detalleInsumo>
                                     <tr>
-                                        <td>{{detalleInsumo.insumo}}</td>
-                                        <td>{{detalleInsumo.valorUnitario}}</td>
+                                        <td>{{detalleInsumo.Insumo.nombre}}</td>
+                                        <td>{{detalleInsumo.valorUnitario | number: '1.2-2'}}</td>
                                         <td>{{detalleInsumo.cantidad}}</td>
-                                        <td>{{detalleInsumo.impuestoIva}}</td>
-                                        <td>{{detalleInsumo.valorTotal}}</td>
+                                        <td>{{detalleInsumo.impuestoIva | number: '1.2-2'}}</td>
+                                        <td>{{detalleInsumo.valorTotal | number: '1.2-2'}}</td>
                                         <td></td>
                                     </tr>
                                 </ng-template>
@@ -134,16 +152,16 @@
                         </div>
                         <div class="col-6">
                             <div>
-                                <span style="font-weight: bold;">Total bruto:</span>
-                                <span>{{ detalleCompra.totalBruto }}</span>
+                                <span style="font-weight: bold;">Total bruto: </span>
+                                <span>$ {{ detalleCompra.totalBruto | number: '1.2-2'}}</span>
                             </div>
                             <div>
-                                <span style="font-weight: bold;">Iva:</span>
-                                <span>{{ detalleCompra.iva }}</span>
+                                <span style="font-weight: bold;">Iva: </span>
+                                <span>$ {{ detalleCompra.iva | number: '1.2-2'}}</span>
                             </div>
                             <div>
-                                <span style="font-weight: bold;">Total Neto:</span>
-                                <span>{{ detalleCompra.totalNeto }}</span>
+                                <span style="font-weight: bold;">Total Neto: </span>
+                                <span>$ {{ detalleCompra.totalNeto | number: '1.2-2'}}</span>
                             </div>
 
                         </div>
@@ -154,8 +172,7 @@
                 <!-- <button pButton type="button" label="Cerrar" class="p-button-secondary" (click)="cerrarModalDetallePedido()"></button> -->
             </p-dialog>
 
-            <p-dialog [(visible)]="showConfirmationDialogCompra" header="Confirmación" [modal]="true" [closable]="false"
-                appendTo="body">
+            <p-dialog header="Confirmación" [(visible)]="showConfirmationDialogCompra" [modal]="true" >
                 <p>
                     ¿Está seguro de que desea anular la compra? despues de anulada no se podra volver a modificar
                 </p>

@@ -1,19 +1,23 @@
 <div class="grid">
     <div class="col-12">
         <div class="card px-6 ">
-            <h4>Nuevo Pedido</h4>
+            <h4>{{ id === 0 ? 'Nuevo Pedido' : 'Editar Pedido' }}</h4>
             <form [formGroup]="formPedido" (ngSubmit)="addPedido()">
                 <div class="grid p-fluid mt-3">
                     <div class="col-4">
                         <label>Cliente</label>
+                        <input *ngIf="mostrarID" type="text" pInputText formControlName="cliente"/>
                         <div>
-                            <p-autoComplete class="inputs-pedido" formControlName="cliente"
+                            <p-autoComplete class="inputs-pedido" formControlName="razonSocial"
                                 [suggestions]="sugerenciasClientes" (completeMethod)="buscarClientes($event)"
                                 [dropdown]="true" [minLength]="1" [placeholder]="'Buscar cliente'"
-                                (onSelect)="seleccionarCliente($event)">
+                                (onSelect)="seleccionarCliente($event)"
+                                (keyup)="realizarBusquedaEnTiempoReal($event)">                                
                                 <ng-template let-cliente pTemplate="item">
-                                    {{cliente.razonSocial}} - {{cliente.numeroIdentificacion}} - {{cliente.estado}}
-                                </ng-template>
+                                    {{ cliente.tipoIdentificacion == 'NIT' ?
+                                        cliente.razonSocial + ' - ' + cliente.numeroIdentificacion :
+                                        cliente.razonSocial + ' ' + cliente.nombreComercial + ' - ' + cliente.numeroIdentificacion }}
+                                </ng-template>                            
                             </p-autoComplete>
                         </div>
                         <span
@@ -50,7 +54,7 @@
                         <label htmlFor="fechaOrdenTrabajo">Fecha de Orden</label>
                         <div>
                             <p-calendar class="inputs-pedido" formControlName="fechaOrdenTrabajo" [showIcon]="true"
-                                inputId="fechaOrdenTrabajo" dateFormat="yy-mm-dd"></p-calendar>
+                                inputId="fechaOrdenTrabajo" dateFormat="yy-mm-dd" [maxDate]="maxDate" ></p-calendar>
                         </div>
                         <span
                             *ngIf="formPedido.get('fechaOrdenTrabajo')?.hasError('required') && formPedido.get('fechaOrdenTrabajo')?.touched"
@@ -63,7 +67,7 @@
                         <label htmlFor="fechaEntregaOrden">Fecha Entrega Orden</label>
                         <div>
                             <p-calendar class="inputs-pedido" formControlName="fechaEntregaOrden" [showIcon]="true"
-                                inputId="fechaEntregaOrden" dateFormat="yy-mm-dd"></p-calendar>
+                                inputId="fechaEntregaOrden" dateFormat="yy-mm-dd" [minDate]="minDate"></p-calendar>
                         </div>
                         <span
                             *ngIf="formPedido.get('fechaEntregaOrden')?.hasError('required') && formPedido.get('fechaEntregaOrden')?.touched"
@@ -127,7 +131,7 @@
                                 #procesoInput />
                         </div>
                         <span *ngIf="formPedido.get('proceso')?.hasError('required') && formPedido.get('proceso')?.touched 
-                            && procesosReferencia.length === 0" style="color: red;">
+                            && procesosReferencia.length === 0 " style="color: red;">
                             El procedimientos es <strong>requerido</strong>
                         </span>
                     </div>
@@ -139,17 +143,18 @@
                             </p-dropdown>
                         </div>
                         <span
-                            *ngIf="formPedido.get('tipoDeMaquina')?.hasError('required') && formPedido.get('tipoDeMaquina')?.touched"
-                            style="color: red;">
+                            *ngIf="formPedido.get('tipoDeMaquina')?.hasError('required') && formPedido.get('tipoDeMaquina')?.touched
+                            && procesosReferencia.length === 0" style="color: red;">
                             La maquina es <strong>requerida</strong>
                         </span>
                     </div>
 
-                    <div class="col-3">
-                        <button pButton pRipple type="button" class="p-button-secondary mt-3" (click)="agregarProceso()"
-                            label="Agregar Proceso" icon="pi pi-plus">
-                        </button>
-                    </div>
+                    <p-button *ngIf="formPedido.get('idTemporalProceso')!.value != null" (click)="agregarProceso()" label="Editar Proceso" icon="pi pi-plus"
+                    severity="warning" styleClass="mt-5">
+                    </p-button>
+                        <p-button *ngIf="formPedido.get('idTemporalProceso')!.value == null" (click)="agregarProceso()" label="Agregar Proceso" icon="pi pi-plus" styleClass="mt-5">
+                        </p-button>
+                    
                 </div>
 
                 <strong>Detalles de colores</strong>
@@ -186,11 +191,13 @@
                         <label htmlFor="tallaXL">XL</label>
                         <p-inputNumber class="inputs-pedido" formControlName="tallaXL"></p-inputNumber>
                     </div>
-                    <div class="col-3">
-                        <button pButton pRipple type="button" class="p-button-secondary mt-3" (click)="agregarColor()"
-                            label="Agregar color" icon="pi pi-plus">
-                        </button>
-                    </div>
+                    
+                    <p-button *ngIf="formPedido.get('idTemporalColor')!.value != null" (click)="agregarColor()" label="Editar Color" icon="pi pi-plus"
+                    severity="warning" styleClass="mt-5">
+                    </p-button>
+                        <p-button *ngIf="formPedido.get('idTemporalColor')!.value == null" (click)="agregarColor()" label="Agregar color" icon="pi pi-plus" styleClass="mt-5">
+                        </p-button>
+                    
                 </div>
 
                 <div class="grid p-fluid">
@@ -296,11 +303,12 @@
                         pInputTextarea></textarea>
 
                 </div>
+                
+                <p-confirmDialog></p-confirmDialog>
 
                 <footer class="footer-pedido">
                     <div>
-                        <button pButton pRipple type="button" label="Cancelar" class="p-button-danger"
-                            routerLink="/pages/pedido"></button>
+                        <button pButton pRipple type="button" label="Cancelar" class="p-button-danger" (click)="mostrarConfirmacionSalir()"></button>
                         <button pButton pRipple label="Guardar" class="p-button-success"></button>
                     </div>
                 </footer>

@@ -1,9 +1,11 @@
   import {Component, ElementRef, OnInit, ViewChild } from '@angular/core';
   import { ToastrService } from 'ngx-toastr';
   import { ActivatedRoute, Router } from '@angular/router';
+  import { ConfirmationService } from 'primeng/api';
+
   import { SelectItem } from 'primeng/api';
 
-  
+
   import { v4 as uuidv4 } from 'uuid';
   
   import { PedidoService } from 'src/app/services/pedido/pedido.service';
@@ -20,6 +22,7 @@
   })
   export class AddPedidoComponent implements OnInit {
 
+    id: number = 0;
     mostrarID:boolean=false;
 
     formPedido: FormGroup;
@@ -27,6 +30,9 @@
     clientes: Cliente[] = [];
     sugerenciasClientes: Cliente[] = [];
     campoBusqueda: string = '';
+
+    maxDate: Date = new Date();
+    minDate: Date = new Date();
 
     totalNeto: number = 0;
 
@@ -56,14 +62,16 @@
     ];
         
     constructor(private fb: FormBuilder,
+      private aRouter: ActivatedRoute,
+      private router: Router,
       private _pedidoService: PedidoService,
       private toastr: ToastrService,
-      private aRouter: ActivatedRoute,
       private _clienteService: ClienteService,
-      private router : Router,
+      private confirmationService: ConfirmationService,
     ) { 
       this.formPedido = this.fb.group({        
         cliente:['',Validators.required],
+        razonSocial:[],
         contacto: [{ value: '', disabled: true }],
         ordenTrabajo:['',Validators.required],
         fechaOrdenTrabajo:['',Validators.required],
@@ -86,24 +94,91 @@
     }
 
     ngOnInit(): void {
-      this.obtenerListaClientes();
-    };
-    
-      /////   METODOS PARA ESCOGER EL CLIENTE
-    obtenerListaClientes(): void {
-      this._clienteService.getListClientesPedido().subscribe(
-        (data: { listClientes: Cliente[] }) => {
-          this.sugerenciasClientes = data.listClientes;
-        },
-        (error: any) => {
-          console.error(error);
+      this.aRouter.params.subscribe(params => {
+        this.id = +params['id'];
+
+        if (this.id !== 0) {
+          this.obtenerListaClientes();
+          this.getPedido(this.id)          
+        } else {
+          this.obtenerListaClientes();
         }
-      );
+      });
     }
 
-    buscarClientes(event: any): void {
-        this.sugerenciasClientes = this.filterClientes(event.query);
+
+    
+    getPedido(id: number) {
+      this._pedidoService.getPedido(id).subscribe((data: PedidoInstance) => {
+        console.log(data.ProcesoEnReferenciaEnPedidos);
+        this.formPedido.patchValue({
+          razonSocial: data.Cliente!.razonSocial,
+          ordenTrabajo: data.ordenTrabajo,
+          fechaOrdenTrabajo: data.fechaOrdenTrabajo,
+          fechaEntregaOrden: data.fechaEntregaOrden,
+          formaPago: data.formaPago,
+          referencia: data.referencia,
+          descripcion: data.descripcion,
+          valorUnitario: data.valorUnitario,
+          observaciones: data.observaciones,
+          totalNeto: data.valorTotal,
+        });
+    
+        // Asignar la lista de procesos
+        this.procesosReferencia = data.ProcesoEnReferenciaEnPedidos || [];
+    
+        // Agregar la lista de colores del primer proceso, si existe
+        const primerProceso = this.procesosReferencia[0];
+        if (primerProceso && primerProceso.ColorEnProcesoEnReferenciaEnPedidos) {
+          this.coloresEnProceso = primerProceso.ColorEnProcesoEnReferenciaEnPedidos.map(color => ({
+            id: color.id, // Ajustar según tu modelo
+            color: color.color,
+            tallaS: color.tallaS,
+            tallaM: color.tallaM,
+            tallaL: color.tallaL,
+            tallaXL: color.tallaXL,
+            cantidadTotal: color.cantidadTotal,
+          }));
+    
+          // Calcular las sumatorias
+          this.totalTallaS = this.coloresEnProceso.reduce((sum, color) => sum + (color.tallaS || 0), 0);
+          this.totalTallaM = this.coloresEnProceso.reduce((sum, color) => sum + (color.tallaM || 0), 0);
+          this.totalTallaL = this.coloresEnProceso.reduce((sum, color) => sum + (color.tallaL || 0), 0);
+          this.totalTallaXL = this.coloresEnProceso.reduce((sum, color) => sum + (color.tallaXL || 0), 0);
+        } else {
+          this.coloresEnProceso = [];
+          this.totalTallaS = 0;
+          this.totalTallaM = 0;
+          this.totalTallaL = 0;
+          this.totalTallaXL = 0;
+        }
+        this.totalGeneral = this.totalTallaL+this.totalTallaM+this.totalTallaS+this.totalTallaXL
+      });
     }
+    
+    
+    
+      /////   METODOS PARA ESCOGER EL CLIENTE
+      obtenerListaClientes(): void {
+        this._clienteService.getListClientesPedido().subscribe(
+          (data: { listClientes: Cliente[] }) => {
+            this.sugerenciasClientes = data.listClientes.filter(cliente => cliente.estado);
+          },
+          (error: any) => {
+            console.error(error);
+          }
+        );
+      }
+      
+
+      buscarClientes(event: any): void {
+        if (!event.query) {
+          this.obtenerListaClientes();
+        }
+        this.sugerenciasClientes = this.filterClientes(event.query);
+      }
+      
+
     
     filterClientes(query: string): Cliente[] {
       return this.sugerenciasClientes.filter(
@@ -116,15 +191,23 @@
   
     seleccionarCliente(event: any): void {
       const clienteId = event.value.id;
+      const clienteRazonSocial = event.value.razonSocial; 
+
       this.formPedido.get('cliente')!.setValue(clienteId);
-    
+      this.formPedido.get('razonSocial')!.setValue(clienteRazonSocial);
+
       const clienteSeleccionado = this.sugerenciasClientes.find(c => c.id === clienteId);
     
       if (clienteSeleccionado) {
         this.formPedido.get('contacto')!.setValue(clienteSeleccionado.contacto || '');
-      }
+      }        
     }
 
+    realizarBusquedaEnTiempoReal(event: any): void {
+      const query = event.target.value;
+      this.obtenerListaClientes(); // Obtener la lista completa de clientes
+      this.sugerenciasClientes = this.filterClientes(query);
+  }
 
     /////   METODOS PARA CREAR,MODIFICAR,ELIMINAR UN PROCESO
     agregarProceso(): void {
@@ -348,15 +431,40 @@
           observaciones:this.formPedido.value.observaciones,
           ProcesoEnReferenciaEnPedidos:this.procesosReferencia
         }
-        
-        this._pedidoService.postPedido(pedido).subscribe(()=>{
-          this.router.navigate(['/pages/pedido']);
-          this.toastr.success(`La orden de Trabajo ${pedido.ordenTrabajo} fue registrada con exito`,`Cliente agregado`)
-        })
-        
+  
+        if(this.id !== 0){
+          pedido.id = this.id
+          this._pedidoService.putPedido(this.id,pedido).subscribe(()=>{
+            this.router.navigate(['/pages/pedido']);
+            this.toastr.info(`la orden de trabajo ${pedido.ordenTrabajo} fue actualizada con exito`,`Pedido actualizado`)
+          })
+        }else{
+          this._pedidoService.postPedido(pedido).subscribe(()=>{
+            this.router.navigate(['/pages/pedido']);
+            this.toastr.success(`La orden de Trabajo ${pedido.ordenTrabajo} fue registrada con exito`,`Cliente agregado`)
+          })
+        }
       }else{
         this.toastr.error('Por favor, complete todos los campos obligatorios.', 'Error de validación');
       }      
-    }  
+    }
 
+
+
+
+    mostrarConfirmacionSalir() {
+      this.confirmationService.confirm({
+        icon: 'pi pi-exclamation-triangle', 
+        header: '¿Deseas salir de la creación?',
+        message: 'Con esta acción perderás todos los cambios que no hayas guardado y no los podrás recuperar.',
+        acceptLabel: 'Salir',
+        rejectLabel: 'Cancelar',
+        accept: () => {
+          this.router.navigate(['/pages/pedido']);
+        },
+        reject: () => {
+          // El usuario ha cancelado la acción, no hacer nada
+        }
+      });
+    }
   }

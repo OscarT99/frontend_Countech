@@ -72,6 +72,19 @@ export class InsumoService {
         );
     }
 
+    restarCantidadInsumoCompra(id: number, cantidad: number): Observable<any> {
+      const url = `${this.myAppUrl}${this.myApiUrl}restarCantidadCompra/${id}`;
+      const body = { cantidad };
+    
+      return this.http.put<any>(url, body)
+        .pipe(
+          catchError((error: any) => {
+            console.error('Error al restar la cantidad del insumo desde el servicio:', error);
+            throw error;
+          })
+        );
+    }
+
     actualizarEstadoInsumo(id: number, estado: boolean): Observable<any> {
       const url = `${this.myAppUrl}${this.myApiUrl}actualizarEstado/${id}`;
       const body = { estado }; // Agregamos el estado al cuerpo

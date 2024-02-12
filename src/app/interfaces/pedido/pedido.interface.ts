@@ -1,6 +1,8 @@
   import {ProcesoReferenciaPedidoInstance } from "./procesoReferenciaPedido.interface";
+  import { Cliente } from 'src/app/interfaces/cliente/cliente.interface';
 
   export interface PedidoInstance {
+      Cliente?:Cliente;
       id?: number;
       cliente?: number;
       ordenTrabajo?: string;

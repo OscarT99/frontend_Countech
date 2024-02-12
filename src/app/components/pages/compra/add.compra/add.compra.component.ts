@@ -1,8 +1,10 @@
 import {Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { ToastrService } from 'ngx-toastr';
-import { ActivatedRoute, Router } from '@angular/router';
+import { Router } from '@angular/router';
+import { ConfirmationService } from 'primeng/api';
 import { SelectItem } from 'primeng/api';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+
 
 
 import { v4 as uuidv4 } from 'uuid';
@@ -19,6 +21,8 @@ import { InsumoInstance } from 'src/app/interfaces/insumo/insumo.interface';
   templateUrl: './add.compra.component.html',
 })
 export class AddCompraComponent implements OnInit {
+
+  maxDate: Date = new Date();
 
   mostrarID:boolean=false;
   
@@ -43,19 +47,23 @@ export class AddCompraComponent implements OnInit {
     { label: '5%', value: 0.05 }
     ];
     
-    constructor(private fb: FormBuilder,
-    private _compraService: CompraService,
+    constructor(
+    private fb: FormBuilder,    
+    private _compraService: CompraService,        
     private toastr: ToastrService,
     private _proveedorService: ProveedorService,
-    private _insumoService: InsumoService,
+    private _insumoService: InsumoService,    
     private router : Router,
+    private confirmationService: ConfirmationService,    
   ) {
     this.formCompra=this.fb.group({
         proveedor:['',Validators.required],
+        razonSocial:[],
         numeroFactura:['',Validators.required],
         fechaCompra:['',Validators.required],
         contacto:[{ value: '', disabled: true}],
         insumo:['',Validators.required],
+        insumoNombre:[],
         cantidad:[0,Validators.required],
         valorUnitario:[0,Validators.required],
         ivaInsumo:['',Validators.required],
@@ -78,7 +86,7 @@ export class AddCompraComponent implements OnInit {
   obtenerListaProveedores(): void {
     this._proveedorService.getListProveedoresCompra().subscribe(
       (data: { listProveedores: Proveedor[] }) => {
-        this.sugerenciasProveedores = data.listProveedores;
+        this.sugerenciasProveedores = data.listProveedores.filter(proveedor => proveedor.estado);
       },
       (error: any) => {
         console.error(error);
@@ -87,6 +95,9 @@ export class AddCompraComponent implements OnInit {
   }
 
   buscarProveedores(event: any): void {
+    if(!event.query){
+      this.obtenerListaProveedores();
+    }
     this.sugerenciasProveedores = this.filterProveedores(event.query);
   }
   
@@ -101,7 +112,10 @@ export class AddCompraComponent implements OnInit {
 
   seleccionarProveedor(event: any): void {
     const proveedorId = event.value.id;
+    const proveedorRazonSocial = event.value.razonSocial; 
+
     this.formCompra.get('proveedor')!.setValue(proveedorId);
+    this.formCompra.get('razonSocial')!.setValue(proveedorRazonSocial);
   
     const proveedorSeleccionado = this.sugerenciasProveedores.find(c => c.id === proveedorId);
   
@@ -110,13 +124,17 @@ export class AddCompraComponent implements OnInit {
     }
   }
 
-
+  realizarBusquedaEnTiempoReal(event: any): void {
+    const query = event.target.value;
+    this.obtenerListaProveedores(); // Obtener la lista completa de clientes
+    this.sugerenciasProveedores = this.filterProveedores(query);
+}
 
   /////   METODOS PARA ESCOGER EL INSUMO
   obtenerListaInsumos(): void {
     this._insumoService.getListInsumosCompra().subscribe(
       (data: { listInsumos: InsumoInstance[] }) => {
-        this.sugerenciasInsumos = data.listInsumos;
+        this.sugerenciasInsumos = data.listInsumos.filter(insumo => insumo.estado);;
       },
       (error: any) => {
         console.error(error);
@@ -125,6 +143,9 @@ export class AddCompraComponent implements OnInit {
   }
 
   buscarInsumos(event: any): void {
+    if(!event.query){
+      this.obtenerListaInsumos();
+    }
     this.sugerenciasInsumos = this.filterInsumos(event.query);
   }
   
@@ -137,10 +158,17 @@ export class AddCompraComponent implements OnInit {
 
   seleccionarInsumo(event: any): void {
     const insumoId = event.value.id;
+    const insumoNombre = event.value.nombre
+
     this.formCompra.get('insumo')!.setValue(insumoId);
+    this.formCompra.get('insumoNombre')!.setValue(insumoNombre);
   }
 
-
+  realizarBusquedaEnTiempoRealInsumo(event: any): void {
+    const query = event.target.value;
+    this.obtenerListaInsumos(); // Obtener la lista completa de clientes
+    this.sugerenciasInsumos = this.filterInsumos(query);
+}
 
   /////   METODOS PARA CREAR,MODIFICAR,ELIMINAR DETALLE INSUMO
   agregarInsumo(): void {
@@ -324,5 +352,25 @@ export class AddCompraComponent implements OnInit {
       this.toastr.error('Por favor, complete todos los campos obligatorios.', 'Error de validación');
     }    
   }
-      
+    
+
+  
+  mostrarConfirmacionSalir() {
+    this.confirmationService.confirm({
+      icon: 'pi pi-exclamation-triangle', 
+      header: '¿Deseas salir de la creación?',
+      message: 'Con esta acción perderás todos los cambios que no hayas guardado y no los podrás recuperar.',
+      acceptLabel: 'Salir',
+      rejectLabel: 'Cancelar',
+      accept: () => {
+        this.router.navigate(['/pages/compra']);
+      },
+      reject: () => {
+        // El usuario ha cancelado la acción, no hacer nada
+      }
+    });
+  }
+  
+
+  
 }

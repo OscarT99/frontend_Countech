@@ -16,6 +16,8 @@ import { SalidaInsumoService } from 'src/app/services/insumo/salidaInsumo.servic
 })
 export class InsumoComponent implements OnInit {
 
+    mostrarID:boolean=false;
+
     tipoMaquina: any[] = [
       { label: 'Fileteadora', value: 'Fileteadora' },
       { label: 'Plana', value: 'Plana' },
@@ -43,18 +45,18 @@ export class InsumoComponent implements OnInit {
     modalCrearInsumo:  boolean = false;
     modalSalidaInsumo: boolean = false;
 
-    rowsPerPageOptions = [5, 10, 15];
-
     constructor(private fb:FormBuilder,
       private _insumoService:InsumoService,
       private toastr: ToastrService,      
       private _salidaInsumoService:SalidaInsumoService
       ){
       this.formInsumo=this.fb.group({
-        nombre:['',Validators.required]
+        nombre:['',Validators.required],
+        cantidad:[0]
       }),
       this.formSalidaInsumo=this.fb.group({
         insumo:['',Validators.required],
+        insumoNombre:['',Validators.required],
         cantidad:[0,Validators.required],
         tipoDeMaquina:['',Validators.required]
       })
@@ -84,7 +86,9 @@ export class InsumoComponent implements OnInit {
     }
 
     openSalidaInsumo(){
-      this.modalSalidaInsumo = true
+      this.idInsumo = 0;
+      this.modalSalidaInsumo = true;
+      this.formSalidaInsumo.reset();
     }
 
     addInsumo() {
@@ -93,6 +97,7 @@ export class InsumoComponent implements OnInit {
       if (this.formInsumo.valid) {
         const insumo: InsumoInstance = {
           nombre: this.formInsumo.value.nombre,
+          cantidad:this.formInsumo.value.cantidad
         };
   
         if (this.idInsumo !== 0) {
@@ -129,6 +134,7 @@ export class InsumoComponent implements OnInit {
       this._insumoService.getInsumo(id).subscribe((data: InsumoInstance) => {
         this.formInsumo.setValue({
           nombre: data.nombre,
+          cantidad:data.cantidad
         });
       });
     }
@@ -157,29 +163,41 @@ export class InsumoComponent implements OnInit {
     obtenerListaInsumos(): void {
       this._insumoService.getListInsumosCompra().subscribe(
         (data: { listInsumos: InsumoInstance[] }) => {
-          this.sugerenciasInsumos = data.listInsumos;
+          this.sugerenciasInsumos = data.listInsumos.filter(insumo => insumo.estado);;
         },
         (error: any) => {
           console.error(error);
         }
       );
     }
-
+  
     buscarInsumos(event: any): void {
+      if(!event.query){
+        this.obtenerListaInsumos();
+      }
       this.sugerenciasInsumos = this.filterInsumos(event.query);
     }
-      
+    
     filterInsumos(query: string): InsumoInstance[] {
       return this.sugerenciasInsumos.filter(
         (insumo) =>
           insumo.nombre!.toLowerCase().includes(query.toLowerCase()) 
       );
     }
-    
+  
     seleccionarInsumo(event: any): void {
       const insumoId = event.value.id;
+      const insumoNombre = event.value.nombre
+  
       this.formSalidaInsumo.get('insumo')!.setValue(insumoId);
+      this.formSalidaInsumo.get('insumoNombre')!.setValue(insumoNombre);
     }
+  
+    realizarBusquedaEnTiempoRealInsumo(event: any): void {
+      const query = event.target.value;
+      this.obtenerListaInsumos(); // Obtener la lista completa de clientes
+      this.sugerenciasInsumos = this.filterInsumos(query);
+  }
 
     addInsumoGastado(){
       this.formSalidaInsumo.markAllAsTouched();
@@ -255,4 +273,42 @@ export class InsumoComponent implements OnInit {
       this.showConfirmationSalidaInsumo = true                
     }
      
+    exportToExcel(){
+
+      const data : any[] = []
+
+      const headers = [
+        'Insumo',
+        'Cantidad',
+        'Estado'
+      ];
+
+      data.push(headers)
+
+      this.insumos.forEach(insumo => {
+        const row = [
+          insumo.nombre,
+          {t:'n', v: insumo.cantidad},
+          insumo.estado ? 'Activo' : 'Inactivo'
+        ];
+
+        data.push(row)        
+      });
+
+      const ws: XLSX.WorkSheet = XLSX.utils.aoa_to_sheet(data);
+      const wb: XLSX.WorkBook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb,ws,'Insumos');
+
+      XLSX.writeFile(wb,'insumos.xlsx')      
+    }
+
+    onGlobalFilter(table: Table, event: Event) {
+      table.filterGlobal((event.target as HTMLInputElement).value, 'contains');
+    }
+
+
+    cerrarModalSalidaInsumo(){      
+      this.modalSalidaInsumo = false;
+      this.listInsumosGastados = [];
+    }
 }      

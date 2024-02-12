@@ -11,6 +11,9 @@ import { ToolbarModule } from 'primeng/toolbar';
 import { InputTextModule } from 'primeng/inputtext';
 import { DialogModule } from 'primeng/dialog';
 import { TooltipModule } from 'primeng/tooltip';
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import { TagModule } from 'primeng/tag';
+
 
 @NgModule({
     imports: [
@@ -24,7 +27,9 @@ import { TooltipModule } from 'primeng/tooltip';
         ToolbarModule,
         InputTextModule,
         DialogModule, 
-        TooltipModule                            
+        TooltipModule,
+        ConfirmDialogModule,
+        TagModule                            
     ],
     declarations: [ListPedidoComponent]
 })
