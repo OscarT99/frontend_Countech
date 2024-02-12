@@ -12,5 +12,6 @@ export interface CompraInstance {
     DetalleEnCompras?: DetalleCompraInstance[];
     observaciones?:string;
     estadoCompra?:boolean,
-    motivoDeAnulacion?:string
+    motivoDeAnulacion?:string,
+    estadoPago?: string,
 }

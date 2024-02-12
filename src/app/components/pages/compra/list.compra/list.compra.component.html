@@ -73,13 +73,20 @@
                             <p-tag [value]="getEstadoLabel(compra.estadoCompra)" [severity]="getSeverityCompra(compra.estadoCompra)"></p-tag>
                         </td>
                         <td>
-                            <div class="flex flex-wrap gap-3 "> 
-                                <!-- <button  pTooltip="Editar" style="background:transparent;border:transparent"><i class="fa-sharp fa-solid fa-pencil fa-2xl mt-2" style="color: #FFD43B;"></i></button> -->
-                                
-                                <p-button icon="pi pi-file" [rounded]="true" severity="secondary"
-                                    (click)="mostrarDetalleCompra(compra.id)" pTooltip="Ver detalle"></p-button>
-                                <p-button *ngIf="compra.estadoCompra == true" icon="pi pi-times" [rounded]="true" severity="danger"
-                                    (click)="anularCompra(compra)" pTooltip="Anular"></p-button>
+                            <div class="flex">
+                                <button pButton pRipple icon="pi pi-file" class="p-button-rounded p-button-secondary mr-2"
+                                    (click)="mostrarDetalleCompra(compra.id)" pTooltip="Ver detalle"></button>
+
+                                 <!-- Verificar si la cumple con las condicones para realizar un abono -->
+                                 <button *ngIf="compra.formaPago === 'Crédito' && compra.estadoPago === 'Pendiente' && compra.estadoCompra === true"
+                                 pButton pRipple icon="pi pi-dollar" class="p-button-rounded p-button-success mr-2 mx-2" 
+                                 (click)="newAbonoCompra(compra.id)">
+                                 </button>    
+                                <button *ngIf="compra.estadoCompra == true" pButton pRipple icon="pi pi-times"
+                                    class="p-button-rounded p-button-danger" (click)="anularCompra(compra)"
+                                    pTooltip="Anular"></button>
+                                    
+                                   
                             </div>
                         </td>
                     </tr>
@@ -168,6 +175,38 @@
                     </div>
 
                 </div>
+                <div *ngIf="detalleCompra && detalleCompra.formaPago === 'Crédito'">
+                    <div class="card m-5" [style]="{width: '500px', textAlign: 'center'}">
+                            <h5>Abonos De La Venta {{ id }}</h5>
+                            <p-table #dt [value]="listAbonoCompras" responsiveLayout="scroll" [rows]="10" dataKey="id">
+                                <ng-template pTemplate="header">
+                                    <tr>
+                                        <th pSortableColumn="idAbono">Id Abono</th>
+                                        <th pSortableColumn="fechaAbono">Fecha</th>
+                                        <th pSortableColumn="valorAbono">Valor Abonado</th>
+                                    </tr>
+                                </ng-template>
+                                <ng-template pTemplate="body" let-abonoVenta>
+                                    <tr>
+                                        <td style="width:14%; min-width:5rem;"><span class="p-column-title">Id Abono</span>
+                                            {{ abonoVenta.id }}
+                                        </td>
+                                        <td style="width:14%; min-width:10rem;">
+                                            <span class="p-column-title">Fecha</span>
+                                            {{ abonoVenta.fechaAbono }}
+                                        </td>
+                                        <td style="width:14%; min-width:8rem;">
+                                            <span class= "p-column-title">Valor Abonado</span>
+                                            {{ abonoVenta.valorAbono  }}
+                                        </td>
+                                    </tr>
+                                </ng-template>
+                            </p-table>
+                    </div>
+                    
+                    
+                
+                </div>
 
                 <!-- <button pButton type="button" label="Cerrar" class="p-button-secondary" (click)="cerrarModalDetallePedido()"></button> -->
             </p-dialog>
@@ -183,6 +222,100 @@
                     (click)="confirmActionCompra(false)"></button>
             </p-dialog>
 
-        </div>
+        </div>  
+        
+        <p-dialog [(visible)]="productDialogAbono" [style]="{width: '1000px', height: '500px' }" header="Abono Compra" [modal]="true" class="p-fluid">         
+            <div style="display: flex;">
+                <div style="flex: 1;">    
+                    <form [formGroup]="formAbonoCompra" >
+                        <div class="formgrid grid">
+                            <div class="field col">
+                                <label for="id">Id Compra</label>
+                                    <input formControlName="id" id="id" type="number" pInputText readonly >
+                            </div>
+                            <div class="field col">
+                                <label for="cliente">Proveedor</label>
+                                    <input formControlName= "proveedor"id="proveedor" type="text"  pInputText readonly >
+                            </div>
+                            
+                        </div>
+
+                        <div class="formgrid grid">
+
+                            <div class="field col">
+                                <label for="valorAbono">Total</label>
+                                <div class="p-inputgroup">
+                                    <span class="p-inputgroup-addon">$</span>
+                                    <p-inputNumber formControlName="totalNeto" [readonly]="true"></p-inputNumber>
+
+                                </div>
+                            </div>
+                            <div class="field col">
+                                <label for="valorAbono">Restante</label>
+                                <div class="p-inputgroup">
+                                    <span class="p-inputgroup-addon" readonly>$</span>
+                                    <input type="number" formControlName="valorRestante" [readonly]="true" value="{{ getValorRestante() }}">
+                                </div>
+
+                                  
+                            </div>
+                                                         
+                    
+                        </div>
+                       
+                    </form> 
+                    <div class="mb-2">
+                        <label for="valorAbono">Valor Abono</label>
+                    </div>
+                     
+                    <div class="p-inputgroup">
+                        <span class="p-inputgroup-addon">$</span>
+                        <p-inputNumber  inputId="valorAbono" [(ngModel)]="value9" placeholder="000.000.000" ></p-inputNumber>
+                        <span *ngIf="formAbonoCompra.get('valorAbono')?.hasError('required') && formAbonoCompra.get('valorAbono')?.touched" style="color: red;">
+                            El valor del abono es <strong>requerido</strong>
+                        </span>
+                        <p-toast></p-toast>
+                        <button class="ml-1" (click)="confirm2($event)" pButton icon="pi pi-plus" class="p-button-rounded p-button-success"></button>
+                        <p-confirmPopup key="confirm2"></p-confirmPopup>
+                    </div>
+                </div>
+                <div style="flex: 1;"> 
+                    <div class="card m-5" [style]="{width: '500px', textAlign: 'center'}">
+                            <h5 >Abonos De La Compra {{ id }}</h5>
+                            <p-table #dt [value]="listAbonoCompras" responsiveLayout="scroll" [rows]="10" dataKey="id">
+                                <ng-template pTemplate="header">
+                                    <tr>
+                                        <th pSortableColumn="idAbono">Id Abono</th>
+                                        <th pSortableColumn="fechaAbono">Fecha</th>
+                                        <th pSortableColumn="valorAbono">Valor Abonado</th>
+                                    </tr>
+                                </ng-template>
+                                <ng-template pTemplate="body" let-abonoVenta>
+                                    <tr>
+                                        <td style="width:14%; min-width:5rem;"><span class="p-column-title">Id Abono</span>
+                                            {{ abonoVenta.id }}
+                                        </td>
+                                        <td style="width:14%; min-width:10rem;">
+                                            <span class="p-column-title">Fecha</span>
+                                            {{ abonoVenta.fechaAbono }}
+                                        </td>
+                                        <td style="width:14%; min-width:8rem;">
+                                            <span class= "p-column-title">Valor Abonado</span>
+                                            {{ abonoVenta.valorAbono  }}
+                                        </td>
+                                    </tr>
+                                </ng-template>
+                            </p-table>
+                    </div>
+                    
+                    
+                    
+        
+                
+                </div>
+                
+            </div>
+        </p-dialog>
+    
     </div>
 </div>

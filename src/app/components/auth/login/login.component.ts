@@ -34,7 +34,7 @@ export class LoginComponent {
                     
                     // Redirigir a otra página después del inicio de sesión (por ejemplo, a la página de inicio)
                     // Reemplaza 'home' con la ruta a la página a la que deseas redirigir
-                    this.router.navigate(['/pages/venta']);
+                    this.router.navigate(['/pages/usuario']);
                     console.log(token);
                 },
                 (error) => {
