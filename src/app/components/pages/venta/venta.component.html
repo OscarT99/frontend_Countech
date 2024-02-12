@@ -312,7 +312,12 @@
                         <td>
                             <div class="flex"> 
                                 <button pButton pRipple icon="pi pi-file" class="p-button-rounded p-button-warning mr-2" (click)="mostrarDetallePedido(venta.id)"></button>
-                                <button (click)="newAbonoVenta(venta.id)" pButton pRipple icon="pi pi-dollar" class="p-button-rounded p-button-success mr-2"></button>    
+
+                                <!-- Verificar si la forma de pago es "Crédito" y el estado de pago es "Pendiente" -->
+                                <button *ngIf="venta.formaPago === 'Crédito' && venta.estadoPago === 'Pendiente'"
+                                pButton pRipple icon="pi pi-dollar" class="p-button-rounded p-button-success mr-2" 
+                                (click)="newAbonoVenta(venta.id)">
+                                </button>
                             </div>
                             
                         </td>
@@ -529,7 +534,7 @@
 
 
 
-                    <div> 
+                    <div *ngIf="detallePedido && detallePedido.formaPago === 'Crédito'">
                         <div class="card m-5" [style]="{width: '500px', textAlign: 'center'}">
                                 <h5>Abonos De La Venta {{ id }}</h5>
                                 <p-table #dt [value]="listAbonoVentas" responsiveLayout="scroll" [rows]="10" dataKey="id">

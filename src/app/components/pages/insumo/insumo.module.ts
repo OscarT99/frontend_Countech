@@ -19,6 +19,7 @@ import { DialogModule } from 'primeng/dialog';
 import { AutoCompleteModule } from "primeng/autocomplete";
 import { InputSwitchModule } from 'primeng/inputswitch';
 import { TabViewModule } from 'primeng/tabview';
+import { TooltipModule } from 'primeng/tooltip';
 
 @NgModule({
     imports: [
@@ -41,7 +42,8 @@ import { TabViewModule } from 'primeng/tabview';
         AutoCompleteModule,
         ReactiveFormsModule,
         InputSwitchModule,
-        TabViewModule,                     
+        TabViewModule,
+        TooltipModule                     
     ],
     declarations: [InsumoComponent]
 })

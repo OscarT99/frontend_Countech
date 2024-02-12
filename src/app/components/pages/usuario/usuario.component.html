@@ -8,12 +8,12 @@
             <p-toolbar styleClass="mb-4">
                 <ng-template pTemplate="left">
                     <div class="my-2">
-                        <button pButton pRipple label="Nuevo" icon="pi pi-plus" class="p-button-success mr-2" (click)="openNew()"></button>                        
+                        <button pButton pRipple label="Registrar Usuario" icon="pi pi-plus" class="p-button mr-2" (click)="openNew()"></button>                        
                     </div>
                 </ng-template>
 
                 <ng-template pTemplate="right">                    
-                    <button pButton pRipple label="Excel" icon="pi pi-file-excel"  class="p-button-help" (click)="exportToExcel()"></button>
+                    <button pButton pRipple label="Excel" icon="pi pi-file-excel"  class="p-button-success" (click)="exportToExcel()"></button>
                 </ng-template>
             </p-toolbar>
             
@@ -53,7 +53,7 @@
                             <span class="p-column-title">Estado</span>
                             <div class="d-flex align-items-center">
                                 <p-inputSwitch class="mr-2" [(ngModel)]="usuario.estado" (click)="showConfirmation(usuario)"></p-inputSwitch>
-                                <button pButton pRipple icon="pi pi-pencil" class="p-button-rounded p-button-success mr-2" (click)="editProduct(usuario.id)"></button>
+                                <button pButton pRipple icon="pi pi-pencil" class="p-button-rounded p-button-warning mr-2" (click)="editProduct(usuario.id)"></button>
                             </div>
                         </td>
                         

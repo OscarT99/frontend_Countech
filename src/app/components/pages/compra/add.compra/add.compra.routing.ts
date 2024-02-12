@@ -4,7 +4,7 @@ import { AddCompraComponent } from './add.compra.component';
 
 @NgModule({
 	imports: [RouterModule.forChild([
-		{ path: ':id', component: AddCompraComponent }		 
+		{ path: '', component: AddCompraComponent }		 
 	])],
 	exports: [RouterModule]
 })

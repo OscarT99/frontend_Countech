@@ -882,6 +882,8 @@ confirm2(event: Event) {
 
 
 
+
+
   //DETALLE VENTA
   detalleVenta(id: number) {
     this.id = id;
@@ -905,5 +907,31 @@ confirm2(event: Event) {
     }
   }
   
+
+/*
+  marcarComoPagada(): void {
+    const valorRestante = this.getValorRestante();
+    if (valorRestante === 0) {
+        
+        // Llama al servicio para actualizar el estado de pago a "Pago"
+        this._ventaService.putVenta(this.venta.id, 'Pago').subscribe(
+            () => {
+                this.toastr.success('La venta se ha marcado como pagada correctamente.', 'Venta Pagada');
+                // Realiza cualquier otra lógica necesaria después de marcar la venta como pagada
+                // Por ejemplo, volver a cargar la lista de ventas
+                this.getListVentas();
+            },
+            (error) => {
+                console.error('Error al marcar la venta como pagada:', error);
+                this.toastr.error('Hubo un error al marcar la venta como pagada.', 'Error');
+            }
+        );
+    } else {
+        // Muestra un mensaje de advertencia si el valor restante es diferente de 0
+        this.toastr.warning('La venta no se puede marcar como pagada porque el valor restante es diferente de 0.', 'Advertencia');
+    }
+}*/
+
 }
+
 

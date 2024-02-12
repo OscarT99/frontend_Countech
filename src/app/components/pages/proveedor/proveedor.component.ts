@@ -24,6 +24,9 @@ export class ProveedorComponent implements OnInit {
     proveedorSeleccionado: Proveedor | null = null;
     switchState: boolean | undefined = undefined;
 
+    detalleProveedor: any;
+    mostrarModalDetalle: boolean = false;
+
     tipoProveedor = [
       { label: 'Empresa', value: 'Empresa' },
       { label: 'Persona', value: 'Persona' }
@@ -115,7 +118,6 @@ export class ProveedorComponent implements OnInit {
           contacto: this.formProveedor.value.contacto,
           telefono: this.formProveedor.value.telefono,
           correo: this.formProveedor.value.correo,
-          estado: this.formProveedor.value.estado,
          }
     
          if(this.id !== 0){
@@ -183,6 +185,10 @@ export class ProveedorComponent implements OnInit {
       return this.formProveedor.get('tipoIdentificacion')?.value === 'NIT';
     }
 
+    get isNITDetalle(): boolean {
+      return this.detalleProveedor.tipoIdentificacion === 'NIT';
+    }
+
     exportToExcel() {
       const data: any[] = []; // Array para almacenar los datos
     
@@ -221,5 +227,13 @@ export class ProveedorComponent implements OnInit {
       XLSX.writeFile(wb, 'Proveedores.xlsx');
     }
     
-            
+    async mostrarDetalleProveedor(id: number) {
+      try {
+        this.detalleProveedor = await this._proveedorService.getProveedor(id).toPromise();
+        this.mostrarModalDetalle = true;
+      } catch (error) {
+        console.error('Error al obtener el detalle del proveedor:', error);
+      }
+    }  
+
 }

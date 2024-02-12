@@ -12,6 +12,7 @@ import { InputTextModule } from 'primeng/inputtext';
 import { DialogModule } from 'primeng/dialog';
 import { ConfirmPopupModule } from 'primeng/confirmpopup';
 import { InputNumberModule } from 'primeng/inputnumber';
+import { TooltipModule } from 'primeng/tooltip';
 
 @NgModule({
     imports: [
@@ -28,8 +29,7 @@ import { InputNumberModule } from 'primeng/inputnumber';
         ConfirmPopupModule, 
         InputNumberModule,
         ReactiveFormsModule,
-
-
+        TooltipModule                            
     ],
     declarations: [ListCompraComponent]
 })

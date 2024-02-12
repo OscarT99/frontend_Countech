@@ -25,11 +25,7 @@ import { Observable, catchError } from 'rxjs';
     postCompra(compra : CompraInstance):Observable<void>{
       return this.http.post<void>(`${this.myAppUrl}${this.myApiUrl}`,compra)
     }
-  
-    putCompra(id:number,compra:CompraInstance):Observable<void>{
-      return this.http.put<void>(`${this.myAppUrl}${this.myApiUrl}${id}`,compra)
-    }
-
+      
     anularCompra(id: number, estadoCompra: boolean, motivoDeAnulacion: string): Observable<any> {
       const url = `${this.myAppUrl}${this.myApiUrl}anularCompra/${id}`;
       const body = { estadoCompra, motivoDeAnulacion }; // Agregamos el estado y el motivo al cuerpo
@@ -41,7 +37,7 @@ import { Observable, catchError } from 'rxjs';
                   throw error;
               })
           );
-  }
+    }
   
 
   }

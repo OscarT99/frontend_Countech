@@ -50,27 +50,12 @@ export class ListCompraComponent implements OnInit {
       private confirmationService: ConfirmationService,
       private messageService: MessageService,
       ){    
-
         this.formAbonoCompra = this.fb.group({
             id: ['', Validators.required],
             proveedor:['',Validators.required],
-            numeroFactura:['',Validators.required],
-            fechaCompra:['',Validators.required],
-            contacto:[{ value: '', disabled: true}],
-            insumo:['',Validators.required],
-            cantidad:[0,Validators.required],
-            valorUnitario:[0,Validators.required],
-            ivaInsumo:['',Validators.required],
-            formaPago:['',Validators.required],
-            totalBruto:['',Validators.required],
-            ivaTotal:['',Validators.required],
             totalNeto:['',Validators.required],
-            observaciones:[''],
-            idTemporal:[null],
             estadoPago: ['', Validators.required],
             valorRestante: [{ value: 0, disabled: true }],
-
-
         })
         this.aRouter.params.subscribe(params => {
             this.id = +params['id'];
@@ -89,18 +74,9 @@ export class ListCompraComponent implements OnInit {
         })        
     }
 
-    onGlobalFilter(table: Table, event: Event) {
-        table.filterGlobal((event.target as HTMLInputElement).value, 'contains');
-    }
-        
-    editarCompra(id: number): void {
-        this.router.navigate(['/pages/compra/add', id]);
-      }
-
-      async mostrarDetalleCompra(id: number) {
+    async mostrarDetalleCompra(id: number) {
         try {
             this.detalleCompra = await this._compraService.getCompra(id).toPromise();
-            console.log('Detalle de la compra:', this.detalleCompra);
             this.mostrarModalDetalle = true;
         } catch (error) {
             console.error('Error al obtener el detalle de la compra:', error);
@@ -283,8 +259,8 @@ export class ListCompraComponent implements OnInit {
                 summary: 'Agregado',
                 detail: 'El abono se agregó exitosamente a la compra'
                 });
-                this.getListAbonoCompras(); // Actualiza la lista de abonos de venta después de agregar uno nuevo
-                //this.hideDialog(); // Cierra el diálogo después de agregar el abono de venta
+                this.getListAbonoCompras(); // Actualiza la lista de abonos de compra después de agregar uno nuevo
+                //this.hideDialog(); // Cierra el diálogo después de agregar el abono de compra
             },
             (error) => {
                 console.error('Error al agregar abono de compra:', error);
@@ -322,8 +298,12 @@ export class ListCompraComponent implements OnInit {
         }
     }
   
+
+
+
+    
+    
     getValorRestante(): number {
-        console.log('Valor de this.id:', this.id); 
         if (
           this.compra &&
           this.compra.totalNeto !== undefined &&
@@ -350,9 +330,10 @@ export class ListCompraComponent implements OnInit {
           }
         }
       
-        // Si no hay abonos relacionados o si falta información, devuelve el valor total de la venta o 0 si no está definido
+        // Si no hay abonos relacionados o si falta información, devuelve el total neto de la compra o 0 si no está definido
         return this.compra && this.compra.totalNeto !== undefined ? parseFloat(this.compra.totalNeto.toString()) : 0;
     }
+    
     
     
 }

@@ -1,48 +1,56 @@
 <div class="grid">
     <div class="col-12">
 
-        <div class="card px-6 py-6">            
+        <div class="card px-6 py-6">
             <p-toolbar styleClass="mb-4">
                 <ng-template pTemplate="left">
                     <div class="my-2">
-                        <button pButton pRipple label="Nuevo" icon="pi pi-plus" class="p-button-success mr-2" (click)="openNew()"></button>                        
+                        <button pButton pRipple label="Crear cliente" icon="pi pi-plus"
+                            (click)="openNew()"></button>
                     </div>
                 </ng-template>
 
-                <ng-template pTemplate="right">                    
-                    <button pButton pRipple label="Exportar" icon="pi pi-upload" class="p-button-help" (click)="exportToExcel()"></button>
+                <ng-template pTemplate="right">
+                    <button pButton class="p-button-success" label="Excel" icon="pi pi-file-excel" pTooltip="Descargar"
+                        (click)="exportToExcel()"></button>
                 </ng-template>
             </p-toolbar>
 
-            <p-table #dt [value]="listClientes"  responsiveLayout="scroll" [rows]="10" [globalFilterFields]="['razonSocial','nombreComercial','numeroIdentificacion','telefono','correo','ciudad','contacto','direccion']" [paginator]="true" [rowsPerPageOptions]="[5,10,15]" [showCurrentPageReport]="true" currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries" [rowHover]="true" dataKey="id">
+            <p-table #dt [value]="listClientes" responsiveLayout="scroll" [rows]="10"
+                [globalFilterFields]="['razonSocial','nombreComercial','numeroIdentificacion','telefono','correo','ciudad','contacto','direccion']"
+                [paginator]="true" [rowsPerPageOptions]="[5,10,15]" [showCurrentPageReport]="true"
+                currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries" [rowHover]="true"
+                dataKey="id">
                 <ng-template pTemplate="caption">
                     <div class="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
                         <h5 class="m-0">Lista de Clientes</h5>
                         <span class="block mt-2 md:mt-0 p-input-icon-left">
                             <i class="pi pi-search"></i>
-                            <input pInputText type="text" (input)="onGlobalFilter(dt, $event)" placeholder="Buscar..."  class="w-full sm:w-auto"/>
+                            <input pInputText type="text" (input)="onGlobalFilter(dt, $event)" placeholder="Buscar..."
+                                class="w-full sm:w-auto" />
                         </span>
                     </div>
                 </ng-template>
                 <ng-template pTemplate="header">
-                    <tr>                        
+                    <tr>
                         <th pSortableColumn="tipoCliente">Tipo<p-sortIcon field="tipoCliente"></p-sortIcon></th>
-                        <th pSortableColumn="numeroIdentificacion">N° Identificación<p-sortIcon field="numeroIdentificacion"></p-sortIcon></th>                        
+                        <th pSortableColumn="numeroIdentificacion">N° Identificación<p-sortIcon
+                                field="numeroIdentificacion"></p-sortIcon></th>
                         <th pSortableColumn="razonSocial">Razon Social<p-sortIcon field="razonSocial"></p-sortIcon></th>
                         <th pSortableColumn="telefono">Télefono<p-sortIcon field="telefono"></p-sortIcon></th>
-                        <th pSortableColumn="correo">Email<p-sortIcon field="correo"></p-sortIcon></th>                        
+                        <th pSortableColumn="correo">Email<p-sortIcon field="correo"></p-sortIcon></th>
                         <th></th>
                     </tr>
                 </ng-template>
                 <ng-template pTemplate="body" let-cliente>
-                    <tr>                        
+                    <tr>
                         <td style="width:14%; min-width:5rem;"><span class="p-column-title">Tipo</span>
                             {{ cliente.tipoCliente }}
                         </td>
                         <td style="width:14%; min-width:10rem;">
                             <span class="p-column-title">N° Identificación</span>
                             {{ cliente.numeroIdentificacion }}
-                        </td>                        
+                        </td>
                         <td style="width:14%; min-width:8rem;">
                             <span class="p-column-title">Razon Social</span>
                             {{ cliente.razonSocial }}
@@ -50,130 +58,142 @@
                         <td style="width:14%; min-width:10rem;">
                             <span class="p-column-title">Telefono</span>
                             {{ cliente.telefono }}
-                        </td>  
+                        </td>
                         <td style="width:14%; min-width:10rem;">
                             <span class="p-column-title">Email</span>
                             {{ cliente.correo }}
-                        </td>                        
-                        <td style="width:14%; min-width: 5rem;"><span class="p-column-title">Estado</span>
+                        </td>
+                        <td style="width:20%; min-width:5rem;"><span class="p-column-title">Estado</span>
                             <p-inputSwitch (click)="showConfirmation(cliente)"
                                 class="mt-2 {{ cliente.estado ? 'p-inputswitch-success' : 'p-inputswitch-warning' }}"
-                                [(ngModel)]="cliente.estado">
+                                [(ngModel)]="cliente.estado" pTooltip="Cambiar estado">
                             </p-inputSwitch>
-                            <button pButton pRipple icon="pi pi-pencil" class="p-button-rounded p-button-success mr-2" (click)="editProduct(cliente.id)"></button>
-                        </td>                        
+                            <button pButton pRipple icon="pi pi-file" class="p-button-rounded p-button-secondary mr-2"
+                                (click)="mostrarDetalleCliente(cliente.id)" pTooltip="Ver detalle"></button>
+                            <button pButton pRipple icon="pi pi-pencil" class="p-button-rounded p-button-warning mr-2"
+                                (click)="editProduct(cliente.id)" pTooltip="Editar"></button>
+                        </td>
                     </tr>
                 </ng-template>
-            </p-table>            
+            </p-table>
         </div>
 
-        <p-dialog [(visible)]="productDialog" [style]="{width: '500px'}" header="Nuevo Cliente" [modal]="true" class="p-fluid">            
-                <form [formGroup]="formCliente" (ngSubmit)="addCliente()">
-                    <div class="formgrid grid">
-                        <div class="field col">
-                            <p-dropdown formControlName="tipoCliente" [options]="tiposDeCliente"  placeholder="Seleccione un tipo" ></p-dropdown>
-                            <span *ngIf="formCliente.get('tipoCliente')?.hasError('required') && formCliente.get('tipoCliente')?.touched" style="color: red;">
-                                El Tipo de cliente es <strong>requerido</strong>
-                            </span>                        
-                        </div>
-                        <div class="field col">
-                            <p-dropdown formControlName="tipoIdentificacion" [options]="tipoIdentificacion" placeholder="Tipo Documento"></p-dropdown>
-                            <small *ngIf="formCliente.get('tipoIdentificacion')?.hasError('required') && formCliente.get('tipoIdentificacion')?.touched" style="color: red;">
-                                El Tipo de identificación es <strong>requerido</strong>
-                            </small>
-                        </div>
+        <p-dialog [(visible)]="productDialog" [style]="{width: '500px'}" header="Nuevo Cliente" [modal]="true"
+            class="p-fluid">
+            <form [formGroup]="formCliente" (ngSubmit)="addCliente()">
+                <div class="formgrid grid">
+                    <div class="field col">
+                        <p-dropdown formControlName="tipoCliente" [options]="tiposDeCliente"
+                            placeholder="Seleccione un tipo"></p-dropdown>
+                        <span
+                            *ngIf="formCliente.get('tipoCliente')?.hasError('required') && formCliente.get('tipoCliente')?.touched"
+                            style="color: red;">
+                            El Tipo de cliente es <strong>requerido</strong>
+                        </span>
                     </div>
+                    <div class="field col">
+                        <p-dropdown formControlName="tipoIdentificacion" [options]="tipoIdentificacion"
+                            placeholder="Tipo Documento"></p-dropdown>
+                        <small
+                            *ngIf="formCliente.get('tipoIdentificacion')?.hasError('required') && formCliente.get('tipoIdentificacion')?.touched"
+                            style="color: red;">
+                            El Tipo de identificación es <strong>requerido</strong>
+                        </small>
+                    </div>
+                </div>
 
-                    <div class="formgrid grid mt-2">
-                        <div class="field col mt-2">
-                            <span class="p-float-label ">
-                                <p-inputMask *ngIf="formCliente.get('tipoIdentificacion')?.value === 'NIT'"  formControlName="numeroIdentificacion" mask="999999999-9"></p-inputMask>
-                                <input *ngIf="formCliente.get('tipoIdentificacion')?.value != 'NIT'" formControlName="numeroIdentificacion" id="numeroIdentificacion" pInputText>
-                                <label for="numeroIdentificacion">N° Identificación</label>
-                            </span>
-                            <small *ngIf="formCliente.get('numeroIdentificacion')?.hasError('required') && formCliente.get('numeroIdentificacion')?.touched" style="color: red;">
-                                El numero Identificación es <strong>requerido</strong>
-                            </small>                                                                               
-                        </div>
-                        <div class="field col mt-2">
-                            <span class="p-float-label">
-                                <input formControlName="razonSocial" id="razonSocial" type="text" pInputText>
-                                <label for="razonSocial">{{ isNIT ? 'Razon Social' : 'Nombres' }}</label>
-                            </span>
-                            <small *ngIf="formCliente.get('razonSocial')?.hasError('required') && formCliente.get('razonSocial')?.touched" style="color: red;">
-                                {{ isNIT ? 'La razón social es' : 'El nombre es' }} <strong>requerido</strong>
-                            </small>                              
-                        </div>
+                <div class="formgrid grid mt-2">
+                    <div class="field col mt-2">
+                        <span class="p-float-label ">
+                            <p-inputMask *ngIf="formCliente.get('tipoIdentificacion')?.value === 'NIT'"
+                                formControlName="numeroIdentificacion" mask="999999999-9"></p-inputMask>
+                            <input *ngIf="formCliente.get('tipoIdentificacion')?.value != 'NIT'"
+                                formControlName="numeroIdentificacion" id="numeroIdentificacion" pInputText>
+                            <label for="numeroIdentificacion">N° Identificación</label>
+                        </span>
+                        <small
+                            *ngIf="formCliente.get('numeroIdentificacion')?.hasError('required') && formCliente.get('numeroIdentificacion')?.touched"
+                            style="color: red;">
+                            El numero Identificación es <strong>requerido</strong>
+                        </small>
                     </div>
+                    <div class="field col mt-2">
+                        <span class="p-float-label">
+                            <input formControlName="razonSocial" id="razonSocial" type="text" pInputText>
+                            <label for="razonSocial">{{ isNIT ? 'Razon Social' : 'Nombres' }}</label>
+                        </span>
+                        <small
+                            *ngIf="formCliente.get('razonSocial')?.hasError('required') && formCliente.get('razonSocial')?.touched"
+                            style="color: red;">
+                            {{ isNIT ? 'La razón social es' : 'El nombre es' }} <strong>requerido</strong>
+                        </small>
+                    </div>
+                </div>
 
-                    <div class="formgrid grid mt-2">
-                        <div class="field col mt-2">
-                            <span class="p-float-label ">
-                                <input formControlName="nombreComercial" id="nombreComercial" type="text" pInputText>
-                                <label for="nombreComercial">{{ isNIT ? 'Nombre Comercial' : 'Apellidos' }}</label>
-                            </span>
-                            <small *ngIf="formCliente.get('nombreComercial')?.hasError('required') && formCliente.get('nombreComercial')?.touched" style="color: red;">
-                                {{ isNIT ? 'El nombre comercial es ' : 'El apellido es' }} <strong>requerido</strong>
-                            </small>                                               
-                        </div>
-                        <div class="field col mt-2">
-                            <span class="p-float-label ">
-                                <input formControlName="ciudad" id="ciudad" type="text" pInputText>
-                                <label for="nombreComercial">Ciudad</label>
-                            </span>
-                            <small *ngIf="formCliente.get('ciudad')?.hasError('required') && formCliente.get('ciudad')?.touched" style="color: red;">
-                                La ciudad es <strong>requerida</strong>
-                            </small>
-                        </div>
+                <div class="formgrid grid mt-2">
+                    <div class="field col mt-2">
+                        <span class="p-float-label ">
+                            <input formControlName="nombreComercial" id="nombreComercial" type="text" pInputText>
+                            <label for="nombreComercial">{{ isNIT ? 'Nombre Comercial' : 'Apellidos' }}</label>
+                        </span>
+                        <small
+                            *ngIf="formCliente.get('nombreComercial')?.hasError('required') && formCliente.get('nombreComercial')?.touched"
+                            style="color: red;">
+                            {{ isNIT ? 'El nombre comercial es ' : 'El apellido es' }} <strong>requerido</strong>
+                        </small>
                     </div>
+                    <div class="field col mt-2">
+                        <span class="p-float-label ">
+                            <input formControlName="ciudad" id="ciudad" type="text" pInputText>
+                            <label for="nombreComercial">Ciudad</label>
+                        </span>
+                        <small
+                            *ngIf="formCliente.get('ciudad')?.hasError('required') && formCliente.get('ciudad')?.touched"
+                            style="color: red;">
+                            La ciudad es <strong>requerida</strong>
+                        </small>
+                    </div>
+                </div>
 
-                    <div class="formgrid grid mt-2">
-                        <div class="field col mt-2">
-                            <span class="p-float-label">
-                                <input formControlName="direccion" id="direccion" type="text" pInputText>
-                                <label for="direccion">Dirección</label>
-                            </span>                       
-                        </div>
-                        <div class="field col mt-2">
-                            <span class="p-float-label">
-                                <input formControlName="contacto" id="contacto" type="text" pInputText>
-                                <label for="contacto">Contacto</label>
-                            </span>
-                        </div>
+                <div class="formgrid grid mt-2">
+                    <div class="field col mt-2">
+                        <span class="p-float-label">
+                            <input formControlName="direccion" id="direccion" type="text" pInputText>
+                            <label for="direccion">Dirección</label>
+                        </span>
                     </div>
-    
-                    <div class="formgrid grid mt-2">
-                        <div class="field col mt-2">
-                            <span class="p-float-label">
-                                <p-inputMask mask="(999) 999-9999" formControlName="telefono"></p-inputMask>
-                                <label for="telefono">Télefono</label>
-                            </span>                       
-                        </div>
-                        <div class="field col mt-2">
-                            <span class="p-float-label">
-                                <input formControlName="correo" id="correo" type="text" pInputText>
-                                <label for="correo">Email</label>
-                            </span>
-                        </div>
+                    <div class="field col mt-2">
+                        <span class="p-float-label">
+                            <input formControlName="contacto" id="contacto" type="text" pInputText>
+                            <label for="contacto">Contacto</label>
+                        </span>
                     </div>
-    
-                    <div class="formgrid mt-3" *ngIf="id!=0">                   
-                        <p-dropdown formControlName="estado" [options]="estados" [style]="{'width': '48%'}"></p-dropdown>                   
+                </div>
+
+                <div class="formgrid grid mt-2">
+                    <div class="field col mt-2">
+                        <span class="p-float-label">
+                            <p-inputMask mask="(999) 999-9999" formControlName="telefono"></p-inputMask>
+                            <label for="telefono">Télefono</label>
+                        </span>
                     </div>
-                                
-                    
-                    <div><button pButton pRipple label="Cancelar" type="button" icon="pi pi-times" class="p-button-text" (click)="hideDialog()"></button></div>
-                    <div><button type="submit" pButton pRipple label="Guadar" icon="pi pi-check" class="p-button-text" ></button></div>                        
-                                                                                                                                                                  
-                </form>                                                                      
+                    <div class="field col mt-2">
+                        <span class="p-float-label">
+                            <input formControlName="correo" id="correo" type="text" pInputText>
+                            <label for="correo">Email</label>
+                        </span>
+                    </div>
+                </div>
+
+                <div><button pButton pRipple label="Cancelar" type="button" icon="pi pi-times" class="p-button-text"
+                        (click)="hideDialog()"></button></div>
+                <div><button type="submit" pButton pRipple label="Guadar" icon="pi pi-check"
+                        class="p-button-text"></button></div>
+
+            </form>
         </p-dialog>
 
-        <p-dialog
-            [(visible)]="showConfirmationDialog"
-            header="Confirmación"
-            [modal]="true"
-            [closable]="false"
-            >
+        <p-dialog [(visible)]="showConfirmationDialog" header="Confirmación" [modal]="true" [closable]="false">
             <p>
                 ¿Está seguro de que desea
                 {{ clienteSeleccionado?.estado ? 'activar' : 'desactivar' }} el cliente?
@@ -182,6 +202,73 @@
             <button pButton type="button" label="No" icon="pi pi-times" (click)="confirmAction(false)"></button>
         </p-dialog>
 
-          
+        <p-dialog header="Detalle del cliente" [(visible)]="mostrarModalDetalle" [modal]="true" [responsive]="true"
+            [style]="{ width: '40vw' }">
+            <div *ngIf="detalleCliente">
+                <div class="grid mt-1">
+                    <div class="col-6">
+                        <span style="font-weight: bold;">Tipo Cliente:</span>
+                        <div>
+                            <span>{{ detalleCliente.tipoCliente }}</span>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <span style="font-weight: bold;">Tipo Identificación:</span>
+                        <div>
+                            <span>{{ detalleCliente.tipoIdentificacion }}</span>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <span style="font-weight: bold;">N° Identificación:</span>
+                        <div>
+                            <span>{{ detalleCliente.numeroIdentificacion }}</span>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <span style="font-weight: bold;">{{ isNITDetalle ? 'Razon Social' : 'Nombres' }}</span>
+                        <div>
+                            <span>{{ detalleCliente.razonSocial }}</span>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <span style="font-weight: bold;">{{ isNITDetalle ? 'Nombre Comercial' : 'Apellidos' }}</span>
+                        <div>
+                            <span>{{ detalleCliente.nombreComercial }}</span>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <span style="font-weight: bold;">Ciudad:</span>
+                        <div>
+                            <span>{{ detalleCliente.ciudad }}</span>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <span style="font-weight: bold;">Dirección Residencia:</span>
+                        <div>
+                            <span>{{ detalleCliente.direccion }}</span>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <span style="font-weight: bold;">Contacto:</span>
+                        <div>
+                            <span>{{ detalleCliente.contacto }}</span>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <span style="font-weight: bold;">Télefono:</span>
+                        <div>
+                            <span>{{ detalleCliente.telefono }}</span>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <span style="font-weight: bold;">Email:</span>
+                        <div>
+                            <span>{{ detalleCliente.correo }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </p-dialog>
+
     </div>
 </div>
