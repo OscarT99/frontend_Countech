@@ -1,7 +1,9 @@
+import { EmpleadoProcesos } from "./empleadoProcesos.interface";
+
 export interface Empleado {
-    idEmpleado?: number;
-    tipoIdentificacion?: string;
-    numeroIdentificacion?: string;
+    id?: number;
+    tipoIdentidad?: string;
+    numIdentidad?: string;
     nombre?: string;
     apellido?: string;
     correo?: string;
@@ -10,5 +12,8 @@ export interface Empleado {
     direccion?: string;
     fechaIngreso?: Date;
     estado?: boolean;
-    estadoProduccion?: boolean;
+    estadoOcupado?: boolean;
+    EmpleadoProcesos?: EmpleadoProcesos[]; 
+
   }
+

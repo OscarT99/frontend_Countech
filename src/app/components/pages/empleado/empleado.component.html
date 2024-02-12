@@ -5,214 +5,237 @@
       <p-toolbar styleClass="mb-4">
           <ng-template pTemplate="left">
               <div class="my-2">
-                  <button pButton pRipple label="Nuevo empleado" icon="pi pi-plus" class="p-button-success mr-2" (click)="nuevoEmpleado()"></button>
-                  <!-- <button pButton pRipple label="Delete" icon="pi pi-trash" class="p-button-danger" (click)="deleteSelectedProducts()" [disabled]="!selectedProducts || !selectedProducts.length"></button> -->
+                  <p-button label="Nuevo empleado" icon="pi pi-plus" severity="succes" size="small" (click)="showCreateDialog()"></p-button>
               </div>
           </ng-template>
 
           <ng-template pTemplate="right">
-              <!-- <p-fileUpload mode="basic" accept="image/*" [maxFileSize]="1000000" label="Import" chooseLabel="Import" class="mr-2 inline-block"></p-fileUpload> -->
-              <!-- <button pButton pRipple label="Export" icon="pi pi-upload" class="p-button-help" (click)="dt.exportCSV()"></button> -->
           </ng-template>
       </p-toolbar>
     
-      <p-table #dt [value]="listEmpleados" [columns]="cols" selectionMode="single" [(selection)]="selectedProduct" [showCurrentPageReport]="true" [globalFilterFields]="['nombre','apellido']" currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} registros" [rowHover]="true" dataKey="id"[rows]="5" [paginator]="true" [rowsPerPageOptions]="[5,10,15]">
+      <p-table [value]="listEmpleados" dataKey="nombre" [tableStyle]="{'min-width': '60rem'}">
         <ng-template pTemplate="caption">
-          <div class="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
-              <h5 class="m-0">Empleados</h5>
-              <span class="block mt-2 md:mt-0 p-input-icon-left">
+          <div class="flex align-items-center justify-content-between">
+              Empleados
+              <!-- <span class="block mt-2 md:mt-0 p-input-icon-left">
                   <i class="pi pi-search"></i>
                   <input pInputText type="text" (input)="onGlobalFilter(dt, $event)" placeholder="Buscar..."  class="w-full sm:w-auto"/>
-              </span>
+              </span> -->
           </div>
       </ng-template>
         <ng-template pTemplate="header">
           <tr>
             <!-- <th pSortableColumn="id">Id<p-sortIcon field="id"></p-sortIcon></th> -->
-            <th>Tipo de identidad</th>
-            <th>N° Identificación</th>
-            <th pSortableColumn="nombre">Nombres<p-sortIcon field="nombre"></p-sortIcon></th>
-            <th pSortableColumn="apellido">Apellidos<p-sortIcon field="apellido"></p-sortIcon></th>
-            <!-- <th>Correo electrónico</th> -->
-            <!-- <th>Teléfono</th> -->
-            <!-- <th>Ciudad</th> -->
-            <!-- <th>Dirección</th> -->
-            <!-- <th>Fecha ingreso</th> -->
+            <th style="width: 5rem"></th>
+            <th>Tipo de identificación</th>
+            <th>Número de identificación</th>
+            <th>Nombres</th>
+            <th>Apellidos</th>
             <th>Estado</th>
+            <th>Estado producción</th>
             <th>Acciones</th>
           </tr>
         </ng-template>
-        <ng-template pTemplate="body" let-empleado>
+        <ng-template pTemplate="body" let-empleado let-expanded="expanded">
           <tr>
-            <!-- <td>{{ empleado.idEmpleado }}</td> -->
-            <!-- <td style="width:14%; min-width:5rem;"><span class="p-column-title">Id</span>
-              {{empleado.idEmpleado }}
-            </td> -->
-            <td style="width:14%; min-width:11rem;"><span class="p-column-title">Tipo identidad</span>
-              {{ empleado.tipoIdentificacion }}
+            <td>
+              <button type="button" pButton pRipple [pRowToggler]="empleado" class="p-button-text p-button-rounded p-button-plain" [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"></button>
             </td>
-            <td style="width:14%; min-width:11rem;"><span class="p-column-title">Nro. identidad</span>
-              {{ empleado.numeroIdentificacion }}
-            </td>
-            <td style="width:14%; min-width:11rem;"><span class="p-column-title">Nombres</span>
-              {{ empleado.nombre }}
-            </td>
-            <td style="width:14%; min-width:11rem;"><span class="p-column-title">Apellidos</span>
-              {{ empleado.apellido }}
-            </td>
-            <!-- <td style="width:14%; min-width:10rem;"><span class="p-column-title">Correo</span>
-              {{ empleado.correo }}s
-            </td> -->
-            <!-- <td style="width:14%; min-width:12rem;"><span class="p-column-title">Telefono</span>
-              {{ empleado.telefono }}
-            </td> -->
-            <!-- <td>{{ empleado.ciudad }}</td> -->
-            <!-- <td>{{ empleado.direccion }}</td> -->
-            <!-- <td>{{ empleado.fechaIngreso }}</td> -->
+            <td>{{ empleado.tipoIdentidad }}</td>
+            <td>{{ empleado.numIdentidad }}</td>
+            <td>{{ empleado.nombre }}</td>
+            <td>{{ empleado.apellido }}</td>
             
-            <td>
+            <!-- <td>
               <p-inputSwitch [(ngModel)]="empleado.estado" (click)="cambiarEstado(empleado)"></p-inputSwitch>
-            </td>
-            <td>
+            </td> -->
+            <!-- <td>
                   <div class="flex">
                       <button pButton pRipple icon="pi pi-info" class="p-button-rounded p-button-info mr-2" (click)="infoEmpleado(empleado.idEmpleado)"></button>
                       <button pButton pRipple icon="pi pi-pencil" class="p-button-rounded p-button-warning" (click)="editProduct(empleado.idEmpleado)"></button>
                   </div>
+            </td> -->
+            <td><p-tag [value]="changeEstado(empleado.estado)" [severity]="getEstado(empleado.estado)"></p-tag></td>
+            <td><p-tag [value]="changeEstadoProd(empleado.estadoOcupado)" [severity]="getEstadoProd(empleado.estadoOcupado)"></p-tag></td>
+            <td>
+              <div class="flex gap-2 justify-content-center">
+                <p-button label="Info" icon="pi pi-info-circle" severity="info" size="small" (click)="showInfoDialog(empleado.id)"></p-button>
+                <p-button label="Editar" icon="pi pi-user-edit" severity="warning" size="small" (click)="showEditDialog(empleado.id)"></p-button>
+              </div>
             </td>
           </tr>
         </ng-template>
+
+        <ng-template pTemplate="rowexpansion" let-empleado>
+          <tr>
+              <td colspan="7">
+                  <div class="p-3">
+                      <p-table [value]="empleado.asignarProcesoEmpleados" dataKey="id">
+                          <ng-template pTemplate="header">
+                              <tr>
+                                  <th>Pedido</th>
+                                  <th>Cantidad asignada</th>
+                                  <th>Cantidad restante</th>
+                                  <th>Estado</th>
+                              </tr>
+                          </ng-template>
+                          <ng-template pTemplate="body" let-proceso>
+                            <ng-container *ngIf="!proceso.estadoProcAsig">
+                              <tr>
+                                <td>{{ proceso.pedidoprocesoId }}</td>
+                                <td>{{ proceso.cantidadAsignada }}</td>
+                                <td>{{ proceso.cantRestante }}</td>
+                                <!-- <td>{{ proceso.estadoProcAsig }}</td> -->
+                                <td><p-tag [value]="changeEstadoProc(proceso.estadoProcAsig)" severity="warning"></p-tag></td>
+                                <!-- <td>
+                                    <p-tag [value]="order.status" [severity]="getStatusSeverity(order.status)"></p-tag>
+                                </td> -->
+                            </tr>
+                            </ng-container>
+                              
+                          </ng-template>
+                          <ng-template pTemplate="emptymessage">
+                              <tr>
+                                  <td colspan="6">No tiene procesos asignados pendientes</td>
+                              </tr>
+                          </ng-template>
+                      </p-table>
+                  </div>
+              </td>
+          </tr>
+      </ng-template>
       </p-table>
 
   </div>
   </div>
 </div>
 
-<!-- Dialog crear un empleado -->
-<p-dialog [(visible)]="empleadoNuevoDialog" [style]="{width: '450px'}" header="Nuevo empleado" [modal]="true" class="p-fluid">
+<p-dialog header="Información del empleado" [(visible)]="infoDialog" [style]="{width: '450px'}" [modal]="true" class="p-fluid">
+  
+  <form [formGroup]="form">
 
-  <form [formGroup]="formularioEmpleado" (ngSubmit)="addEmpleado()">
-    <!-- <ng-template pTemplate="content"> -->
-      <div class="formgrid grid" style="margin-top: 20px;">
+    <div class="formgrid grid">
+        
+        <div class="field col">
+          <label for="tipoIdentidad">Tipo de identificación</label>
+          <input [readOnly]="true" type="text" [ngStyle]="{'pointer-events': 'none', 'background-color': '#f4f4f4', 'caret-color': 'transparent'}" pInputText formControlName="tipoIdentidad">
+        </div>
+  
+        <div class="field col">
+          <label for="numIdentidad">Número de identificación</label>
+          <input [readOnly]="true" type="text" [ngStyle]="{'pointer-events': 'none', 'background-color': '#f4f4f4', 'caret-color': 'transparent'}" pInputText formControlName="numIdentidad">
+        </div>
+
+    </div>
+
+    <div class="formgrid grid">
+
       <div class="field col">
-        <label for="tipoIdentidad">Tipo de identidad*</label>
-        <input type="text" pInputText pKeyFilter="alpha" formControlName="tipoIdentificacion" required autofocus/>
-        <small *ngIf="formularioEmpleado.get('tipoIdentificacion')?.hasError('required') && formularioEmpleado.get('tipoIdentificacion')?.touched" style="color: red;">
-          El tipo de identidad es <strong>requerido</strong>
-        </small>
+        <label for="nombre">Nombre</label>
+        <input [readOnly]="true" type="text" [ngStyle]="{'pointer-events': 'none', 'background-color': '#f4f4f4', 'caret-color': 'transparent'}" pInputText formControlName="nombre">
       </div>
 
       <div class="field col">
-        <label for="numeroIdentificacion">N° Identificación*</label>
-        <input type="text" pKeyFilter="int" pInputText formControlName="numeroIdentificacion"/>
-        <small *ngIf="formularioEmpleado.get('numeroIdentificacion')?.hasError('required') && formularioEmpleado.get('numeroIdentificacion')?.touched" style="color: red;">
-            El nro. de identificación es <strong>requerido</strong>  
-        </small>
+        <label for="apellido">Apellido</label>
+        <input [readOnly]="true" type="text" [ngStyle]="{'pointer-events': 'none', 'background-color': '#f4f4f4', 'caret-color': 'transparent'}" pInputText formControlName="apellido">
       </div>
+
     </div>
-    <div class="field">
-        <label for="nombre">Nombres*</label>
-        <input type="text" pKeyFilter="alpha" pInputText formControlName="nombre"/>
-        <small *ngIf="formularioEmpleado.get('nombre')?.hasError('required') && formularioEmpleado.get('nombre')?.touched" style="color: red;">
-            El nombre es <strong>requerido</strong>
-        </small>
+
+    <div class="formgrid grid">
+
+      <div class="field col">
+        <label for="correo">Correo electrónico</label>
+        <input [readOnly]="true" type="text" [ngStyle]="{'pointer-events': 'none', 'background-color': '#f4f4f4', 'caret-color': 'transparent'}" pInputText formControlName="correo">
+      </div>
+
+      <div class="field col">
+        <label for="teléfono">Telefono</label>
+        <input [readOnly]="true" type="text" [ngStyle]="{'pointer-events': 'none', 'background-color': '#f4f4f4', 'caret-color': 'transparent'}" pInputText formControlName="telefono">
+      </div>
+
     </div>
-    <div class="field">
-        <label for="apellido">Apellidos*</label>
-        <input type="text" pKeyFilter="alpha" pInputText formControlName="apellido"/>
-        <small *ngIf="formularioEmpleado.get('apellido')?.hasError('required') && formularioEmpleado.get('apellido')?.touched" style="color: red;">
-            El apellido es <strong>requerido</strong>
-        </small>
+
+    <div class="formgrid grid">
+
+      <div class="field col">
+        <label for="ciudad">Ciudad</label>
+        <input [readOnly]="true" type="text" [ngStyle]="{'pointer-events': 'none', 'background-color': '#f4f4f4', 'caret-color': 'transparent'}" pInputText formControlName="ciudad">
+      </div>
+
+      <div class="field col">
+        <label for="direccion">Dirección</label>
+        <input [readOnly]="true" type="text" [ngStyle]="{'pointer-events': 'none', 'background-color': '#f4f4f4', 'caret-color': 'transparent'}" pInputText formControlName="direccion">
+      </div>
+
     </div>
-    <div class="field"> 
-        <label for="correo">Correo electrónico*</label>
-        <input type="text" pInputText formControlName="correo"/>
-        <small *ngIf="formularioEmpleado.get('correo')?.hasError('required') && formularioEmpleado.get('correo')?.touched" style="color: red;">
-            El correo es <strong>requerido</strong>
-        </small>
+
+    <div class="formgrid grid">
+
+      <div class="field col">
+        <label for="fechaIngreso">Fecha de ingreso</label>
+        <input [readOnly]="true" type="text" [ngStyle]="{'pointer-events': 'none', 'background-color': '#f4f4f4', 'caret-color': 'transparent'}" pInputText formControlName="fechaIngreso">
+      </div>
+
     </div>
-    <div class="formgrid grid" style="margin-top: 20px;">
-    <div class="field col">
-        <label for="telefono">Teléfono*</label>
-        <input type="text" pKeyFilter="int" pInputText formControlName="telefono"/>
-        <small *ngIf="formularioEmpleado.get('telefono')?.hasError('required') && formularioEmpleado.get('telefono')?.touched" style="color: red;">
-            El teléfono es <strong>requerido</strong>
-        </small>
-    </div>
-    <div class="field col">
-        <label for="ciudad">Ciudad*</label>
-        <input type="text" pKeyFilter="alpha" pInputText formControlName="ciudad"/>
-        <small *ngIf="formularioEmpleado.get('ciudad')?.hasError('required') && formularioEmpleado.get('ciudad')?.touched" style="color: red;">
-            La ciudad es <strong>requerida</strong>
-        </small>
-    </div>
-    </div>
-    <div class="field">
-        <label for="direccion">Dirección*</label>
-        <input type="text" pInputText formControlName="direccion"/>
-        <small *ngIf="formularioEmpleado.get('direccion')?.hasError('required') && formularioEmpleado.get('direccion')?.touched" style="color: red;">
-            La dirección es <strong>requerida</strong>
-        </small>
-    </div>
-    <!-- <div class="field">
+
+    <div class="formgrid grid">
+
+      <div class="field col">
         <label for="estado">Estado</label>
-        <input type="text" pInputText formControlName="estado"/>
-        <small *ngIf="formularioEmpleado.get('estado')?.hasError('required') && formularioEmpleado.get('estado')?.touched">
-            Estado es requerido.
-        </small>
-    </div> -->
-    <!-- </ng-template> -->
-  
-    <div style="display: flex; justify-content: center; align-items: center;">
-      <div class="field">
-        <button type="button" pButton pRipple label="Cancelar" class="p-button-rounded p-button-danger" (click)="hideDialog()"></button>
+        <input [readOnly]="true" type="text" [ngStyle]="{'pointer-events': 'none', 'background-color': '#f4f4f4', 'caret-color': 'transparent'}" pInputText formControlName="estado">
       </div>
-      <div class="field" style="margin-left: 8px;"> <!-- Agrega un margen entre los botones -->
-        <button type="submit" pButton pRipple label="Guardar" class="p-button-rounded p-button-success"></button>
-      </div>
-  </div>
-  
-  </form>
-  
-</p-dialog>
-<!-- Dialog editar un empleado -->
-<p-dialog [(visible)]="empleadoEditarDialog" [style]="{width: '450px'}" header="Editar empleado" [modal]="true" class="p-fluid">
 
-  <form [formGroup]="formularioEmpleado" (ngSubmit)="addEmpleado()">
-    <!-- <ng-template pTemplate="content"> -->
-      <div class="formgrid grid" style="margin-top: 20px;">
       <div class="field col">
-        <label for="tipoIdentidad">Tipo de identidad</label>
-        <input type="text" pInputText pKeyFilter="alpha" formControlName="tipoIdentificacion"/>
-        <small *ngIf="formularioEmpleado.get('tipoIdentificacion')?.hasError('required') && formularioEmpleado.get('tipoIdentificacion')?.touched" style="color: red;">
-          El tipo de identidad es <strong>requerido</strong>
-        </small>
+        <label for="estadoProduccion">Estado producción</label>
+        <input [readOnly]="true" type="text" [ngStyle]="{'pointer-events': 'none', 'background-color': '#f4f4f4', 'caret-color': 'transparent'}" pInputText formControlName="estadoOcupado">
       </div>
+
+    </div>
+
+  </form>
+
+  <ng-template pTemplate="footer">
+      <button pButton pRipple label="Cerrar" icon="pi pi-times" class="p-button-text" (click)="hideDialog()"></button>
+  </ng-template>
+
+</p-dialog>
+
+<p-dialog header="Editar empleado" [(visible)]="editDialog" [style]="{width: '450px'}" [modal]="true" class="p-fluid">
+  <form [formGroup]="form" (ngSubmit)="addEmpleado()">
+    
+    <div class="formgrid grid">
+        
       <div class="field col">
-        <label for="numeroIdentificacion">N° Identificación</label>
-        <input type="text" pInputText pKeyFilter="int" formControlName="numeroIdentificacion"/>
-        <small *ngIf="formularioEmpleado.get('numeroIdentificacion')?.hasError('required') && formularioEmpleado.get('numeroIdentificacion')?.touched" style="color: red;" style="color: red;">
-          El nro. de identificación es <strong>requerido</strong>
-        </small>
-    </div>
-    </div>
+        <label for="tipoIdentidad">Tipo de identificación</label>
+        <input [readOnly]="true" type="text" [ngStyle]="{'pointer-events': 'none', 'background-color': '#f4f4f4', 'caret-color': 'transparent'}" pInputText formControlName="tipoIdentidad">
+      </div>
+
+      <div class="field col">
+        <label for="numIdentidad">Número de identificación</label>
+        <input [readOnly]="true" type="text" [ngStyle]="{'pointer-events': 'none', 'background-color': '#f4f4f4', 'caret-color': 'transparent'}" pInputText formControlName="numIdentidad">
+      </div>
+
+  </div>
+
     <div class="field">
         <label for="nombre">Nombres</label>
-        <input type="text" pInputText pKeyFilter="alpha" formControlName="nombre"/>
-        <small *ngIf="formularioEmpleado.get('nombre')?.hasError('required') && formularioEmpleado.get('nombre')?.touched" style="color: red;">
+        <input type="text" pInputText formControlName="nombre"/>
+        <small *ngIf="form.get('nombre')?.hasError('required') && form.get('nombre')?.touched" style="color: red;">
           El nombre es <strong>requerido</strong>
         </small>
     </div>
     <div class="field">
         <label for="apellido">Apellidos</label>
-        <input type="text" pInputText pKeyFilter="alpha" formControlName="apellido"/>
-        <small *ngIf="formularioEmpleado.get('apellido')?.hasError('required') && formularioEmpleado.get('apellido')?.touched" style="color: red;">
+        <input type="text" pInputText formControlName="apellido"/>
+        <small *ngIf="form.get('apellido')?.hasError('required') && form.get('apellido')?.touched" style="color: red;">
           El apellido es <strong>requerido</strong>
         </small>
     </div>
     <div class="field">
         <label for="correo">Correo electrónico</label>
         <input type="text" pInputText formControlName="correo"/>
-        <small *ngIf="formularioEmpleado.get('correo')?.hasError('required') && formularioEmpleado.get('correo')?.touched" style="color: red;">
+        <small *ngIf="form.get('correo')?.hasError('required') && form.get('correo')?.touched" style="color: red;">
           El correo es <strong>requerido</strong>
         </small>
     </div>
@@ -220,14 +243,14 @@
     <div class="field col">
         <label for="telefono">Teléfono</label>
         <input type="text" pInputText pKeyFilter="int" formControlName="telefono"/>
-        <small *ngIf="formularioEmpleado.get('telefono')?.hasError('required') && formularioEmpleado.get('telefono')?.touched" style="color: red;">
+        <small *ngIf="form.get('telefono')?.hasError('required') && form.get('telefono')?.touched" style="color: red;">
           El teléfono es <strong>requerido</strong>
         </small>
     </div>
     <div class="field col">
         <label for="ciudad">Ciudad</label>
         <input type="text" pInputText pKeyFilter="alpha" formControlName="ciudad"/>
-        <small *ngIf="formularioEmpleado.get('ciudad')?.hasError('required') && formularioEmpleado.get('ciudad')?.touched" style="color: red;">
+        <small *ngIf="form.get('ciudad')?.hasError('required') && form.get('ciudad')?.touched" style="color: red;">
             Ciudad es requerido.
         </small>
     </div>
@@ -235,14 +258,108 @@
     <div class="field">
         <label for="direccion">Dirección</label>
         <input type="text" pInputText formControlName="direccion"/>
-        <small *ngIf="formularioEmpleado.get('direccion')?.hasError('required') && formularioEmpleado.get('direccion')?.touched" style="color: red;">
+        <small *ngIf="form.get('direccion')?.hasError('required') && form.get('direccion')?.touched" style="color: red;">
           La dirección es <strong>requerida</strong>
         </small>
+    </div>
+  
+    <div style="display: flex; justify-content: center; align-items: center;">
+      <div class="field">
+      </div>  
+      <div class="field" style="margin-left: 8px;"> <!-- Agrega un margen entre los botones -->
+      </div>
+  </div>
+
+  <div style="display: flex; justify-content: center; align-items: center;">
+    <div class="field">
+      <button type="submit" pButton pRipple label="Editar" icon="pi pi-check" class="p-button-text"></button>
+    </div>
+    <div class="field" style="margin-left: 8px;"> <!-- Agrega un margen entre los botones -->
+      <button type="button" pButton pRipple label="Cancelar" icon="pi pi-times" class="p-button-text" (click)="hideDialog()"></button>
+    </div>
+  </div>
+  </form>
+
+
+</p-dialog>
+
+<p-dialog header="Create" [(visible)]="createDialog" [style]="{width: '450px'}" [modal]="true" class="p-fluid">
+
+  <form [formGroup]="form" (ngSubmit)="addEmpleado()">
+    <!-- <ng-template pTemplate="content"> -->
+      <div class="formgrid grid" style="margin-top: 20px;">
+      <div class="field col">
+        <label for="tipoIdentidad">Tipo de identidad*</label>
+        <input type="text" pInputText formControlName="tipoIdentidad" required autofocus/>
+        <small *ngIf="form.get('tipoIdentidad')?.hasError('required') && form.get('tipoIdentidad')?.touched" style="color: red;">
+          El tipo de identidad es <strong>requerido</strong>
+        </small>
+      </div>
+
+      <div class="field col">
+        <label for="numIdentidad">N° Identificación*</label>
+        <input type="text" pKeyFilter="int" pInputText formControlName="numIdentidad"/>
+        <small *ngIf="form.get('numIdentidad')?.hasError('required') && form.get('numIdentidad')?.touched" style="color: red;">
+            El nro. de identificación es <strong>requerido</strong>  
+        </small>
+      </div>
+    </div>
+    <div class="field">
+        <label for="nombre">Nombres*</label>
+        <input type="text" pInputText formControlName="nombre"/>
+        <small *ngIf="form.get('nombre')?.hasError('required') && form.get('nombre')?.touched" style="color: red;">
+            El nombre es <strong>requerido</strong>
+        </small>
+    </div>
+    <div class="field">
+        <label for="apellido">Apellidos*</label>
+        <input type="text" pInputText formControlName="apellido"/>
+        <small *ngIf="form.get('apellido')?.hasError('required') && form.get('apellido')?.touched" style="color: red;">
+            El apellido es <strong>requerido</strong>
+        </small>
+    </div>
+    <div class="field"> 
+        <label for="correo">Correo electrónico*</label>
+        <input type="text" pInputText formControlName="correo"/>
+        <small *ngIf="form.get('correo')?.hasError('required') && form.get('correo')?.touched" style="color: red;">
+            El correo es <strong>requerido</strong>
+        </small>
+    </div>
+    <div class="formgrid grid" style="margin-top: 20px;">
+    <div class="field col">
+        <label for="telefono">Teléfono*</label>
+        <input type="text" pKeyFilter="int" pInputText formControlName="telefono"/>
+        <small *ngIf="form.get('telefono')?.hasError('required') && form.get('telefono')?.touched" style="color: red;">
+            El teléfono es <strong>requerido</strong>
+        </small>
+    </div>
+    <div class="field col">
+        <label for="ciudad">Ciudad*</label>
+        <input type="text" pInputText formControlName="ciudad"/>
+        <small *ngIf="form.get('ciudad')?.hasError('required') && form.get('ciudad')?.touched" style="color: red;">
+            La ciudad es <strong>requerida</strong>
+        </small>
+    </div>
+    </div>
+    <div class="field"> 
+        <label for="direccion">Dirección*</label>
+        <input type="text" pInputText formControlName="direccion"/>
+        <small *ngIf="form.get('direccion')?.hasError('required') && form.get('direccion')?.touched" style="color: red;">
+            La dirección es <strong>requerida</strong>
+        </small>
+    </div>
+
+    <div class="field">
+      <label for="fechaIngreso">Fecha de ingreso</label>
+      <input type="date" pInputText formControlName="fechaIngreso">
+      <small *ngIf="form.get('fechaIngreso')?.hasError('required') && form.get('fechaIngreso')?.touched" style="color: red;">
+        La fecha es <strong>requerida</strong>
+    </small>
     </div>
     <!-- <div class="field">
         <label for="estado">Estado</label>
         <input type="text" pInputText formControlName="estado"/>
-        <small *ngIf="formularioEmpleado.get('estado')?.hasError('required') && formularioEmpleado.get('estado')?.touched">
+        <small *ngIf="form.get('estado')?.hasError('required') && form.get('estado')?.touched">
             Estado es requerido.
         </small>
     </div> -->
@@ -258,102 +375,5 @@
   </div>
   
   </form>
-  
+
 </p-dialog>
-
-<!-- Dialog información del empleado -->
-<p-dialog [(visible)]="empleadoInfoDialog" [style]="{width: '450px'}" header="Detalles del empleado" [modal]="true" class="p-fluid">
-
-  <form [formGroup]="formularioEmpleado">
-    <!-- <ng-template pTemplate="content"> -->
-      <div class="formgrid grid" style="margin-top: 20px;">
-      <div class="field col">
-        <label for="tipoIdentidad">Tipo de identidad</label>
-        <input [readonly]="true" [ngStyle]="{'pointer-events': 'none', 'background-color': '#f4f4f4', 'caret-color': 'transparent'}" type="text" id="disabled-input" pInputText formControlName="tipoIdentificacion" />
-        <!-- <small *ngIf="formularioEmpleado.get('tipoIdentificacion')?.hasError('required') && formularioEmpleado.get('tipoIdentificacion')?.touched">
-          Tipo de identidad es requerido.
-        </small> -->
-      </div>
-      <div class="field col">
-        <label for="numeroIdentificacion">N° Identificación</label>
-        <input [readonly]="true" [ngStyle]="{'pointer-events': 'none', 'background-color': '#f4f4f4', 'caret-color': 'transparent'}" type="text" pInputText formControlName="numeroIdentificacion"/>
-        <small *ngIf="formularioEmpleado.get('numeroIdentificacion')?.hasError('required') && formularioEmpleado.get('numeroIdentificacion')?.touched">
-            Nro. Identificación es requerido.
-        </small>
-      </div>
-    </div>
-    <div class="field">
-        <label for="nombre">Nombres</label>
-        <input [readonly]="true" [ngStyle]="{'pointer-events': 'none', 'background-color': '#f4f4f4', 'caret-color': 'transparent'}" type="text" pInputText formControlName="nombre"/>
-        <small *ngIf="formularioEmpleado.get('nombre')?.hasError('required') && formularioEmpleado.get('nombre')?.touched">
-            Nombre es requerido.
-        </small>
-    </div>
-    <div class="field">
-        <label for="apellido">Apellidos</label>
-        <input [readonly]="true" [ngStyle]="{'pointer-events': 'none', 'background-color': '#f4f4f4', 'caret-color': 'transparent'}" type="text" pInputText formControlName="apellido"/>
-        <small *ngIf="formularioEmpleado.get('apellido')?.hasError('required') && formularioEmpleado.get('apellido')?.touched">
-            Apellido es requerido.
-        </small>
-    </div>
-    <div class="field">
-        <label for="correo">Correo electrónico</label>
-        <input [readonly]="true" [ngStyle]="{'pointer-events': 'none', 'background-color': '#f4f4f4', 'caret-color': 'transparent'}" type="text" pInputText formControlName="correo"/>
-        <small *ngIf="formularioEmpleado.get('correo')?.hasError('required') && formularioEmpleado.get('correo')?.touched">
-            Correo es requerido.
-        </small>
-    </div>
-    <div class="formgrid grid" style="margin-top: 20px;">
-    <div class="field col">
-        <label for="telefono">Teléfono</label>
-        <input [readonly]="true" [ngStyle]="{'pointer-events': 'none', 'background-color': '#f4f4f4', 'caret-color': 'transparent'}" type="text" pInputText formControlName="telefono"/>
-        <small *ngIf="formularioEmpleado.get('telefono')?.hasError('required') && formularioEmpleado.get('telefono')?.touched">
-            Teléfono es requerido.
-        </small>
-    </div>
-    <div class="field col">
-        <label for="ciudad">Ciudad</label>
-        <input [readonly]="true" [ngStyle]="{'pointer-events': 'none', 'background-color': '#f4f4f4', 'caret-color': 'transparent'}" type="text" pInputText formControlName="ciudad"/>
-        <small *ngIf="formularioEmpleado.get('ciudad')?.hasError('required') && formularioEmpleado.get('ciudad')?.touched">
-            Ciudad es requerido.
-        </small>
-    </div>
-  </div>
-    <div class="field">
-        <label for="direccion">Dirección</label>
-        <input [readonly]="true" [ngStyle]="{'pointer-events': 'none', 'background-color': '#f4f4f4', 'caret-color': 'transparent'}" type="text" pInputText formControlName="direccion"/>
-        <small *ngIf="formularioEmpleado.get('direccion')?.hasError('required') && formularioEmpleado.get('direccion')?.touched">
-            Dirección es requerido.
-        </small>
-    </div>
-    <!-- <div class="field">
-        <label for="estado">Estado</label>
-        <input type="text" pInputText formControlName="estado"/>
-        <small *ngIf="formularioEmpleado.get('estado')?.hasError('required') && formularioEmpleado.get('estado')?.touched">
-            Estado es requerido.
-        </small>
-    </div> -->
-    <!-- </ng-template> -->
-  
-    <div style="display: flex; justify-content: center; align-items: center;">
-      <div class="field">
-        <button type="button" pButton pRipple label="Cerrar" class="p-button-rounded p-button-danger" (click)="hideDialog()"></button>
-      </div>
-  </div>
-  
-  </form>
-  
-</p-dialog>
-
-<!-- Mensaje de validación -->
-<p-dialog [(visible)]="changeStateDialog" header="Confirmar" [modal]="true" [style]="{width:'450px'}">
-  <div class="flex align-items-center justify-content-center">
-      <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem"></i>
-      <span *ngIf="empleado">¿Quieres cambiar el estado del empleado?</span>
-  </div>
-  <ng-template pTemplate="footer">
-      <button pButton pRipple icon="pi pi-times" class="p-button-text" label="No" (click)="confirmChangeState(false)"></button>
-      <button pButton pRipple icon="pi pi-check" class="p-button-text" label="Sí" (click)="confirmChangeState(true)"></button>
-  </ng-template>
-</p-dialog>
-
