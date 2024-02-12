@@ -4,6 +4,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { EmpleadoRoutingModule } from './empleado-routing.module';
 import { EmpleadoComponent } from './empleado.component';
 import { TableModule } from 'primeng/table';
+import { TagModule } from 'primeng/tag';
 import { FileUploadModule } from 'primeng/fileupload';
 import { ButtonModule } from 'primeng/button';
 import { RippleModule } from 'primeng/ripple';
@@ -27,6 +28,7 @@ import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core'
         CommonModule,
         EmpleadoRoutingModule,
         TableModule,
+        TagModule,
         FileUploadModule,
         FormsModule,
         ReactiveFormsModule,

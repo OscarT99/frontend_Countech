@@ -1,4 +1,4 @@
-export interface AsignarProceso {
+export interface AsignarProcesoEmpleado {
     idAsignarProceso?: number;
     empleado?: number;
     proceso?: number;

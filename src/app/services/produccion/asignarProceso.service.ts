@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { environment } from 'src/enviroments/environment'; //Está mal escrito enviroments, debe ser environment
-import { AsignarProceso } from 'src/app/interfaces/produccion/asignarProceso.interface';
+import { AsignarProcesoEmpleado } from 'src/app/interfaces/produccion/asignarProceso.interface';
 import { Observable } from 'rxjs';
 
 @Injectable({
@@ -17,22 +17,22 @@ export class asignarProcesoService {
   }
 
   //getEmpleado sirve para obtener un empleado por su id
-  getAsignarProcedimiento(id: number): Observable<AsignarProceso> {
-    return this.http.get<AsignarProceso>(`${this.myAppUrl}${this.myApiUrl}${id}`);
+  getAsignarProcedimiento(id: number): Observable<AsignarProcesoEmpleado> {
+    return this.http.get<AsignarProcesoEmpleado>(`${this.myAppUrl}${this.myApiUrl}${id}`);
   }
 
   //getListEmpleados sirve para obtener todos los empleados
-  getAsignarProcedimientos(): Observable<AsignarProceso[]> {
-    return this.http.get<AsignarProceso[]>(`${this.myAppUrl}${this.myApiUrl}`);
+  getAsignarProcedimientos(): Observable<AsignarProcesoEmpleado[]> {
+    return this.http.get<AsignarProcesoEmpleado[]>(`${this.myAppUrl}${this.myApiUrl}`);
   }
 
   //postEmpleado sirve para crear un empleado
-  postAsignarProcedimiento(asignarProceso: AsignarProceso): Observable<void> {
+  postAsignarProcedimiento(asignarProceso: AsignarProcesoEmpleado): Observable<void> {
     return this.http.post<void>(`${this.myAppUrl}${this.myApiUrl}`, asignarProceso);
   }
 
   //putEmpleado sirve para actualizar un empleado
-  putAsignarProcedimiento(id: number, asignarProceso: AsignarProceso): Observable<void> {
+  putAsignarProcedimiento(id: number, asignarProceso: AsignarProcesoEmpleado): Observable<void> {
     return this.http.put<void>(`${this.myAppUrl}${this.myApiUrl}${id}`, asignarProceso);
   }
 

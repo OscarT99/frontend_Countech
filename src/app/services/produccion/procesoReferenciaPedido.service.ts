@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { environment } from 'src/enviroments/environment'; //Está mal escrito enviroments, debe ser environment
-import { ProcesoReferenciaPedido } from 'src/app/interfaces/pedido/procesoReferenciaPedido.interface';
+import { ProcesoReferenciaPedidoInstance } from 'src/app/interfaces/pedido/procesoReferenciaPedido.interface';
 import { Observable } from 'rxjs';
 
 @Injectable({
@@ -18,15 +18,15 @@ export class procesoReferenciaPedidoService {
     this.putUrl = 'api/proceso/cantidad/';
   }
   
-  getProcesosEnReferenciaEnPedido(): Observable<ProcesoReferenciaPedido[]> {
-    return this.http.get<ProcesoReferenciaPedido[]>(`${this.myAppUrl}${this.myApiUrl}`);
+  getProcesosEnReferenciaEnPedido(): Observable<ProcesoReferenciaPedidoInstance[]> {
+    return this.http.get<ProcesoReferenciaPedidoInstance[]>(`${this.myAppUrl}${this.myApiUrl}`);
   }
 
-  getProcesoEnReferenciaEnPedido(id: number): Observable<ProcesoReferenciaPedido> {
-    return this.http.get<ProcesoReferenciaPedido>(`${this.myAppUrl}${this.myApiUrl}${id}`);
+  getProcesoEnReferenciaEnPedido(id: number): Observable<ProcesoReferenciaPedidoInstance> {
+    return this.http.get<ProcesoReferenciaPedidoInstance>(`${this.myAppUrl}${this.myApiUrl}${id}`);
   }
 
-  putProcesoCantidad(id: number, procesoCantidad: ProcesoReferenciaPedido): Observable<void> {
+  putProcesoCantidad(id: number, procesoCantidad: ProcesoReferenciaPedidoInstance): Observable<void> {
     return this.http.put<void>(`${this.myAppUrl}${this.putUrl}${id}`, procesoCantidad);
   }
 
