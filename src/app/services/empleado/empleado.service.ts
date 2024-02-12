@@ -16,19 +16,24 @@ export class EmpleadoService {
     this.myApiUrl = 'api/empleado/';
   }
 
-  //getEmpleado sirve para obtener un empleado por su id
-  getEmpleado(id: number): Observable<Empleado> {
-    return this.http.get<Empleado>(`${this.myAppUrl}${this.myApiUrl}${id}`);
+  getEmpleadoProcesos(): Observable<Empleado> {
+    return this.http.get<Empleado>(`http://localhost:8083/api/empleado/proceso`)
   }
 
   //getListEmpleados sirve para obtener todos los empleados
-  getListEmpleados(): Observable<Empleado[]> {
-    return this.http.get<Empleado[]>(`${this.myAppUrl}${this.myApiUrl}`);
+  getEmpleadoList(): Observable<Empleado> {
+    return this.http.get<Empleado>(`http://localhost:8083/api/empleados`);
   }
+
+  //getEmpleado sirve para obtener un empleado por su id
+  getEmpleado(id: number): Observable<Empleado> {
+    return this.http.get<Empleado>(`http://localhost:8083/api/empleado/${id}`);
+  }
+
 
   //postEmpleado sirve para crear un empleado
   postEmpleado(empleado: Empleado): Observable<void> {
-    return this.http.post<void>(`${this.myAppUrl}${this.myApiUrl}`, empleado);
+    return this.http.post<void>(`http://localhost:8083/api/empleado`, empleado);
   }
 
   //putEmpleado sirve para actualizar un empleado
@@ -36,8 +41,4 @@ export class EmpleadoService {
     return this.http.put<void>(`${this.myAppUrl}${this.myApiUrl}${id}`, empleado);
   }
 
-  //deleteEmpleado sirve para eliminar un empleado
-//   deleteEmpleado(id: number): Observable<void> {
-//     return this.http.delete<void>(`${this.myAppUrl}${this.myApiUrl}${id}`);
-//   }
 }

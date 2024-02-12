@@ -1,6 +1,6 @@
-<!-- <div class="grid">
+<div class="grid">
     <div class="col-12">
-Listar pedidos para producción 
+<!-- Listar pedidos para producción  -->
 <div class="card">
     <h3>Pedidos activos</h3>
     <p-accordion [multiple]="true">        
@@ -8,16 +8,14 @@ Listar pedidos para producción
             <ng-template pTemplate="header">
                 <div class="flex align-items-center">
                     <span class="vertical-align-middle">Orden de trabajo: {{ pedido.ordenTrabajo }}</span>
-                    PENDIENTE Organizar el icono si ya se asigno una tarea 
+                    <!-- PENDIENTE Organizar el icono si ya se asigno una tarea  -->
                     
                     <i *ngIf="pedido.id !== undefined && validarRegistroProceso(pedido.id)" class="pi pi-check ml-2" style="color: green"></i>
                     <i *ngIf="pedido.id !== undefined && !validarRegistroProceso(pedido.id)" class="pi pi-times ml-2" style="color: red"></i>
                                       </div>
             </ng-template>
 
-
-
-            <p-table [value]="[pedido]">
+            <p-table [value]="listPedidos">
                 <ng-template pTemplate="caption">
                     <div class="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
                         <h5 class="m-0">Información del pedido</h5>
@@ -42,11 +40,11 @@ Listar pedidos para producción
                     </tr>
                 </ng-template>
             </p-table>
-            <p-tabView *ngIf="pedido.ReferenciaEnPedidos && pedido.ReferenciaEnPedidos.length">
-                <ng-container *ngFor="let referencia of pedido.ReferenciaEnPedidos">
-                    <p-accordionTab [header]="'Referencia: ' + referencia.referencia">
+            <p-tabView>
+                <ng-container>
+                    <p-accordionTab [header]="'Referencia: ' + pedido.referencia">
                         <div>
-                            <p-table [value]="[referencia]" styleClass="p-datatable-sm">
+                            <p-table [value]="listPedidos" styleClass="p-datatable-sm" >
                                 <ng-template pTemplate="header">
                                     <tr>                                            
                                         <th>Descripción</th>
@@ -54,17 +52,17 @@ Listar pedidos para producción
                                         <th>Cant. Total</th>                                                                                                                               
                                     </tr>
                                 </ng-template>
-                                <ng-template pTemplate="body" let-referenciaOne>
+                                <ng-template pTemplate="body" let-pedido>
                                     <tr>
-                                        <td>{{referenciaOne.descripcion}}</td>
-                                        <td>{{referenciaOne.valorUnitario}}</td>
-                                        <td>{{referenciaOne.cantidadTotal}}</td>                                                              
+                                        <td>{{pedido.descripcion}}</td>
+                                        <td>{{pedido.valorUnitario}}</td>
+                                        <td>{{pedido.cantidadTotal}}</td>                                                              
                                     </tr>
                                 </ng-template>
                             </p-table>
                         </div>
-                        <p-tabView *ngIf="referencia.ProcesoEnReferenciaEnPedidos && referencia.ProcesoEnReferenciaEnPedidos.length">
-                            <ng-container *ngFor="let proceso of referencia.ProcesoEnReferenciaEnPedidos">
+                        <p-tabView *ngIf="pedido.ProcesoEnReferenciaEnPedidos && pedido.ProcesoEnReferenciaEnPedidos.length">
+                            <ng-container *ngFor="let proceso of pedido.ProcesoEnReferenciaEnPedidos">
                                 <p-tabPanel>
                                     <ng-template pTemplate="header">
                                         <span>{{ proceso.tipoDeMaquina }}</span>  
@@ -73,7 +71,7 @@ Listar pedidos para producción
                                         <i *ngIf="proceso.id !== undefined && !validarRegistroProceso2(proceso.id)" class="pi pi-times ml-2" style="color: red"></i>                    
                                     </ng-template>
 
-                                    <p-table [value]="[proceso]">
+                                    <p-table [value]="listProcesos">
                                         <ng-template pTemplate="header">
                                             <tr>                                            
                                                 <th>Proceso</th>                                                            
@@ -87,13 +85,13 @@ Listar pedidos para producción
                                         </ng-template>
                                         <ng-template pTemplate="body" let-proceso>
                                             <ng-container *ngFor="let info of listProcesos">
-                                              <ng-container *ngIf="info.id === proceso.id">
+                                              <ng-container>
                                                 <tr>                                
-                                                  <td>{{proceso.proceso}}</td>
-                                                  <td>{{info.cantidadTotal}}</td>
-                                                  <td>{{calcularSumaCantAsignada(proceso).sumaCantAsignada || 0}}</td>
-                                                  <td>{{calcularSumaCantAsignada(proceso).cantidadPendiente || 0}}</td>
-                                                  <td>{{info.cantidadAsignada || 0}}</td>
+                                                  <td>{{info.tipoDeMaquina}}</td>
+                                                  <td>{{proceso.cantidadTotal}}</td>
+                                                  <!-- <td>{{calcularSumaCantAsignada(proceso).sumaCantAsignada || 0}}</td>
+                                                  <td>{{calcularSumaCantAsignada(proceso).cantidadPendiente || 0}}</td> -->
+                                                  <td>{{proceso.cantidadAsignada || 0}}</td>
                                                   <td>{{info.cantidadPendiente || 0}}</td>
                                                   <td>{{info.cantidadHecha || 0}}</td>
                                                   <td>
@@ -118,7 +116,7 @@ Listar pedidos para producción
                                           
                                     </p-table>
 
-                                    <p-table [value]="proceso.ColorEnProcesoEnReferenciaEnPedidos">
+                                    <p-table [value]="proceso.ColorEnProcesoEnReferenciaEnPedidos!">
                                         <ng-template pTemplate="header">
                                             <tr>                                            
                                                 <th>Color</th>                                                            
@@ -152,7 +150,7 @@ Listar pedidos para producción
         </p-accordionTab>
     </p-accordion>
 
-    Dialog detalle tareas asignadas
+    <!-- Dialog detalle tareas asignadas -->
     <p-dialog [(visible)]="viewInfoDialog" [style]="{width: '640px'}" header="Tareas asignadas" [modal]="true" class="p-fluid">
         <p-table [value]="filteredAsignarProceso">
             <ng-template pTemplate="header">
@@ -196,7 +194,7 @@ Listar pedidos para producción
         </ng-template>
     </p-dialog>
 
-    Dialog asignar tarea a empelado 
+    <!-- Dialog asignar tarea a empleado  -->
     <p-dialog [(visible)]="asignarTareaDialog" [style]="{width: '450px'}" header="Asignar tarea" [modal]="true" class="p-fluid">
         <form [formGroup]="formularioAsignarProceso" (ngSubmit)="addAsignarProceso()">
             <div class="field">
@@ -260,4 +258,4 @@ Listar pedidos para producción
 </div>
 
 </div>
-</div> -->
+</div>
