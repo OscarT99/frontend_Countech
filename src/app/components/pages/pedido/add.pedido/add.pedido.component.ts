@@ -222,7 +222,7 @@
     
       if (idTemporalProceso) {
         // Actualizar el proceso existente
-        const procesoExistente = this.procesosReferencia.find(p => p.id === idTemporalProceso);
+        const procesoExistente = this.procesosReferencia.find(p => p.idTemporal === idTemporalProceso);
         
         if (procesoExistente) {
           procesoExistente.proceso = proceso;
@@ -231,7 +231,7 @@
       } else {
         // Agregar un nuevo proceso
         const nuevoProceso: ProcesoReferenciaPedidoInstance = {    
-          // id:uuidv4(),  
+          idTemporal:uuidv4(),  
           proceso: proceso,
           tipoDeMaquina: tipoDeMaquina,
           ColorEnProcesoEnReferenciaEnPedidos: [], 
@@ -262,7 +262,7 @@
       this.formPedido.patchValue({
         proceso:proceso.proceso,
         tipoDeMaquina:proceso.tipoDeMaquina,
-        idTemporalProceso:proceso.id
+        idTemporalProceso:proceso.idTemporal
       })
 
       setTimeout(() => {
@@ -303,7 +303,7 @@
     
       if (idTemporal !== null) {
         // Editar color existente
-        const colorExistente = this.coloresEnProceso.find(c => c.id === idTemporal);
+        const colorExistente = this.coloresEnProceso.find(c => c.idTemporal === idTemporal);
         if (colorExistente) {
           colorExistente.color = color;
           colorExistente.tallaS = tallaS;
@@ -315,7 +315,7 @@
       } else {
         // Agregar nuevo color
         const nuevoColor: ColorProcesoReferenciaPedidoInstance = {
-          // id: uuidv4(),
+          idTemporal: uuidv4(),
           color: color,
           tallaS: tallaS,
           tallaM: tallaM,
@@ -358,7 +358,7 @@
         tallaM:color.tallaM,
         tallaL:color.tallaL,
         tallaXL:color.tallaXL,
-        idTemporalColor:color.id
+        idTemporalColor:color.idTemporal
       })
 
       setTimeout(() => {

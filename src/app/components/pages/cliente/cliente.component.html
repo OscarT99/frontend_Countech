@@ -108,53 +108,70 @@
 
                 <div class="formgrid grid mt-2">
                     <div class="field col mt-2">
-                        <span class="p-float-label ">
-                            <p-inputMask *ngIf="formCliente.get('tipoIdentificacion')?.value === 'NIT'"
-                                formControlName="numeroIdentificacion" mask="999999999-9"></p-inputMask>
-                            <input *ngIf="formCliente.get('tipoIdentificacion')?.value != 'NIT'"
-                                formControlName="numeroIdentificacion" id="numeroIdentificacion" pInputText>
+                        <span class="p-float-label">
+                            <input pInputText *ngIf="formCliente.get('tipoIdentificacion')?.value === 'NIT'"
+                                formControlName="numeroIdentificacion" mask="999999999-9" (input)="validarNumeroIdentificacion()">
+                            <input pInputText pKeyFilter="int" *ngIf="formCliente.get('tipoIdentificacion')?.value != 'NIT'"
+                                formControlName="numeroIdentificacion" [maxlength]="12" [minlength]="6" (input)="validarNumeroIdentificacion()">                            
                             <label for="numeroIdentificacion">N° Identificación</label>
                         </span>
-                        <small
-                            *ngIf="formCliente.get('numeroIdentificacion')?.hasError('required') && formCliente.get('numeroIdentificacion')?.touched"
+                        <small *ngIf="formCliente.get('numeroIdentificacion')?.hasError('required') && formCliente.get('numeroIdentificacion')?.touched"
                             style="color: red;">
-                            El numero Identificación es <strong>requerido</strong>
+                            El número de identificación es <strong>requerido</strong>
                         </small>
+                        <small *ngIf="formCliente.get('numeroIdentificacion')?.hasError('minlength') && formCliente.get('numeroIdentificacion')?.touched"
+                            style="color: red;">
+                            El número de identificación debe tener al menos 6 dígitos
+                        </small>
+                        <small *ngIf="formCliente.get('numeroIdentificacion')?.hasError('numeroExistente') && formCliente.get('numeroIdentificacion')?.touched"
+                            style="color: red;">
+                            El número de identificación ya existe en la base de datos
+                        </small>
+                        
                     </div>
                     <div class="field col mt-2">
-                        <span class="p-float-label">
-                            <input formControlName="razonSocial" id="razonSocial" type="text" pInputText>
+                        <span class="p-float-label">                            
+                            <input formControlName="razonSocial" [maxlength]="30" type="text" pInputText (input)="validarCampo('razonSocial')">
                             <label for="razonSocial">{{ isNIT ? 'Razon Social' : 'Nombres' }}</label>
                         </span>
-                        <small
-                            *ngIf="formCliente.get('razonSocial')?.hasError('required') && formCliente.get('razonSocial')?.touched"
+                        <small *ngIf="formCliente.get('razonSocial')?.hasError('required') && formCliente.get('razonSocial')?.touched"
                             style="color: red;">
-                            {{ isNIT ? 'La razón social es' : 'El nombre es' }} <strong>requerido</strong>
+                            {{ isNIT ? 'La razon social es ' : 'El nombre es' }} <strong>requerido</strong>
+                        </small>
+                        <small *ngIf="formCliente.get('razonSocial')?.hasError('soloLetras') && formCliente.get('razonSocial')?.touched"
+                            style="color: red;">
+                            Solo se permiten letras
                         </small>
                     </div>
                 </div>
 
                 <div class="formgrid grid mt-2">
                     <div class="field col mt-2">
-                        <span class="p-float-label ">
-                            <input formControlName="nombreComercial" id="nombreComercial" type="text" pInputText>
+                        <span class="p-float-label">
+                            <input formControlName="nombreComercial" id="nombreComercial" type="text" pInputText (input)="validarCampo('nombreComercial')">
                             <label for="nombreComercial">{{ isNIT ? 'Nombre Comercial' : 'Apellidos' }}</label>
                         </span>
-                        <small
-                            *ngIf="formCliente.get('nombreComercial')?.hasError('required') && formCliente.get('nombreComercial')?.touched"
+                        <small *ngIf="formCliente.get('nombreComercial')?.hasError('required') && formCliente.get('nombreComercial')?.touched"
                             style="color: red;">
-                            {{ isNIT ? 'El nombre comercial es ' : 'El apellido es' }} <strong>requerido</strong>
+                            {{ isNIT ? 'La nombre comercial es ' : 'El apellido es' }} <strong>requerido</strong>
                         </small>
+                        <small *ngIf="formCliente.get('nombreComercial')?.hasError('soloLetras') && formCliente.get('nombreComercial')?.touched"
+                            style="color: red;">
+                            Solo se permiten letras
+                        </small>                        
                     </div>
                     <div class="field col mt-2">
-                        <span class="p-float-label ">
-                            <input formControlName="ciudad" id="ciudad" type="text" pInputText>
-                            <label for="nombreComercial">Ciudad</label>
+                        <span class="p-float-label">
+                            <input formControlName="ciudad" id="ciudad" type="text" pInputText (input)="validarCampo('ciudad')">
+                            <label for="ciudad">Ciudad</label>
                         </span>
-                        <small
-                            *ngIf="formCliente.get('ciudad')?.hasError('required') && formCliente.get('ciudad')?.touched"
+                        <small *ngIf="formCliente.get('ciudad')?.hasError('required') && formCliente.get('ciudad')?.touched"
                             style="color: red;">
                             La ciudad es <strong>requerida</strong>
+                        </small>
+                        <small *ngIf="formCliente.get('ciudad')?.hasError('soloLetras') && formCliente.get('ciudad')?.touched"
+                            style="color: red;">
+                            Solo se permiten letras
                         </small>
                     </div>
                 </div>
@@ -168,9 +185,14 @@
                     </div>
                     <div class="field col mt-2">
                         <span class="p-float-label">
-                            <input formControlName="contacto" id="contacto" type="text" pInputText>
+                            <!-- contacto -->
+                            <input formControlName="contacto" id="contacto" type="text" pInputText (input)="validarCampo('contacto')">
                             <label for="contacto">Contacto</label>
-                        </span>
+                        </span>                        
+                        <small *ngIf="formCliente.get('contacto')?.hasError('soloLetras') && formCliente.get('contacto')?.touched"
+                            style="color: red;">
+                            Solo se permiten letras
+                        </small>
                     </div>
                 </div>
 
