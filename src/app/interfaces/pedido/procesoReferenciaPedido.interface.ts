@@ -2,7 +2,8 @@ import { ColorProcesoReferenciaPedidoInstance } from "./colorProcesoReferenciaPe
 import { AsignarProceso } from "../produccion/asignarProceso.interface";
   
 export interface ProcesoReferenciaPedidoInstance {
-  id?: string;
+  id?: number;
+  idTemporal?:string;
   pedido?: number;
   proceso: string;
   tipoDeMaquina: 'Fileteadora' | 'Plana' | 'Presilladora' | 'Recubridora' | 'Manual';

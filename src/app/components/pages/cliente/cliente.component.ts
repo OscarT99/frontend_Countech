@@ -104,8 +104,10 @@ export class ClienteComponent implements OnInit {
 
   addCliente() {
     this.formCliente.markAllAsTouched();
-
+  
     if (this.formCliente.valid) {
+      
+      // Resto del código para agregar o actualizar el cliente
       const cliente: Cliente = {
         tipoCliente: this.formCliente.value.tipoCliente,
         tipoIdentificacion: this.formCliente.value.tipoIdentificacion,
@@ -118,7 +120,7 @@ export class ClienteComponent implements OnInit {
         telefono: this.formCliente.value.telefono,
         correo: this.formCliente.value.correo,
       };
-
+  
       if (this.id !== 0) {
         cliente.id = this.id;
         this._clienteService.putCliente(this.id, cliente).subscribe(() => {
@@ -133,7 +135,7 @@ export class ClienteComponent implements OnInit {
           this.getListClientes();
         });
       }
-
+  
       this.productDialog = false;
     } else {
       this.toastr.error('Por favor, complete todos los campos obligatorios.', 'Error de validación');
@@ -236,4 +238,42 @@ export class ClienteComponent implements OnInit {
       console.error('Error al obtener el detalle del cliente:', error);
     }
   }
+
+  /////  VALIDACIONES DE LOS CAMPOS DEL FORMULARIO
+validarCampo(campo: string) {
+  const control = this.formCliente.get(campo);
+  const valor = control?.value;
+
+  if (control?.hasError('required')) {
+      return;
+  }
+
+  // Validar solo letras en el campo
+  if (!/^[a-zA-ZáéíóúüÁÉÍÓÚÜ\s]*$/.test(valor)) {
+    control?.setErrors({ soloLetras: true });
+} else {
+    control?.setErrors(null);
+}
+
+}
+
+validarNumeroIdentificacion() {
+  const numeroIdentificacionControl = this.formCliente.get('numeroIdentificacion');
+  const numeroIdentificacionValue = numeroIdentificacionControl?.value;
+
+  // Verificar si el número de identificación tiene al menos 6 dígitos
+  if (numeroIdentificacionValue && numeroIdentificacionValue.length < 6) {
+      numeroIdentificacionControl?.setErrors({ minlength: true });
+      return;
+  }
+
+  // Verificar si el número de identificación ya existe en la base de datos
+  const numeroExistente = this.listClientes.some(cliente => cliente.numeroIdentificacion === numeroIdentificacionValue);
+  if (numeroExistente) {
+      numeroIdentificacionControl?.setErrors({ numeroExistente: true });
+  } else {
+      numeroIdentificacionControl?.setErrors(null);
+  }
+}
+
 }
