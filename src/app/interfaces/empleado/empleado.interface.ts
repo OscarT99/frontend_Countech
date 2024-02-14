@@ -1,4 +1,4 @@
-import { EmpleadoProcesos } from "./empleadoProcesos.interface";
+import { AsignarProcesoEmpleado } from "../produccion/asignarProceso.interface";
 
 export interface Empleado {
     id?: number;
@@ -13,7 +13,6 @@ export interface Empleado {
     fechaIngreso?: Date;
     estado?: boolean;
     estadoOcupado?: boolean;
-    EmpleadoProcesos?: EmpleadoProcesos[]; 
-
+    asignarProcesoEmpleados?: AsignarProcesoEmpleado[]; 
   }
 

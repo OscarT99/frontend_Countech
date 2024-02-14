@@ -14,7 +14,7 @@ export class procesoReferenciaPedidoService {
 
   constructor(private http: HttpClient) {
     this.myAppUrl = environment.endpoint;
-    this.myApiUrl = 'api/proceso/';
+    this.myApiUrl = 'api/pedido/';
     this.putUrl = 'api/proceso/cantidad/';
   }
   

@@ -1,3 +1,75 @@
+<div class="card">
+    <p-table [value]="listAsignarProcesoEmpleado">
+        <ng-template pTemplate="caption">
+            Avances de procesos
+        </ng-template>
+        <ng-template pTemplate="header">
+            <tr>
+                <th>Code</th>
+                <th>Cantidad hecha</th>
+                <th>Proceso</th>
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-proceso>
+            <ng-container *ngFor="let avance of proceso.avanceProcesoEmpleados">
+            <tr>
+                <td>{{avance.id}}</td>
+                <td>{{avance.cantidadHecha}}</td>
+                <td>{{avance.asignarProcesoEmpleadoId}}</td>
+            </tr>
+            </ng-container>
+        </ng-template>
+    </p-table>
+
+</div>
+
+<div class="card">
+    <p-table [value]="listAsignarProcesoEmpleado">
+        <ng-template pTemplate="caption">
+            Procesos asignados
+        </ng-template>
+        <ng-template pTemplate="header">
+            <tr>
+                <th>Code</th>
+                <th>Empleado</th>
+                <th>Cantidad asignada</th>
+                <th>Cantidad restante</th>
+                <th>Estado</th>
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-proceso>
+            <tr>
+                <td>{{proceso.id}}</td>
+                <td>{{proceso.nombreEmpleado}}</td>
+                <td>{{proceso.cantidadAsignada}}</td>
+                <td>{{proceso.cantRestante}}</td>
+                <td>{{proceso.estadoProcAsig}}</td>
+            </tr>
+        </ng-template>
+    </p-table>
+</div>
+
+<div class="card">
+    <p-table [value]="listEmpleados">
+        <ng-template pTemplate="caption">
+            Empleados
+        </ng-template>
+        <ng-template pTemplate="header">
+            <tr>
+                <th>Empleado</th>
+                <th>direccion</th>
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-empleado>
+            <tr>
+                <td>{{empleado.nombre}}</td>
+                <td>{{empleado.direccion}}</td>
+            </tr>
+        </ng-template>
+    </p-table>
+</div>
+
+
 <div class="grid">
     <div class="col-12">
 <!-- Listar pedidos para producción  -->
@@ -5,20 +77,22 @@
     <h3>Pedidos activos</h3>
     <p-accordion [multiple]="true">        
         <p-accordionTab *ngFor="let pedido of listPedidos" class="line-height-3 m-2">
+
+            <!-- HEADER ACCORDIONTAB -->
             <ng-template pTemplate="header">
                 <div class="flex align-items-center">
                     <span class="vertical-align-middle">Orden de trabajo: {{ pedido.ordenTrabajo }}</span>
                     <!-- PENDIENTE Organizar el icono si ya se asigno una tarea  -->
-                    
-                    <i *ngIf="pedido.id !== undefined && validarRegistroProceso(pedido.id)" class="pi pi-check ml-2" style="color: green"></i>
-                    <i *ngIf="pedido.id !== undefined && !validarRegistroProceso(pedido.id)" class="pi pi-times ml-2" style="color: red"></i>
-                                      </div>
+                    <!-- <i *ngIf="pedido.id !== undefined && validarRegistroProceso(pedido.id)" class="pi pi-check ml-2" style="color: green"></i>
+                    <i *ngIf="pedido.id !== undefined && !validarRegistroProceso(pedido.id)" class="pi pi-times ml-2" style="color: red"></i> -->
+                </div>
             </ng-template>
 
-            <p-table [value]="listPedidos">
+            <!-- INICIO TABLE PEDIDO INFO-->
+            <p-table [value]="[pedido]">
                 <ng-template pTemplate="caption">
                     <div class="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
-                        <h5 class="m-0">Información del pedido</h5>
+                        <h5 class="m-0">Detalle del pedido</h5>
                     </div>
                 </ng-template>
                 <ng-template pTemplate="header">
@@ -40,11 +114,19 @@
                     </tr>
                 </ng-template>
             </p-table>
+            <!-- FINAL TABLE PEDIDO INFO-->
+
+            <!-- INICIO TABVIEW -->
             <p-tabView>
                 <ng-container>
-                    <p-accordionTab [header]="'Referencia: ' + pedido.referencia">
-                        <div>
-                            <p-table [value]="listPedidos" styleClass="p-datatable-sm" >
+                    <!-- INICIO ACOORDION REFERENCIA -->
+                    <!-- <p-accordionTab [header]="'Referencia: ' + pedido.referencia"> -->
+                        
+                            <!-- INICIO TABLE REFERENCIA -->
+                            <p-table [value]="[pedido]" styleClass="p-datatable-sm" >
+                                <ng-template pTemplate="caption">
+                                    Referencia: {{pedido.referencia}}
+                                </ng-template>
                                 <ng-template pTemplate="header">
                                     <tr>                                            
                                         <th>Descripción</th>
@@ -60,18 +142,21 @@
                                     </tr>
                                 </ng-template>
                             </p-table>
-                        </div>
+                            <!-- FINAL TABLE REFERENCIA -->
+                        
+                        <!-- INICIO TABVIEW PROCESO -->
                         <p-tabView *ngIf="pedido.ProcesoEnReferenciaEnPedidos && pedido.ProcesoEnReferenciaEnPedidos.length">
                             <ng-container *ngFor="let proceso of pedido.ProcesoEnReferenciaEnPedidos">
+                                <!-- INICIO TABPANEL PROCESO INFO -->
                                 <p-tabPanel>
                                     <ng-template pTemplate="header">
                                         <span>{{ proceso.tipoDeMaquina }}</span>  
-                                        <i *ngIf="proceso.id !== undefined && validarRegistroProceso2(proceso.id) && proceso.estado === false" class="pi pi-check ml-2" style="color: green"></i>
+                                        <!-- <i *ngIf="proceso.id !== undefined && validarRegistroProceso2(proceso.id) && proceso.estado === false" class="pi pi-check ml-2" style="color: green"></i>
                                         <i *ngIf="proceso.estado !== undefined && proceso.estado === true" class="pi pi-circle-fill ml-2" style="color: rgb(255, 255, 0)"></i>
-                                        <i *ngIf="proceso.id !== undefined && !validarRegistroProceso2(proceso.id)" class="pi pi-times ml-2" style="color: red"></i>                    
+                                        <i *ngIf="proceso.id !== undefined && !validarRegistroProceso2(proceso.id)" class="pi pi-times ml-2" style="color: red"></i>                     -->
                                     </ng-template>
 
-                                    <p-table [value]="listProcesos">
+                                    <p-table [value]="[proceso]">
                                         <ng-template pTemplate="header">
                                             <tr>                                            
                                                 <th>Proceso</th>                                                            
@@ -84,18 +169,14 @@
                                             </tr>
                                         </ng-template>
                                         <ng-template pTemplate="body" let-proceso>
-                                            <ng-container *ngFor="let info of listProcesos">
-                                              <ng-container>
                                                 <tr>                                
-                                                  <td>{{info.tipoDeMaquina}}</td>
+                                                  <td>{{proceso.tipoDeMaquina}}</td>
                                                   <td>{{proceso.cantidadTotal}}</td>
-                                                  <!-- <td>{{calcularSumaCantAsignada(proceso).sumaCantAsignada || 0}}</td>
-                                                  <td>{{calcularSumaCantAsignada(proceso).cantidadPendiente || 0}}</td> -->
                                                   <td>{{proceso.cantidadAsignada || 0}}</td>
-                                                  <td>{{info.cantidadPendiente || 0}}</td>
-                                                  <td>{{info.cantidadHecha || 0}}</td>
+                                                  <td>{{proceso.cantidadPendiente || 0}}</td>
+                                                  <td>{{proceso.cantidadHecha || 0}}</td>
                                                   <td>
-                                                    <ng-container *ngIf="info.estado === false; else terminado">
+                                                    <ng-container *ngIf="proceso.estado === false; else terminado">
                                                       En proceso
                                                     </ng-container>
                                                     <ng-template #terminado>
@@ -105,53 +186,164 @@
                                  
                                                   <td>
                                                     <div class="flex">
-                                                      <button pButton pRipple icon="pi pi-plus" class="p-button-rounded p-button-info mr-2" (click)="asignarTarea(proceso)"></button>
-                                                      <button pButton pRipple icon="pi pi-info" class="p-button-rounded p-button-warning mr-2" (click)="showInfo(proceso.id)"></button>
+                                                      <p-button icon="pi pi-plus" [rounded]="true" pTooltip="Asignar proceso" (click)="showAsignarProcesoDialog(proceso)"></p-button>
+                                                      <p-button icon="pi pi-info" [rounded]="true" pTooltip="Procesos asignados" (click)="showDetalleProcAsigDialog(proceso)"></p-button>
                                                     </div>
                                                   </td>
                                                 </tr>
-                                              </ng-container>
-                                            </ng-container>
                                           </ng-template>
                                           
                                     </p-table>
-
-                                    <p-table [value]="proceso.ColorEnProcesoEnReferenciaEnPedidos!">
+                                    <!--  -->
+                                    <p-table [value]="proceso.ColorEnProcesoEnReferenciaEnPedidos ?? []">
                                         <ng-template pTemplate="header">
                                             <tr>                                            
                                                 <th>Color</th>                                                            
                                                 <th>Cant. Total</th>  
-                                                <th>Talla</th>                                                                                              
+                                                <th>S</th>
+                                                <th>M</th>
+                                                <th>L</th>
+                                                <th>XL</th>                                                                                            
                                             </tr>
                                         </ng-template>
                                         <ng-template pTemplate="body" let-color>
-                                            <ng-container *ngFor="let talla of color.TallaEnColorEnProcesoEnReferenciaEnPedidos">
                                                 <tr>
                                                     <td>{{color.color}}</td>
-                                                    <td>{{talla.cantidad}}</td>
-                                                    <td>{{talla.talla}}</td>
+                                                    <td>{{color.cantidadTotal}}</td>
+                                                    <td>{{color.tallaS}}</td>
+                                                    <td>{{color.tallaM}}</td>
+                                                    <td>{{color.tallaL}}</td>
+                                                    <td>{{color.tallaXL}}</td>
                                                 </tr>
-                                            </ng-container>
                                         </ng-template>
                                     </p-table>
-                                     <ng-container *ngFor="let color of proceso.ColorEnProcesoEnReferenciaEnPedidos">
-                                        <p-tabPanel [header]="color.color ? color.color : 'Valor Predeterminado'">
-                                            <p>
-                                                {{ color.color }}
-                                            </p>
-                                        </p-tabPanel>
-                                    </ng-container>
+
                                 </p-tabPanel>
+                                <!-- FINAL TABPANEL PROCESO -->
                             </ng-container>
                         </p-tabView>
-                    </p-accordionTab>
+                        <!-- FINAL TABVIEW PROCESO -->
+                    <!-- </p-accordionTab> -->
+                    <!-- FINAL ACCORDION REFERENCIA -->
                 </ng-container>
             </p-tabView>
         </p-accordionTab>
     </p-accordion>
 
+    <!-- Dialog para registrar el proceso asignado a un empleado -->
+    <p-dialog [(visible)]="asignarProcDialog" [style]="{width: '450px'}" [modal]="true" header="Asignar proceso" class="p-fluid">
+        <form [formGroup]="formAsignarProcesoEmpleado" (ngSubmit)="addAsignarProcesoEmpleado()">
+                <div class="field">
+                    <label for="name">Empleado</label>
+                    <input type="text" pInputText formControlName="empleadoId"/>
+                </div>
+                <div class="field">
+                    <label for="name">Proceso</label>
+                    <input type="text" pInputText formControlName="pedidoprocesoId"/>
+                </div>
+                <div class="field">
+                    <label for="name">Cantidad por asignar</label>
+                    <input type="number" pInputText formControlName="cantidadAsignada"/>
+                </div>
+                <div>
+                    <button pButton pRipple label="Cancelar" class="p-button-rounded p-button-danger" (click)="hideDialog()"></button>
+                    <button pButton pRipple label="Guardar" class="p-button-rounded p-button-success"></button>
+                </div>
+        </form>
+    </p-dialog>
+
+    <p-dialog [(visible)]="detalleProcAsigDialog" header="Procesos asignados" [breakpoints]="{'960px': '75vw'}" [style]="{width:'50vw'}" [draggable]="false" [resizable]="false" [modal]="true" class="p-fluid">
+        <!-- <div class="card"> -->
+            <p-table [value]="listFilterAsigProcEmpleado" dataKey="id">
+                <!-- <ng-template pTemplate="caption">
+                    Procesos asignados
+                </ng-template> -->
+                <ng-template pTemplate="header">
+                    <tr>
+                        <th style="width: 5rem"></th>
+                        <th>Code</th>
+                        <th>Empleado</th>
+                        <th>Cantidad asignada</th>
+                        <th>Cantidad restante</th>
+                        <th>Cantidad hecha</th>
+                        <th>Estado</th>
+                        <th>Anulado</th>
+                        <th></th>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-proceso let-expanded="expanded">
+                    <tr>
+                        <td>
+                            <button type="button" pButton pRipple [pRowToggler]="proceso" class="p-button-text p-button-rounded p-button-plain" [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"></button>
+                        </td>
+                        <td>{{proceso.id}}</td>
+                        <td>{{proceso.nombreEmpleado}}</td>
+                        <td>{{proceso.cantidadAsignada}}</td>
+                        <td>{{proceso.cantRestante}}</td>
+                        <td>
+                            <form [formGroup]="formAvance" (ngSubmit)="crearAvance(proceso.id)">
+                                <div class="field">
+                                    <input type="number" pInputText formControlName="cantidadHecha"/>
+                                </div>
+                                <div class="field">
+                                    <p-button type="submit" icon="pi pi-save" [rounded]="true" [text]="true" severity="success" pTooltip="Guardar"></p-button>        
+                                </div>  
+                            </form>
+                        </td>
+                        <td>{{proceso.estadoProcAsig}}</td>
+                        <td>{{proceso.estadoAnular}}</td>
+                        <td>
+                            <div style="display: flex; justify-content: center; align-items: center;">
+                                <div class="field">
+                                    <p-button (click)="anularProceso(proceso.id)" icon="pi pi-times-circle" [rounded]="true" [text]="true" severity="danger" pTooltip="Anular"></p-button>
+                                </div> 
+                            </div>
+                        </td>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="rowexpansion" let-proceso>
+                    <tr>
+                        <td colspan="10">
+                            <div class="p-3">
+                                <p-table [value]="proceso.avanceProcesoEmpleados" dataKey="id">
+                                    <ng-template pTemplate="header">
+                                        <tr>
+                                            <th>Code</th>
+                                            <th>Cantidad hecha</th>
+                                            <th>Fecha</th>
+                                            <th>Hora</th>
+                                        </tr>
+                                    </ng-template>
+                                    <ng-template pTemplate="body" let-avance>
+                                        <tr>
+                                          <td>{{ avance.id }}</td>
+                                          <td>{{ avance.cantidadHecha }}</td>
+                                          <td>{{ avance.date }}</td>
+                                          <td>{{ avance.time }}</td>
+                                      </tr>
+                                        
+                                    </ng-template>
+                                    <ng-template pTemplate="emptymessage">
+                                        <tr>
+                                            <td colspan="6">No tiene procesos asignados pendientes</td>
+                                        </tr>
+                                    </ng-template>
+                                </p-table>
+                            </div>
+                        </td>
+                    </tr>
+                </ng-template>
+            </p-table>
+            <p-confirmDialog></p-confirmDialog>
+
+            <ng-template pTemplate="footer">
+                <button pButton pRipple label="Cerrar" class="p-button-rounded p-button-danger" (click)="hideDialog()"></button>
+            </ng-template>
+        <!-- </div> -->
+    </p-dialog>
+
     <!-- Dialog detalle tareas asignadas -->
-    <p-dialog [(visible)]="viewInfoDialog" [style]="{width: '640px'}" header="Tareas asignadas" [modal]="true" class="p-fluid">
+    <!-- <p-dialog [(visible)]="viewInfoDialog" [style]="{width: '640px'}" header="Tareas asignadas" [modal]="true" class="p-fluid">
         <p-table [value]="filteredAsignarProceso">
             <ng-template pTemplate="header">
                 <tr>                                            
@@ -181,8 +373,8 @@
                 </ng-container> 
             </ng-template>
         </p-table>
-    </p-dialog>
-
+    </p-dialog> -->
+<!-- 
     <p-dialog [(visible)]="changeStateDialog" header="Confirmar" [modal]="true" [style]="{width:'450px'}">
         <div class="flex align-items-center justify-content-center">
             <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem"></i>
@@ -192,10 +384,10 @@
             <button pButton pRipple icon="pi pi-times" class="p-button-text" label="No" (click)="confirmChangeState(false)"></button>
             <button pButton pRipple icon="pi pi-check" class="p-button-text" label="Sí" (click)="confirmChangeState(true)"></button>
         </ng-template>
-    </p-dialog>
+    </p-dialog> -->
 
     <!-- Dialog asignar tarea a empleado  -->
-    <p-dialog [(visible)]="asignarTareaDialog" [style]="{width: '450px'}" header="Asignar tarea" [modal]="true" class="p-fluid">
+    <!-- <p-dialog [(visible)]="asignarTareaDialog" [style]="{width: '450px'}" header="Asignar tarea" [modal]="true" class="p-fluid">
         <form [formGroup]="formularioAsignarProceso" (ngSubmit)="addAsignarProceso()">
             <div class="field">
                 <label for="empleado">Empleado*</label>
@@ -213,6 +405,7 @@
                     </ng-template>
                   </p-autoComplete>                              
                 </div>
+                
                 <small *ngIf="formularioAsignarProceso.get('empleado')?.hasError('required') && formularioAsignarProceso.get('empleado')?.touched" style="color: red;">
                     El empleado es <strong>requerido</strong>
                   </small>
@@ -252,7 +445,7 @@
             </div>
           </form>
           
-    </p-dialog>
+    </p-dialog> -->
     
 
 </div>

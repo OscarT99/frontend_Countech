@@ -1,8 +1,17 @@
+import { AvanceProcesoEmpleado } from "./avanceProcesoEmpleado.interface";
+
 export interface AsignarProcesoEmpleado {
-    idAsignarProceso?: number;
-    empleado?: number;
+    id?: number;
+    cantidadAsignada: number;
+    cantRestante?: number;
+    estadoProcAsig?: boolean;
+    estadoAnular?: boolean;
     proceso?: number;
-    fechaRegistro?: Date;
-    cantAsignada?: number;
-    estado?: boolean;
+    pedidoprocesoId: number;
+    empleadoId: number;
+    AvanceProcesoEmpleado?: AvanceProcesoEmpleado[];
+  }
+
+  export interface EstadoAnular {
+    estadoAnular: boolean;
   }
