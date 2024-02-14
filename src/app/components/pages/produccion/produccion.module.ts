@@ -3,8 +3,11 @@ import { CommonModule } from '@angular/common';
 import { AutoCompleteModule } from 'primeng/autocomplete';
 import { ProduccionRoutingModule } from './produccion-routing.module';
 import { ProduccionComponent } from './produccion.component';
+import { ToolbarModule } from 'primeng/toolbar';
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { TableModule } from 'primeng/table';
+import { InputNumberModule } from 'primeng/inputnumber';
 import { DialogModule } from 'primeng/dialog';
 import { ButtonModule } from 'primeng/button';
 import { AccordionModule } from 'primeng/accordion';
@@ -20,7 +23,10 @@ import { MessagesModule } from 'primeng/messages';
 @NgModule({
     imports: [
         AutoCompleteModule,
+        ConfirmDialogModule,
+        InputNumberModule,
         CommonModule,
+        ToolbarModule,
         ProduccionRoutingModule,
         TimelineModule,
         AccordionModule,
@@ -38,6 +44,6 @@ import { MessagesModule } from 'primeng/messages';
         MessagesModule
 
     ],
-    declarations: [ProduccionComponent]
+    declarations: [ProduccionComponent],
 })
 export class ProduccionModule { }
