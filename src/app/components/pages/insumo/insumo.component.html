@@ -13,20 +13,21 @@
                 </ng-template>
 
                 <ng-template pTemplate="right">                    
-                    <button pButton class="p-button-success" label="Excel" icon="pi pi-file-excel" pTooltip="Descargar"></button>
+                    <button pButton class="p-button-success" label="Excel" icon="pi pi-file-excel" pTooltip="Descargar" (click)="exportToExcel()"></button>
                 </ng-template>
             </p-toolbar>
 
-            <p-table #dt [value]="insumos" responsiveLayout="scroll" [rows]="10" [globalFilterFields]="[]"
+            <p-table #dt [value]="insumos" responsiveLayout="scroll" [rows]="5" [globalFilterFields]="['nombre']"
                 [paginator]="true" [rowsPerPageOptions]="[5,10,15]" [showCurrentPageReport]="true"
-                currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries" [rowHover]="true"
+                currentPageReportTemplate="Mostrando del {first} al {last} de {totalRecords} insumos" [rowHover]="true"
                 dataKey="id">
                 <ng-template pTemplate="caption">
                     <div class="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
                         <h5 class="m-0">Lista de Insumos</h5>
                         <span class="block mt-2 md:mt-0 p-input-icon-left">
                             <i class="pi pi-search"></i>
-                            <input pInputText type="text" placeholder="Buscar..." class="w-full sm:w-auto" />
+                            <input pInputText type="text" placeholder="Buscar..." class="w-full sm:w-auto" 
+                            (input)="onGlobalFilter(dt, $event)"/>
                         </span>
                     </div>
                 </ng-template>
@@ -39,40 +40,38 @@
                 </ng-template>
                 <ng-template pTemplate="body" let-insumo>
                     <tr>
-                        <td style="width:14%; min-width:10rem;">
+                        <td style="min-width:10rem;">
                             <span class="p-column-title">Insumo</span>
                             {{insumo.nombre}}
                         </td>
-                        <td style="width:14%; min-width:8rem;">
+                        <td style="min-width:8rem;">
                             <span class="p-column-title">Cantidad</span>
-                            {{insumo.cantidad}}
+                            {{insumo.cantidad ?? 0}}
                         </td>
                         <td>
-                            <div class="flex">
+                            <div class="flex flex-wrap gap-3 ">
                                 <p-inputSwitch
                                     class="mt-2 {{ insumo.estado ? 'p-inputswitch-success' : 'p-inputswitch-warning' }}"
                                     [(ngModel)]="insumo.estado" (onChange)="confirmarCambioEstadoInsumo(insumo)"
                                     pTooltip="Cambiar estado">
                                 </p-inputSwitch>
-                                <button pButton pRipple icon="pi pi-pencil"
-                                    class="p-button-rounded p-button-warning mr-2" (click)="editInsumo(insumo.id)"
-                                    pTooltip="Editar"></button>
+                                <p-button icon="pi pi-pencil" [rounded]="true" severity="warning"
+                                (click)="editInsumo(insumo.id)" pTooltip="Editar"></p-button>
                             </div>
                         </td>
                     </tr>
                 </ng-template>
             </p-table>
 
-            <p-dialog header="Nuevo Insumo" class="p-fluid" [(visible)]="modalCrearInsumo" [style]="{width: '500px'}"
+            <p-dialog header="Nuevo Insumo" class="p-fluid" [(visible)]="modalCrearInsumo" [style]="{width: '450px'}"
                 [modal]="true">
                 <div style="display: flex; flex-direction: row;">
                     <form [formGroup]="formInsumo" (ngSubmit)="addInsumo()">
-                        <div class="formgrid grid mt-3">
-
-                            <div class="field col">
-                                <span class="p-float-label ">
-                                    <input class="inputs-pedido" formControlName="nombre" id="nombre" type="text"
-                                        pInputText>
+                        <div 
+                        class="formgrid grid mt-3" >
+                            <div class="field col mt-2">
+                                <span class="p-float-label">
+                                    <input formControlName="nombre" id="nombre" type="text" pInputText>
                                     <label for="nombre">Nombre</label>
                                 </span>
                                 <small
@@ -81,13 +80,19 @@
                                     El nombre del insumo <strong>requerido</strong>
                                 </small>
                             </div>
+                            <div class="field col mt-2">
+                                <span class="p-float-label">
+                                    <p-inputNumber *ngIf="idInsumo == 0" formControlName="cantidad" [min]="0"> </p-inputNumber>
+                                    <p-inputNumber [disabled]="true" [readonly]="true" *ngIf="idInsumo != 0" formControlName="cantidad" ></p-inputNumber>
+                                    <label for="cantidad">Cantidad</label>
+                                </span>
+                            </div>
                         </div>
-
-                        <div class="col mt-2 justify-content-flex">
-                            <button pButton pRipple type="button" label="Cancelar" icon="pi pi-times"
-                                class="p-button-text" (click)="modalCrearInsumo = false"></button>
-                            <button type="submit" pButton pRipple label="Guadar" icon="pi pi-check"
-                                class="p-button-text"></button>
+                            
+                        
+                        <div class="formgrid col grid mt-2 justify-content-end">
+                            <p-button label="Cancelar" icon="pi pi-times" (click)="modalCrearInsumo = false" [text]="true"></p-button>
+                            <p-button type="submit" label="Guadar" icon="pi pi-check"></p-button>
                         </div>
 
                     </form>
@@ -95,20 +100,22 @@
             </p-dialog>
 
 
-            <p-dialog header="Insumo gastado" class="p-fluid" [(visible)]="modalSalidaInsumo" [style]="{width: '650px'}"
+            <p-dialog header="Insumo gastado" class="p-fluid" [(visible)]="modalSalidaInsumo" [style]="{width: '750px'}"
                 [modal]="true">
                 <div style="display: flex; flex-direction: row;">
                     <form [formGroup]="formSalidaInsumo" (ngSubmit)="confirmarSalidaInsumo()">
                         <div class="formgrid grid mt-4">
                             <div class="field col">
-                                <p-autoComplete class="inputs-pedido" formControlName="insumo"
-                                    [suggestions]="sugerenciasInsumos" (completeMethod)="buscarInsumos($event)"
-                                    [dropdown]="true" [minLength]="1" [placeholder]="'Buscar Insumo'"
-                                    (onSelect)="seleccionarInsumo($event)">
-                                    <ng-template let-insumo pTemplate="item">
-                                        {{insumo.nombre}}
-                                    </ng-template>
-                                </p-autoComplete>
+                                <input *ngIf="mostrarID" type="text" pInputText formControlName="insumo"/>
+                            <p-autoComplete class="inputs-pedido" formControlName="insumoNombre"
+                                [suggestions]="sugerenciasInsumos" (completeMethod)="buscarInsumos($event)"
+                                [dropdown]="true" [minLength]="1" [placeholder]="'Buscar Insumo'"
+                                (onSelect)="seleccionarInsumo($event)" 
+                                (keyup)="realizarBusquedaEnTiempoRealInsumo($event)" #insumoInput>
+                                <ng-template let-insumo pTemplate="item">
+                                    {{insumo.nombre}}
+                                </ng-template>
+                            </p-autoComplete>
                                 <small
                                     *ngIf="formSalidaInsumo.get('insumo')?.hasError('required') && formSalidaInsumo.get('insumo')?.touched"
                                     style="color: red;">
@@ -117,8 +124,7 @@
                             </div>
                             <div class="field col">
                                 <span class="p-float-label ">
-                                    <p-inputNumber formControlName="cantidad" [min]="0" class="inputs-pedido"
-                                        id=""></p-inputNumber>
+                                    <p-inputNumber *ngIf="idInsumo== 0" formControlName="cantidad" [min]="0"></p-inputNumber>
                                     <label for="">Cantidad</label>
                                 </span>
                                 <small
@@ -128,7 +134,7 @@
                                 </small>
                             </div>
                             <div class="field col">
-                                <p-dropdown formControlName="tipoDeMaquina" class="inputs-pedido"
+                                <p-dropdown formControlName="tipoDeMaquina" 
                                     [autoDisplayFirst]="false" [options]="tipoMaquina"
                                     placeholder="Selecciona la maquina">
                                 </p-dropdown>
@@ -138,9 +144,9 @@
                                     El tipo de maquina es<strong>requerido</strong>
                                 </small>
                             </div>
-                            <div class="col-2 ">
-                                <button pButton pRipple type="button" icon="pi pi-plus" class="p-button-rounded"
-                                    (click)="addInsumoGastado()"></button>
+                            <div class="col-1">
+                                <p-button icon="pi pi-plus" [rounded]="true" (click)="addInsumoGastado()"
+                                pTooltip="Registrar"></p-button>
                             </div>
                         </div>
 
@@ -164,11 +170,10 @@
                             </ng-template>
                         </p-table>
 
-                        <div class="col mt-2 justify-content-flex">
-                            <button pButton pRipple type="button" label="Cancelar" icon="pi pi-times"
-                                class="p-button-text" (click)="modalSalidaInsumo = false"></button>
-                            <button type="submit" pButton pRipple label="Guadar" icon="pi pi-check"
-                                class="p-button-text"></button>
+                        <div class="formgrid col grid mt-2 justify-content-end">
+                            <p-button label="Cancelar" icon="pi pi-times" [text]="true"
+                            (click)="cerrarModalSalidaInsumo()"></p-button>
+                            <p-button type="submit" label="Guadar" icon="pi pi-check"></p-button>
                         </div>
                     </form>
                 </div>

@@ -2,7 +2,7 @@ import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { AutoCompleteModule } from 'primeng/autocomplete';
 import { ProduccionRoutingModule } from './produccion-routing.module';
-import { ProduccionComponent } from './produccion.component';
+//import { ProduccionComponent } from './produccion.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { TableModule } from 'primeng/table';
 import { DialogModule } from 'primeng/dialog';
@@ -38,6 +38,6 @@ import { MessagesModule } from 'primeng/messages';
         MessagesModule
 
     ],
-    declarations: [ProduccionComponent]
+    //declarations: [ProduccionComponent]
 })
 export class ProduccionModule { }

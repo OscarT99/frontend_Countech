@@ -8,12 +8,6 @@ import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms'
 import { ActivatedRoute } from '@angular/router';
 import * as XLSX from 'xlsx';
 
-interface City {
-  name: string;
-  code: string;
-}
-
-
 @Component({
   templateUrl: './cliente.component.html',
 

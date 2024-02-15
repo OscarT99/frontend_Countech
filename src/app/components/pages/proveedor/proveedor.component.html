@@ -16,10 +16,10 @@
                 </ng-template>
             </p-toolbar>
 
-            <p-table #dt [value]="listProveedores" responsiveLayout="scroll" [rows]="10"
+            <p-table #dt [value]="listProveedores" responsiveLayout="scroll" [rows]="5"
                 [globalFilterFields]="['razonSocial','nombreComercial','numeroIdentificacion','telefono','correo','ciudad','contacto','direccion']"
                 [paginator]="true" [rowsPerPageOptions]="[5,10,15]" [showCurrentPageReport]="true"
-                currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries" [rowHover]="true"
+                currentPageReportTemplate="Mostrando del {first} al {last} de {totalRecords} proveedores" [rowHover]="true"
                 dataKey="id">
                 <ng-template pTemplate="caption">
                     <div class="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
@@ -44,34 +44,38 @@
                 </ng-template>
                 <ng-template pTemplate="body" let-proveedor>
                     <tr>
-                        <td style="width:14%; min-width:5rem;"><span class="p-column-title">Tipo</span>
+                        <td style="width:5%; min-width:5rem;"><span class="p-column-title">Tipo</span>
                             {{ proveedor.tipoProveedor }}
                         </td>
-                        <td style="width:14%; min-width:10rem;">
+                        <td style="width:15%; min-width:10rem;">
                             <span class="p-column-title">N° Identificación</span>
                             {{ proveedor.numeroIdentificacion }}
                         </td>
-                        <td style="width:14%; min-width:8rem;">
+                        <td style="width:25%; min-width:8rem;">
                             <span class="p-column-title">Razon Social</span>
-                            {{ proveedor.razonSocial }}
+                            {{ proveedor.tipoIdentificacion !== 'NIT' ?
+                                proveedor.razonSocial + ' ' + proveedor.nombreComercial :
+                                proveedor.razonSocial }}
                         </td>
-                        <td style="width:14%; min-width:10rem;">
+                        <td style="width:10%; min-width:10rem;">
                             <span class="p-column-title">Telefono</span>
                             {{ proveedor.telefono }}
                         </td>
-                        <td style="width:14%; min-width:10rem;">
+                        <td style="width:15%; min-width:10rem;">
                             <span class="p-column-title">Email</span>
                             {{ proveedor.correo }}
                         </td>
                         <td style="width:20%; min-width:5rem;"><span class="p-column-title">Estado</span>
-                            <p-inputSwitch (click)="showConfirmation(proveedor)"
-                                class="{{ proveedor.estado ? 'p-inputswitch-success' : 'p-inputswitch-warning' }}"
+                            <div class="flex flex-wrap gap-3 ">
+                                <p-inputSwitch (click)="showConfirmation(proveedor)"
+                                class="mt-3 {{ proveedor.estado ? 'p-inputswitch-success' : 'p-inputswitch-warning' }}"
                                 [(ngModel)]="proveedor.estado" pTooltip="Cambiar estado">
                             </p-inputSwitch>
-                            <button pButton pRipple icon="pi pi-file" class="p-button-rounded p-button-secondary mr-2"
-                                (click)="mostrarDetalleProveedor(proveedor.id)" pTooltip="Ver detalle"></button>
-                            <button pButton pRipple icon="pi pi-pencil" class="p-button-rounded p-button-warning mr-2"
-                                (click)="editProduct(proveedor.id)" pTooltip="Editar"></button>
+                            <p-button icon="pi pi-file" [rounded]="true" severity="secondary"
+                            (click)="mostrarDetalleProveedor(proveedor.id)" pTooltip="Ver detalle"></p-button>
+                            <p-button icon="pi pi-pencil" [rounded]="true" severity="warning"
+                            (click)="editProduct(proveedor.id)" pTooltip="Editar"></p-button>
+                            </div>                            
                         </td>
                     </tr>
                 </ng-template>
@@ -80,7 +84,7 @@
 
         <p-dialog [(visible)]="productDialog" [style]="{width: '500px'}" header="Nuevo Proveedor" [modal]="true"
             class="p-fluid">
-            <form [formGroup]="formProveedor" (ngSubmit)="addProveedor()">
+            <form [formGroup]="formProveedor" (ngSubmit)="addProveedor()">                
                 <div class="formgrid grid">
                     <div class="field col">
                         <p-dropdown formControlName="tipoProveedor" [options]="tipoProveedor"
@@ -119,7 +123,7 @@
                     </div>
                     <div class="field col mt-2">
                         <span class="p-float-label">
-                            <input formControlName="razonSocial" id="razonSocial" type="text" pInputText>
+                            <input formControlName="razonSocial" id="razonSocial" type="text" maxlength="30" pInputText>
                             <label for="razonSocial">{{ isNIT ? 'Razon Social' : 'Nombres' }}</label>
                         </span>
                         <span
@@ -133,7 +137,7 @@
                 <div class="formgrid grid mt-2">
                     <div class="field col mt-2">
                         <span class="p-float-label ">
-                            <input formControlName="nombreComercial" id="nombreComercial" type="text" pInputText>
+                            <input formControlName="nombreComercial" id="nombreComercial" type="text" maxlength="30" pInputText>
                             <label for="nombreComercial">{{ isNIT ? 'Nombre Comercial' : 'Apellidos' }}</label>
                         </span>
                         <span
@@ -185,9 +189,11 @@
                     </div>
                 </div>
 
-                <button pButton pRipple type="button" label="Cancelar" icon="pi pi-times" class="p-button-text"
-                    (click)="hideDialog()"></button>
-                <button type="submit" pButton pRipple label="Guadar" icon="pi pi-check" class="p-button-text"></button>
+                <div class="formgrid col grid mt-2 justify-content-end">
+                    <p-button label="Cancelar" icon="pi pi-times" [text]="true" (click)="hideDialog()"></p-button>
+                    <p-button type="submit"label="Guadar" icon="pi pi-check" ></p-button>
+                </div>
+                
             </form>
         </p-dialog>
 

@@ -21,6 +21,8 @@ import { InputSwitchModule } from 'primeng/inputswitch';
 import { CalendarModule } from 'primeng/calendar';
 import { MultiSelectModule } from "primeng/multiselect";
 import { TooltipModule } from 'primeng/tooltip';
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
+
 
 @NgModule({
     imports: [
@@ -45,7 +47,8 @@ import { TooltipModule } from 'primeng/tooltip';
         InputSwitchModule,
         CalendarModule,
         MultiSelectModule,
-        TooltipModule                     
+        TooltipModule,
+        ConfirmDialogModule                     
     ],
     declarations: [AddPedidoComponent],     
 })

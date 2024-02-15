@@ -1,31 +1,36 @@
 <div class="grid">
     <div class="col-12">
-
-        <div class="card px-6 py-6">    
-            <div>
-                <h2 class="m-4">Usuarios</h2>
-            </div>    
+        <div class="card px-6 py-6">  
+            
+            
             <p-toolbar styleClass="mb-4">
                 <ng-template pTemplate="left">
                     <div class="my-2">
-                        <button pButton pRipple label="Registrar Usuario" icon="pi pi-plus" class="p-button mr-2" (click)="openNew()"></button>                        
+                        <button pButton pRipple label="Registrar Usuario" icon="pi pi-plus"
+                        (click)="openNew()"></button>
                     </div>
                 </ng-template>
 
-                <ng-template pTemplate="right">                    
-                    <button pButton pRipple label="Excel" icon="pi pi-file-excel"  class="p-button-success" (click)="exportToExcel()"></button>
+                <ng-template pTemplate="right">
+                    <button pButton class="p-button-success" label="Excel" icon="pi pi-file-excel" pTooltip="Descargar"
+                        (click)="exportToExcel()"></button>
                 </ng-template>
             </p-toolbar>
+
+            
             
             <p-table #dt [value]="listUsuarios"  responsiveLayout="scroll" [rows]="10" [globalFilterFields]="['nombre','cedula','email', 'estado']" [paginator]="true" [rowsPerPageOptions]="[5,10,15]" [showCurrentPageReport]="true" currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} registros" [rowHover]="true" dataKey="id" >
                 <ng-template pTemplate="caption">
                     <div class="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
+                        <h5 class="m-0">Lista de Usuarios</h5>
                         <span class="block mt-2 md:mt-0 p-input-icon-left">
                             <i class="pi pi-search"></i>
-                            <input pInputText type="text" (input)="onGlobalFilter(dt, $event)" placeholder="Buscar..."  class="w-full sm:w-auto"/>
+                            <input pInputText type="text" placeholder="Buscar..." (input)="onGlobalFilter(dt, $event)"
+                                class="w-full sm:w-auto" />
                         </span>
                     </div>
                 </ng-template>
+                
                 <ng-template pTemplate="header">
                     <tr>                        
                         <th pSortableColumn="nombre">Nombre<p-sortIcon field="nombre"></p-sortIcon></th>

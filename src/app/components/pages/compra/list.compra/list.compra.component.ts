@@ -2,6 +2,7 @@ import { Component, OnInit, ViewChild } from '@angular/core';
 import { Table } from 'primeng/table';
 import { CompraService } from 'src/app/services/compra/compra.service'; 
 import { CompraInstance } from 'src/app/interfaces/compra/compra.interface'; 
+import { InsumoService } from 'src/app/services/insumo/insumo.service';
 import { ToastrService } from 'ngx-toastr';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Dialog } from 'primeng/dialog';
@@ -11,6 +12,7 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { AbonoCompra } from 'src/app/interfaces/abonoCompra/abonoCompra.interface';
 import { AbonoCompraService } from 'src/app/services/abonoCompra/abonoCompra.service';
 import { ConfirmationService, MessageService } from 'primeng/api';
+import * as XLSX from 'xlsx';
 
 
 @Component({
@@ -20,6 +22,7 @@ import { ConfirmationService, MessageService } from 'primeng/api';
     
 })
 export class ListCompraComponent implements OnInit {
+    mostrarComprasActivas: boolean = true;
     motivoAnulacion: string = '';
     showConfirmationDialogCompra: boolean = false;
     compraSeleccionada: CompraInstance | null = null;
@@ -43,6 +46,7 @@ export class ListCompraComponent implements OnInit {
     constructor(
       private _compraService:CompraService,
       private _abonoCompraService: AbonoCompraService,
+      private _insumoService:InsumoService,
       private toastr: ToastrService,      
       private aRouter:ActivatedRoute,
       private router : Router,
@@ -334,6 +338,67 @@ export class ListCompraComponent implements OnInit {
         return this.compra && this.compra.totalNeto !== undefined ? parseFloat(this.compra.totalNeto.toString()) : 0;
     }
     
+    
+      
+    alternarVistaEstadoCompra() {
+        this.mostrarComprasActivas = !this.mostrarComprasActivas;
+      }
+      
+      ffiltroEstadoCompra(compra: any, filtros: { [s: string]: any }): boolean {
+          return (this.mostrarComprasActivas && compra.estadoCompra === true && (!filtros['estadoCompra'] || filtros['estadoCompra'].value === 'true')) ||
+                 (!this.mostrarComprasActivas && compra.estadoCompra === false && (!filtros['estadoCompra'] || filtros['estadoCompra'].value === 'false'));
+      }
+
+      exportToExcel(){
+        const data: any[] = [];
+
+        const headers = [
+            'Proveedor',
+            'N° Factura',
+            'Fecha Compra',
+            'Forma pago',
+            'Total Bruto',
+            'Iva',
+            'Total Neto'
+        ];
+
+        data.push(headers);
+
+        
+        this.listCompras.forEach(compra => {
+            if(compra.estadoCompra == true){
+                const row = [
+                    compra.proveedor,
+                    compra.numeroFactura,
+                    compra.fechaCompra,
+                    compra.formaPago,
+                    {t:'n',v: compra.totalBruto},
+                    {t:'n',v: compra.iva},
+                    {t:'n',v: compra.totalNeto}
+                ];
+
+                data.push(row);
+            };                                    
+        });
+
+        const ws: XLSX.WorkSheet = XLSX.utils.aoa_to_sheet(data);
+        const wb: XLSX.WorkBook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb,ws,'Compras');
+
+        XLSX.writeFile(wb,'compras.xlsx')
+      }
+
+      onGlobalFilter(table: Table, event: Event) {
+        table.filterGlobal((event.target as HTMLInputElement).value, 'contains');
+      }
+
+      getEstadoLabel(estadoCompra: boolean): string {
+        return estadoCompra ? 'Activa' : 'Anulada';
+    }
+    
+    getSeverityCompra(estadoCompra: boolean): string {
+        return estadoCompra ? 'success' : 'danger';
+    }
     
     
 }

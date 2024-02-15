@@ -398,7 +398,7 @@ confirm2(event: Event) {
 
 
 
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { Product } from 'src/app/interfaces/product';
 import { SelectItem } from 'primeng/api';
 import { Table } from 'primeng/table';
@@ -421,7 +421,9 @@ import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import * as XLSX from 'xlsx';
 import { Observable } from 'rxjs';
 
-
+//PDF
+import jsPDF from 'jspdf';
+import html2canvas from 'html2canvas';
 
 
 @Component({
@@ -442,11 +444,27 @@ export class VentaComponent implements OnInit {
   listPedidos: PedidoInstance[] = []
   pedido: PedidoInstance = {}
   mostrarModalDetalle: boolean = false;
+  mostrarComprobante: boolean = false;
   pedidoIdSeleccionado!: number;
   detallePedido: any; // Puedes ajustar esto según la estructura de tu pedido
   @ViewChild('detallePedidoModal') detallePedidoModal!: Dialog;
+  @ViewChild('comprobanteVenta') comprobanteVenta!: ElementRef;
+  
  
+  generarPDF() {
+    const element = this.comprobanteVenta.nativeElement;
 
+    html2canvas(element).then((canvas) => {
+      const imgData = canvas.toDataURL('image/png');
+      const pdf = new jsPDF('p', 'mm', 'a4');
+      const imgProps = pdf.getImageProperties(imgData);
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+      
+      pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+      pdf.save('comprobante_venta.pdf');
+    });
+  }
   
   id: number = 0;
 
@@ -455,13 +473,13 @@ export class VentaComponent implements OnInit {
   ventaSeleccionado: Venta | null = null;
   switchState: boolean | undefined = undefined;
 
-
+/*
   estadoPago: SelectItem[] = [
     { label: 'Pago', value: 'Pago' },
     { label: 'Pendiente', value: 'Pendiente' }
   ];
   selectedEstadoPago: SelectItem = { value: '' };
-
+*/
 
   value8: any;
   value9: any;
@@ -543,7 +561,17 @@ export class VentaComponent implements OnInit {
         console.log('Detalle del pedido:', this.detallePedido);
         this.mostrarModalDetalle = true;
     } catch (error) {
-        console.error('Error al obtener el detalle del pedido:', error);
+        console.error('Error al obtener el detalle de la venta:', error);
+    }
+  }
+
+  async comprobanteVenta1(id: number) {
+    try {
+        this.detallePedido = await this._pedidoService.getPedido(id).toPromise();
+        console.log('Comprobante de Venta:', this.detallePedido);
+        this.mostrarComprobante = true;
+    } catch (error) {
+        console.error('Error al obtener el comprobante de venta:', error);
     }
   }
 
@@ -660,13 +688,17 @@ confirm2(event: Event) {
     icon: 'pi pi-exclamation-triangle',
     acceptLabel: 'Sí', 
     accept: () => {
+      const valorRestante = this.getValorRestante();
+
+      if (valorRestante === 0) {
+        this.actualizarEstadoPago(this.id, 'Pago');
+      }
+
       this.agregarAbonoVenta(this.value9);
       console.log(this.getValorRestante());
-      const valorRestante = this.getValorRestante();
       this.value9 = undefined; 
       this.formVenta.get('valorRestante')?.setValue(valorRestante);
-
-
+      
       
     },
     reject: () => {
@@ -714,7 +746,7 @@ confirm2(event: Event) {
         venta.fechaVenta,
         venta.formaPago,
         venta.valorTotal,
-        venta.estadoPago ? 'Pago' : 'Pendiente'
+        venta.estadoPago,
       ];
 
       data.push(row);
@@ -729,6 +761,28 @@ confirm2(event: Event) {
     XLSX.writeFile(wb, 'ventas.xlsx');
   }
 
+
+  
+  //Cambiar estado de pago
+  actualizarEstadoPago(id: number, estado: "Pago" | "Pendiente"): void {
+    const ventaActualizada: Venta = {
+      estadoPago: estado
+    };
+  
+    this._ventaService.putVenta(id, ventaActualizada).subscribe(
+      () => {
+        console.log('Estado de pago actualizado exitosamente.');
+  
+        // Recargar la página después de actualizar el estado de pago
+        window.location.reload();
+      },
+      (error) => {
+        console.error('Error al actualizar el estado de pago:', error);
+        // Aquí puedes manejar el error de acuerdo a tus necesidades
+      }
+    );
+  }
+  
   
   
 
@@ -775,7 +829,7 @@ confirm2(event: Event) {
     );
   }
   */
-
+/*
   agregarAbonoVenta(valorAbono: number) {
     const nuevoAbono: AbonoVenta = {
       valorAbono: valorAbono,
@@ -824,7 +878,64 @@ confirm2(event: Event) {
       });
     }
   }
-  
+*/
+
+agregarAbonoVenta(valorAbono: number) {
+  const nuevoAbono: AbonoVenta = {
+    valorAbono: valorAbono,
+    fechaAbono: new Date(),
+    venta: this.id
+  };
+
+  // Verificar si el valor restante es 0 antes de agregar un nuevo abono
+  const valorRestante = this.getValorRestante();
+
+  if (valorRestante > 0) {
+    // Verificar si el valorAbono es mayor al valorRestante
+    if (valorAbono > valorRestante) {
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Error',
+        detail: 'El valor del abono no puede ser mayor al valor restante'
+      });
+    } else {
+      this._abonoVentaService.postAbonoVenta(nuevoAbono).subscribe(
+        () => {
+          this.messageService.add({
+            severity: 'success',
+            summary: 'Agregado',
+            detail: 'El abono se agregó exitosamente a la venta'
+          });
+          this.getListAbonoVentas(); // Actualiza la lista de abonos de venta después de agregar uno nuevo
+          //this.hideDialog(); // Cierra el diálogo después de agregar el abono de venta
+          
+          // Después de agregar un nuevo abono, verifica si el valor restante es 0
+          // Si es 0, actualiza el estado de pago a "Pago"
+          const nuevoValorRestante = this.getValorRestante();
+          if (nuevoValorRestante === 0) {
+            this.actualizarEstadoPago(this.id, 'Pago');
+          }
+        },
+        (error) => {
+          console.error('Error al agregar abono de venta:', error);
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Error',
+            detail: 'Hubo un error al agregar el abono a la venta'
+          });
+        }
+      );
+    }
+  } else {
+    // Mostrar un mensaje o deshabilitar el botón de agregar abono si el valor restante es 0
+    this.messageService.add({
+      severity: 'info',
+      summary: 'Información',
+      detail: 'No se pueden agregar más abonos, el valor restante es 0'
+    });
+  }
+}
+
 
   newAbonoVenta(id: number) {
     this.id = id;

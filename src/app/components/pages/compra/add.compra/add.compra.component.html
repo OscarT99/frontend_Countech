@@ -7,13 +7,16 @@
                     <div class="col-4">
                         <Label>Proveedor</Label>
                         <div>
-                            <p-autoComplete class="inputs-pedido" formControlName="proveedor"
+                            <input *ngIf="mostrarID" type="text" pInputText formControlName="proveedor"/>
+                            <p-autoComplete class="inputs-pedido" formControlName="razonSocial"
                                 [suggestions]="sugerenciasProveedores" (completeMethod)="buscarProveedores($event)"
                                 [dropdown]="true" [minLength]="1" [placeholder]="'Buscar Proveedor'"
-                                (onSelect)="seleccionarProveedor($event)">
+                                (onSelect)="seleccionarProveedor($event)"
+                                (keyup)="realizarBusquedaEnTiempoReal($event)">
                                 <ng-template let-proveedor pTemplate="item">
-                                    {{proveedor.razonSocial}} - {{proveedor.numeroIdentificacion}} -
-                                    {{proveedor.estado}}
+                                    {{ proveedor.tipoIdentificacion == 'NIT' ?
+                                        proveedor.razonSocial + ' - ' + proveedor.numeroIdentificacion :
+                                        proveedor.razonSocial + ' ' + proveedor.nombreComercial + ' - ' + proveedor.numeroIdentificacion }}
                                 </ng-template>
                             </p-autoComplete>
                         </div>
@@ -51,7 +54,7 @@
                         <label>Fecha Compra</label>
                         <div>
                             <p-calendar formControlName="fechaCompra" class="inputs-pedido" dateFormat="yy-mm-dd"
-                                [showIcon]="true"></p-calendar>
+                                [showIcon]="true" [maxDate]="maxDate"></p-calendar>
                         </div>
                         <span
                             *ngIf="formCompra.get('fechaCompra')?.hasError('required') && formCompra.get('fechaCompra')?.touched"
@@ -71,10 +74,12 @@
                     <div class="col-3">
                         <label>Insumo</label>
                         <div>
-                            <p-autoComplete class="inputs-pedido" formControlName="insumo"
+                            <input *ngIf="mostrarID" type="text" pInputText formControlName="insumo"/>
+                            <p-autoComplete class="inputs-pedido" formControlName="insumoNombre"
                                 [suggestions]="sugerenciasInsumos" (completeMethod)="buscarInsumos($event)"
                                 [dropdown]="true" [minLength]="1" [placeholder]="'Buscar Insumo'"
-                                (onSelect)="seleccionarInsumo($event)" #insumoInput>
+                                (onSelect)="seleccionarInsumo($event)" 
+                                (keyup)="realizarBusquedaEnTiempoRealInsumo($event)" #insumoInput>
                                 <ng-template let-insumo pTemplate="item">
                                     {{insumo.nombre}}
                                 </ng-template>
@@ -198,14 +203,15 @@
                         placeholder="Aqui puedes ingresar observaciones adicionales." pInputTextarea></textarea>
                 </div>
 
+                <p-confirmDialog></p-confirmDialog>
+
                 <footer class="footer-pedido">
-                    <div>
-                        <button pButton pRipple type="button" label="Cancelar" class="p-button-danger"
-                            routerLink="/pages/compra"></button>
+                    <div>                        
+                        <button pButton pRipple type="button" label="Cancelar" class="p-button-danger"  (click)="mostrarConfirmacionSalir()"></button>
                         <button pButton pRipple label="Guardar" class="p-button-success" (click)="addCompra()"></button>
                     </div>
                 </footer>
-            </form>
+            </form> 
         </div>
     </div>
 </div>
