@@ -73,21 +73,18 @@
                             <p-tag [value]="getEstadoLabel(compra.estadoCompra)" [severity]="getSeverityCompra(compra.estadoCompra)"></p-tag>
                         </td>
                         <td>
-                            <div class="flex">
-                                <button pButton pRipple icon="pi pi-file" class="p-button-rounded p-button-secondary mr-2"
-                                    (click)="mostrarDetalleCompra(compra.id)" pTooltip="Ver detalle"></button>
-
-                                 <!-- Verificar si la cumple con las condicones para realizar un abono -->
-                                 <button *ngIf="compra.formaPago === 'Crédito' && compra.estadoPago === 'Pendiente' && compra.estadoCompra === true"
-                                 pButton pRipple icon="pi pi-dollar" class="p-button-rounded p-button-success mr-2 mx-2" 
-                                 (click)="newAbonoCompra(compra.id)">
-                                 </button>    
-                                <button *ngIf="compra.estadoCompra == true" pButton pRipple icon="pi pi-times"
-                                    class="p-button-rounded p-button-danger" (click)="anularCompra(compra)"
-                                    pTooltip="Anular"></button>
-                                    
-                                   
-                            </div>
+                            <div class="flex flex-wrap gap-3 "> 
+                                <!-- <button  pTooltip="Editar" style="background:transparent;border:transparent"><i class="fa-sharp fa-solid fa-pencil fa-2xl mt-2" style="color: #FFD43B;"></i></button> -->                                
+                                <p-button icon="pi pi-file" [rounded]="true" severity="secondary"
+                                    (click)="mostrarDetalleCompra(compra.id)" pTooltip="Ver detalle"></p-button>
+                                <button *ngIf="compra.formaPago === 'Crédito' && compra.estadoPago === 'Pendiente' && compra.estadoCompra === true"
+                                    pButton pRipple icon="pi pi-dollar" class="p-button-rounded p-button-success mr-2 mx-2" 
+                                    (click)="newAbonoCompra(compra.id)">
+                                </button>    
+                                <p-button *ngIf="compra.estadoCompra == true" icon="pi pi-times" [rounded]="true" severity="danger"
+                                    (click)="anularCompra(compra)" pTooltip="Anular"></p-button>
+                            
+                            </div>                                                                                
                         </td>
                     </tr>
                 </ng-template>

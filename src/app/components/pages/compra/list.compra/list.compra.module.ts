@@ -28,6 +28,8 @@ import { TagModule } from 'primeng/tag';
         ToolbarModule,
         InputTextModule,
         DialogModule, 
+        TooltipModule,
+        TagModule ,                           
         ConfirmPopupModule, 
         InputNumberModule,
         ReactiveFormsModule,

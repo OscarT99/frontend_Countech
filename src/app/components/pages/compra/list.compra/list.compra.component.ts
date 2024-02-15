@@ -22,7 +22,8 @@ import { ConfirmationService, MessageService } from 'primeng/api';
     
 })
 export class ListCompraComponent implements OnInit {
-    mostrarComprasActivas: boolean = true;
+
+    mostrarComprasActivas : boolean = true;
 
     motivoAnulacion: string = '';
     showConfirmationDialogCompra: boolean = false;
@@ -344,209 +345,13 @@ export class ListCompraComponent implements OnInit {
     }
     
     
-    //Abono Compras
-    // value8: any;
-    // value9: any;
-    // productDialogAbono: boolean = false;
+ 
 
 
-
-    
-
-    // getCompra(id:number){
-    //     this._compraService.getCompra(id).subscribe((data:CompraInstance) => {        
-    //       console.log(data)
-    //       this.formAbonoCompra=this.fb.group({
-    //         id: ['', Validators.required],
-    //         proveedor:['',Validators.required],
-    //         numeroFactura:['',Validators.required],
-    //         fechaCompra:['',Validators.required],
-    //         formaPago:['',Validators.required],
-    //         totalBruto:['',Validators.required],
-    //         ivaTotal:['',Validators.required],
-    //         totalNeto:['',Validators.required],
-    //         estadoPago: ['', Validators.required],
-    //         valorRestante: [{ value: 0, disabled: true }],
-
-
-    //     })
-
-    //       this.formAbonoCompra.patchValue({
-    //         id: data.id,
-    //         proveedor:data.proveedor,
-    //         numeroFactura:data.numeroFactura,
-    //         fechaCompra:data.fechaCompra,
-    //         formaPago:data.formaPago,
-    //         totalBruto:data.totalBruto,
-    //         ivaTotal:data.iva,
-    //         totalNeto:data.totalNeto, 
-    //         estadoPago: data.estadoPago,       
-    //       })
-    
-           
-    //     })
-    // }
 
 
 
   
-
-    // newAbonoCompra(id: number) {
-    //     this.id = id;
-    //     this.productDialogAbono = true;
-    //     this.getCompra(id);
-        
-    //     // Filtra los abonos por la compra seleccionada
-    //     this.filtrarAbonosPorCompra(id);
-    //     this.getListAbonoCompras();
-    // }
-
-
-    
-
-
-    // openNew() {
-    //     this.id = 0;                
-    //     this.formAbonoCompra.reset()
-    //     this.productDialogAbono = true;
-    // }
-
-
-
-    
-
-    
-    
-    // confirm2(event: Event) {
-    //     this.confirmationService.confirm({
-    //     key: 'confirm2',
-    //     target: event.target || new EventTarget,
-    //     message: '¿Está seguro de realizar el abono?',
-    //     icon: 'pi pi-exclamation-triangle',
-    //     acceptLabel: 'Sí', 
-    //     accept: () => {
-    //         this.agregarAbonoCompra(this.value9);
-    //         console.log(this.getValorRestante());
-    //         const valorRestante = this.getValorRestante();
-    //         this.value9 = undefined; 
-    //         this.formAbonoCompra.get('valorRestante')?.setValue(valorRestante);
-    
-    
-            
-    //     },
-    //     reject: () => {
-    //         this.messageService.add({
-    //         severity: 'error',
-    //         summary: 'Cancelado',
-    //         detail: 'El abono no fue agregado a la compra'
-    //         });
-    //     }
-    //     });
-    // }
-
-
-    // agregarAbonoCompra(valorAbono: number) {
-    //     const nuevoAbono: AbonoCompra = {
-    //     valorAbono: valorAbono,
-    //     fechaAbono: new Date(),
-    //     compra: this.id
-    //         };
-    //     // Verificar si el valor restante es 0 antes de agregar un nuevo abono
-    //     const valorRestante = this.getValorRestante();
-    
-    //     if (valorRestante > 0) {
-    //     // Verificar si el valorAbono es mayor al valorRestante
-    //     if (valorAbono > valorRestante) {
-    //         this.messageService.add({
-    //         severity: 'error',
-    //         summary: 'Error',
-    //         detail: 'El valor del abono no puede ser mayor al valor restante'
-    //         });
-    //     } else {
-    //         this._abonoCompraService.postAbonoCompra(nuevoAbono).subscribe(
-    //         () => {
-    //             this.messageService.add({
-    //             severity: 'success',
-    //             summary: 'Agregado',
-    //             detail: 'El abono se agregó exitosamente a la compra'
-    //             });
-    //             this.getListAbonoCompras(); // Actualiza la lista de abonos de compra después de agregar uno nuevo
-    //             //this.hideDialog(); // Cierra el diálogo después de agregar el abono de compra
-    //         },
-    //         (error) => {
-    //             console.error('Error al agregar abono de compra:', error);
-    //             this.messageService.add({
-    //             severity: 'error',
-    //             summary: 'Error',
-    //             detail: 'Hubo un error al agregar el abono a la compra'
-    //             });
-    //         }
-    //         );
-    //     }
-    //     } else {
-    //     // Mostrar un mensaje o deshabilitar el botón de agregar abono si el valor restante es 0
-    //     this.messageService.add({
-    //         severity: 'info',
-    //         summary: 'Información',
-    //         detail: 'No se pueden agregar más abonos, el valor restante es 0'
-    //     });
-    //     }
-    // }
-  
-
-    //filtrar abonos de la compra seleccionada
-    // filtrarAbonosPorCompra(compraId: number) {
-    //     this.listAbonoCompras = this.listAbonoCompras.filter(abono => abono.compra === compraId);
-    // }
-
-
-    //Listar Abonos
-    // getListAbonoCompras() {
-    //     if (this.id !== 0) {
-    //     this._abonoCompraService.getListAbonoCompras().subscribe((data: any) => {
-    //         this.listAbonoCompras = data.listAbonoCompras.filter((abono: AbonoCompra) => abono.compra === this.id);
-    //     });
-    //     }
-    // }
-  
-
-
-
-    
-    
-    // getValorRestante(): number {
-    //     if (
-    //       this.compra &&
-    //       this.compra.totalNeto !== undefined &&
-    //       this.listAbonoCompras &&
-    //       this.listAbonoCompras.length > 0
-    //     ) {
-    //       const abonosRelacionados = this.listAbonoCompras.filter(abono => abono.compra === this.id);
-      
-    //       if (abonosRelacionados.length > 0 && !isNaN(parseFloat(this.compra.totalNeto.toString()))) {
-    //         let totalAbonos = 0;
-      
-    //         abonosRelacionados.forEach(abono => {
-    //           if (abono.valorAbono !== undefined) {
-    //             const valorAbono = parseFloat(abono.valorAbono.toString());
-    //             if (!isNaN(valorAbono)) {
-    //               totalAbonos += valorAbono;
-    //             }
-    //           }
-    //         });
-      
-    //         const totalNeto = parseFloat(this.compra.totalNeto.toString());
-    //         const valorRestante = totalNeto - totalAbonos;
-    //         return valorRestante;
-    //       }
-    //     }
-      
-    //     // Si no hay abonos relacionados o si falta información, devuelve el total neto de la compra o 0 si no está definido
-    //     return this.compra && this.compra.totalNeto !== undefined ? parseFloat(this.compra.totalNeto.toString()) : 0;
-    // }
-    
-    
-      
     alternarVistaEstadoCompra() {
         this.mostrarComprasActivas = !this.mostrarComprasActivas;
       }

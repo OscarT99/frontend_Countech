@@ -42,7 +42,6 @@ import { MessagesModule } from 'primeng/messages';
         DropdownModule,
         InputSwitchModule,
         MessagesModule
-
     ],
     declarations: [ProduccionComponent],
 })
