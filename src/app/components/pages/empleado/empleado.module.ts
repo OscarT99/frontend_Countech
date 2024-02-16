@@ -19,12 +19,14 @@ import { InputNumberModule } from 'primeng/inputnumber';
 import { DialogModule } from 'primeng/dialog';
 import { InputSwitchModule } from 'primeng/inputswitch';
 import { KeyFilterModule } from 'primeng/keyfilter';
+import { CalendarModule } from 'primeng/calendar';
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core'
 
 
 
 @NgModule({
     imports: [
+        CalendarModule,
         CommonModule,
         EmpleadoRoutingModule,
         TableModule,

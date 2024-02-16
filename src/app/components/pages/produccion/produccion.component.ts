@@ -53,6 +53,11 @@ export class ProduccionComponent implements OnInit {
 
     id: number = 0;
 
+    procesoId: number = 0;
+
+    empleadoId: number = 0;
+
+
     // mostrarModalDetalle: boolean = false;
 
     // pedidoIdSeleccionado!: number;
@@ -76,8 +81,9 @@ export class ProduccionComponent implements OnInit {
     private router : Router,
     ){
       this.formAsignarProcesoEmpleado = this.fb.group({
-        empleadoId: ['', Validators.required],
+        empleadoId: [''],
         pedidoprocesoId: ['', Validators.required],
+        cantidadPendiente: [''],
         cantidadAsignada: ['', [Validators.required, Validators.min(1)]],
       });
       this.formAvance = this.fb.group({
@@ -100,6 +106,45 @@ export class ProduccionComponent implements OnInit {
     this.getEmpleadoList();
     this.getAsignarProcesoEmpleado();
   }
+
+  changeEstado(estado: boolean) {
+    switch (estado) {
+      case true:
+        return 'TERMINADO';
+      case false:
+        return 'PENDIENTE';
+    };
+  }
+
+  changeEstadoAnular(estado: boolean) {
+    switch (estado) {
+      case true:
+        return 'ANULADO';
+      case false:
+        return 'ACTIVO';
+    };
+  }
+
+  styleEstadoAnular(estado: boolean) {
+    switch (estado) {
+      case true:
+        return 'danger';
+      case false:
+        return 'success';
+    };
+  }
+
+
+
+  getEstadoProd(estado: boolean) {
+    switch (estado) {
+      case true:
+        return 'success';
+      case false:
+        return 'warning';
+    };
+  }
+
 
   // Listar los pedidos en producción
   getListPedidos(){     
@@ -157,6 +202,8 @@ export class ProduccionComponent implements OnInit {
   showAsignarProcesoDialog(proceso: any) {
     this.formAsignarProcesoEmpleado.reset();
     this.asignarProcDialog = true;
+    this.procesoId = proceso.id;
+    this.formAsignarProcesoEmpleado.get('cantidadPendiente')!.setValue(proceso.cantidadPendiente);
     console.log({data: proceso});
   }
 
@@ -173,8 +220,8 @@ export class ProduccionComponent implements OnInit {
   // Registrar un proceso asignado a un empleado
   addAsignarProcesoEmpleado() {
     const dataAsignarProceso: AsignarProcesoEmpleado = {
-      empleadoId: this.formAsignarProcesoEmpleado.value.empleadoId,
-      pedidoprocesoId: this.formAsignarProcesoEmpleado.value.pedidoprocesoId,
+      empleadoId: this.empleadoId,
+      pedidoprocesoId: this.procesoId,
       cantidadAsignada: this.formAsignarProcesoEmpleado.value.cantidadAsignada,
     }
 
@@ -182,6 +229,7 @@ export class ProduccionComponent implements OnInit {
     this._asignarProcesoService.postAsignarProcesoEmpleado(dataAsignarProceso).subscribe(() => {
       this.toastr.success('Proceso asignado correctamente', 'Éxito');
       this.getAsignarProcesoEmpleado();
+      this.getListPedidos();
       this.hideDialog();
     });
   }
@@ -273,9 +321,9 @@ export class ProduccionComponent implements OnInit {
   }
 
 
-//   buscarEmpleado(event: any): void {
-//     this.listEmpleados = this.filterEmpleados(event.query);
-// }
+  buscarEmpleado(event: any): void {
+    this.listEmpleados = this.filterEmpleados(event.query);
+}
 
 // getNombreEmpleado(idEmpleado: number): string {
 //   const empleado = this.listEmpleados.find(emp => emp.id === idEmpleado);
@@ -283,34 +331,35 @@ export class ProduccionComponent implements OnInit {
 // }
 
 
-// filterEmpleados(query: string): Empleado[] {
-//   return this.listEmpleados
-//   .filter((empleado) => (empleado.estado === true && empleado.estadoOcupado === false)
-//       // empleado.nombre!.toLowerCase().includes(query.toLowerCase()) ||
-//       // empleado.apellido!.toLowerCase().includes(query.toLowerCase())
-//       // cliente.numeroIdentificacion!.toLowerCase().includes(query.toLowerCase())
-//   );
-// }
+filterEmpleados(query: string): Empleado[] {
+  return this.listEmpleados
+  .filter((empleado) => (empleado.estado === true)
+  );
+}
 
   
-// seleccionarEmpleado(event: any): void {
-//   this.empleadoId = event.value.idEmpleado;
-//   const nombre = event.value.nombre;
-//   const apellido = event.value.apellido;
-//   if (this.listEmpleados.length > 0) {
-//   this.formularioAsignarProceso.get('empleado')!.setValue(nombre + ' ' + apellido);
-//   }else{
-//     this.formularioAsignarProceso.get('empleado')!.setValue('No hay empleados disponibles');
-//   }
-//   const empleadoSeleccionado = this.listEmpleados.find(c => c.idEmpleado === empleadoId);
+seleccionarEmpleado(event: any): void {
+  this.empleadoId = event.value.id;
+  const nombre = event.value.nombre;
+  const apellido = event.value.apellido;
+  if (this.listEmpleados.length > 0) {
+  this.formAsignarProcesoEmpleado.get('empleadoId')!.setValue(nombre + ' ' + apellido);
+  }else{
+    this.formAsignarProcesoEmpleado.get('empleadoId')!.setValue('No hay empleados disponibles');
+  }
+  const empleadoSeleccionado = this.listEmpleados.find(c => c.id === this.empleadoId);
 
-//   if (empleadoSeleccionado) {
-//     this.formularioAsignarProceso.get('contacto')!.setValue(empleadoSeleccionado.nombre || '');
-//   }
-// }
+  this.empleadoId = empleadoSeleccionado?.id || 0;
+  
+
+  console.log(this.empleadoId)
+
+  // if (empleadoSeleccionado) {
+  //   this.formAsignarProcesoEmpleado.get('contacto')!.setValue(empleadoSeleccionado.nombre || '');
+  // }
+}
 
 
-procesoId: number = 0;
 cantidadAsignada: number = 0;
 cantidadHecha: number = 0;
 cantidadPendiente: number = 0;
