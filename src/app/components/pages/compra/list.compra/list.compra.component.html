@@ -73,15 +73,7 @@
                             <p-tag [value]="getEstadoLabel(compra.estadoCompra)" [severity]="getSeverityCompra(compra.estadoCompra)"></p-tag>
                         </td>
                         <td>
-                            <div class="flex flex-wrap gap-3 "> 
-                                <!-- <button  pTooltip="Editar" style="background:transparent;border:transparent"><i class="fa-sharp fa-solid fa-pencil fa-2xl mt-2" style="color: #FFD43B;"></i></button> -->
-                                
-                                <p-button icon="pi pi-file" [rounded]="true" severity="secondary"
-                                    (click)="mostrarDetalleCompra(compra.id)" pTooltip="Ver detalle"></p-button>
-                                <p-button *ngIf="compra.estadoCompra == true" icon="pi pi-times" [rounded]="true" severity="danger"
-                                    (click)="anularCompra(compra)" pTooltip="Anular"></p-button>
-                            
-                            </div>
+                          
                             
                             <div class="flex">
                                 <button pButton pRipple icon="pi pi-file" class="p-button-rounded p-button-secondary mr-2"

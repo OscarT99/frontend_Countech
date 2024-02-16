@@ -1,4 +1,4 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { environment } from 'src/enviroments/environment';
 import { AbonoCompra } from 'src/app/interfaces/abonoCompra/abonoCompra.interface';
@@ -15,15 +15,27 @@ import { Observable } from 'rxjs';
     }
   
     getAbonoCompra(id:number): Observable<AbonoCompra>{
-      return this.http.get<AbonoCompra>(`${this.myAppUrl}${this.myApiUrl}${id}`)
+
+      const token = localStorage.getItem('token');
+      const headers = new HttpHeaders().set('x-token', token || '');
+
+      return this.http.get<AbonoCompra>(`${this.myAppUrl}${this.myApiUrl}${id}`, {headers})
     }
   
     getListAbonoCompras(): Observable<AbonoCompra[]>{
-      return this.http.get<AbonoCompra[]>(`${this.myAppUrl}${this.myApiUrl}`)    
+      
+      const token = localStorage.getItem('token');
+      const headers = new HttpHeaders().set('x-token', token || '');
+
+      return this.http.get<AbonoCompra[]>(`${this.myAppUrl}${this.myApiUrl}`, {headers})    
     }
   
     postAbonoCompra(abonoCompra : AbonoCompra):Observable<void>{
-      return this.http.post<void>(`${this.myAppUrl}${this.myApiUrl}`,abonoCompra)
+      
+      const token = localStorage.getItem('token');
+      const headers = new HttpHeaders().set('x-token', token || '');
+
+      return this.http.post<void>(`${this.myAppUrl}${this.myApiUrl}`,abonoCompra, { headers})
     }
     
 }

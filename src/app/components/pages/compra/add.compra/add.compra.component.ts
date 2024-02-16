@@ -301,25 +301,22 @@ export class AddCompraComponent implements OnInit {
   }
   
 
-
+  totalNeto: number = 0;
+  
   ////  ACTUALIZAR VALORES DE TOTALBRUTO, IVATOTAL, TOTALNETO
   calcularTotales(): void {
     let totalBruto = 0;
     let ivaTotal = 0;
-    let totalNeto = 0;
-  
     this.detallesInsumo.forEach(detalle => {
       totalBruto += detalle.cantidad! * detalle.valorUnitario!;
       ivaTotal += detalle.cantidad! * detalle.impuestoIva!;
     });
-  
-    totalNeto = totalBruto + ivaTotal;
-  
+    this.totalNeto = totalBruto + ivaTotal; // Asignar valor a totalNeto
+
     this.formCompra.get('totalBruto')!.setValue(totalBruto)
     this.formCompra.get('ivaTotal')!.setValue(ivaTotal)
-    this.formCompra.get('totalNeto')!.setValue(totalNeto)        
+    this.formCompra.get('totalNeto')!.setValue(this.totalNeto)        
   }
-
 
 
   /////   METODO  PARA AGREGAR LA COMPRA A LA BASE DE DATOS

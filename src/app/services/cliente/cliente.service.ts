@@ -1,4 +1,4 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { environment } from 'src/enviroments/environment';
 import { Cliente } from 'src/app/interfaces/cliente/cliente.interface';
@@ -15,29 +15,51 @@ import { Observable } from 'rxjs';
     }
   
     getCliente(id:number): Observable<Cliente>{
-      return this.http.get<Cliente>(`${this.myAppUrl}${this.myApiUrl}${id}`)
+      
+      const token = localStorage.getItem('token');
+      const headers = new HttpHeaders().set('x-token', token || '');
+
+      return this.http.get<Cliente>(`${this.myAppUrl}${this.myApiUrl}${id}`,{headers})
     }
   
     getListClientes(): Observable<Cliente[]>{
-      return this.http.get<Cliente[]>(`${this.myAppUrl}${this.myApiUrl}`)    
+      const token = localStorage.getItem('token');
+      const headers = new HttpHeaders().set('x-token', token || '');
+
+      return this.http.get<Cliente[]>(`${this.myAppUrl}${this.myApiUrl}`, { headers})    
     }
       
     postCliente(cliente : Cliente):Observable<void>{
-      return this.http.post<void>(`${this.myAppUrl}${this.myApiUrl}`,cliente)
+      const token = localStorage.getItem('token');
+      const headers = new HttpHeaders().set('x-token', token || '');
+
+      return this.http.post<void>(`${this.myAppUrl}${this.myApiUrl}`, cliente, { headers });
     }
   
     putCliente(id:number,cliente:Cliente):Observable<void>{
-      return this.http.put<void>(`${this.myAppUrl}${this.myApiUrl}${id}`,cliente)
+      
+      const token = localStorage.getItem('token');
+      const headers = new HttpHeaders().set('x-token', token || '');
+
+      return this.http.put<void>(`${this.myAppUrl}${this.myApiUrl}${id}`,cliente, { headers })
     }
       
 
     getListClientesPedido(): Observable<{ listClientes: Cliente[] }> {
-      return this.http.get<{ listClientes: Cliente[] }>(`${this.myAppUrl}${this.myApiUrl}`);
+      
+      const token = localStorage.getItem('token');
+      const headers = new HttpHeaders().set('x-token', token || '');
+
+      return this.http.get<{ listClientes: Cliente[] }>(`${this.myAppUrl}${this.myApiUrl}`, { headers });
     }
 
     buscarClientes(termino: string): Observable<Cliente[]> {
+
+      const token = localStorage.getItem('token');
+      const headers = new HttpHeaders().set('x-token', token || '');
+      
       const url = `${this.myAppUrl}${this.myApiUrl}buscar?termino=${termino}`;
-      return this.http.get<Cliente[]>(url);
+      return this.http.get<Cliente[]>(url, { headers });
     }
     
   }
