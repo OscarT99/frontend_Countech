@@ -48,7 +48,8 @@ export class ProveedorComponent implements OnInit {
     ];
 
     productDialog: boolean = false;
-    rowsPerPageOptions = [5, 10, 15];
+
+    // rowsPerPageOptions = [5, 10, 15];
 
     constructor(private fb:FormBuilder,
       private _proveedorService:ProveedorService,
@@ -236,4 +237,111 @@ export class ProveedorComponent implements OnInit {
       }
     }  
 
+
+      /////  VALIDACIONES DE LOS CAMPOS DEL FORMULARIO
+
+validarCampo(campo: string) {
+  const control = this.formProveedor.get(campo);
+
+  if (control?.hasError('required')) {
+      return;
+  }
+
+  const soloLetrasRegex = /^[a-zA-ZáéíóúüÁÉÍÓÚÜÑñ\s.]*$/;
+
+  if (!soloLetrasRegex.test(control?.value)) {
+      control?.setErrors({ soloLetras: true });
+  } else {
+      if (campo === 'razonSocial' || campo === 'nombreComercial') {
+          const minLetrasRegex = /^[a-zA-ZáéíóúüÁÉÍÓÚÜÑñ\s.]{3,}$/;
+          if (!minLetrasRegex.test(control?.value)) {
+              control?.setErrors({ minlength: true });
+          } else {
+              control?.setErrors(null);
+          }
+      } else {
+          control?.setErrors(null);
+      }
+  }
+}
+
+validarNumeroIdentificacion() {
+  const numeroIdentificacionControl = this.formProveedor.get('numeroIdentificacion');
+  const numeroIdentificacionValue = numeroIdentificacionControl?.value;
+
+  // Verificar si se ingresan letras}
+    if (!/^\d+$/.test(numeroIdentificacionValue)) {
+      numeroIdentificacionControl?.setErrors({ soloNumeros: true });
+      return;
+  }
+
+  // Verificar la longitud mínima
+  if (numeroIdentificacionValue && numeroIdentificacionValue.length < 6) {
+      numeroIdentificacionControl?.setErrors({ minlength: true });
+      return;
+  }
+
+  // Verificar la existencia en la base de datos
+  const numeroExistente = this.listProveedores.some(proveedor => proveedor.numeroIdentificacion === numeroIdentificacionValue);
+
+  if (numeroExistente) {
+      numeroIdentificacionControl?.setErrors({ numeroExistente: true });
+  } else {
+      numeroIdentificacionControl?.setErrors(null);
+  }
+}
+
+validarCiudad() {
+  const ciudadControl = this.formProveedor.get('ciudad');
+  const ciudadValue = ciudadControl?.value;
+
+  // Verificar si es requerido
+  if (ciudadControl?.hasError('required')) {
+      return;
+  }
+
+  // Verificar solo letras y longitud mínima
+  const soloLetrasRegex = /^[a-zA-ZáéíóúüÁÉÍÓÚÜÑñ\s]*$/;
+  const minCaracteres = 4;
+
+  if (!soloLetrasRegex.test(ciudadValue)) {
+      ciudadControl?.setErrors({ soloLetras: true });
+  } else if (ciudadValue && ciudadValue.length < minCaracteres) {
+      ciudadControl?.setErrors({ minlength: true });
+  } else {
+      ciudadControl?.setErrors(null);
+  }
+}
+
+validarContacto() {
+  const contactoControl = this.formProveedor.get('contacto');
+  const contactoValue = contactoControl?.value;
+
+
+  // Verificar solo letras y longitud mínima
+  const soloLetrasRegex = /^[a-zA-ZáéíóúüÁÉÍÓÚÜÑñ\s]*$/;
+  const minCaracteres = 3;
+
+  if (!soloLetrasRegex.test(contactoValue)) {
+      contactoControl?.setErrors({ soloLetras: true });
+  } else if (contactoValue && contactoValue.length < minCaracteres) {
+      contactoControl?.setErrors({ minlength: true });
+  } else {
+      contactoControl?.setErrors(null);
+  }
+}
+
+validarCorreo() {
+  const correoControl = this.formProveedor.get('correo');
+  const correoValue = correoControl?.value;
+
+  // Verificar si es un correo válido
+  const correoValidoRegex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+
+  if (!correoValidoRegex.test(correoValue)) {
+      correoControl?.setErrors({ correoInvalido: true });
+  } else {
+      correoControl?.setErrors(null);
+  }
+}
 }

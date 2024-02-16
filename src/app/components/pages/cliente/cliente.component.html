@@ -109,10 +109,7 @@
                 <div class="formgrid grid mt-2">
                     <div class="field col mt-2">
                         <span class="p-float-label">
-                            <input pInputText *ngIf="formCliente.get('tipoIdentificacion')?.value === 'NIT'"
-                                formControlName="numeroIdentificacion" mask="999999999-9" (input)="validarNumeroIdentificacion()">
-                            <input pInputText pKeyFilter="int" *ngIf="formCliente.get('tipoIdentificacion')?.value != 'NIT'"
-                                formControlName="numeroIdentificacion" [maxlength]="12" [minlength]="6" (input)="validarNumeroIdentificacion()">                            
+                            <input pInputText formControlName="numeroIdentificacion" [maxlength]="12" [minlength]="6" (input)="validarNumeroIdentificacion()">                            
                             <label for="numeroIdentificacion">N° Identificación</label>
                         </span>
                         <small *ngIf="formCliente.get('numeroIdentificacion')?.hasError('required') && formCliente.get('numeroIdentificacion')?.touched"
@@ -127,7 +124,10 @@
                             style="color: red;">
                             El número de identificación ya existe en la base de datos
                         </small>
-                        
+                        <small *ngIf="formCliente.get('numeroIdentificacion')?.hasError('soloNumeros') && formCliente.get('numeroIdentificacion')?.touched"
+                            style="color: red;">
+                            Solo se permiten numeros
+                        </small>                        
                     </div>
                     <div class="field col mt-2">
                         <span class="p-float-label">                            
@@ -141,6 +141,10 @@
                         <small *ngIf="formCliente.get('razonSocial')?.hasError('soloLetras') && formCliente.get('razonSocial')?.touched"
                             style="color: red;">
                             Solo se permiten letras
+                        </small>
+                        <small *ngIf="formCliente.get('razonSocial')?.hasError('minlength') && formCliente.get('razonSocial')?.touched"
+                            style="color: red;">
+                            {{ isNIT ? 'La razon social debe tener al menos 3 caracteres' : 'El nombre debe tener al menos 3 caracteres' }}
                         </small>
                     </div>
                 </div>
@@ -158,11 +162,15 @@
                         <small *ngIf="formCliente.get('nombreComercial')?.hasError('soloLetras') && formCliente.get('nombreComercial')?.touched"
                             style="color: red;">
                             Solo se permiten letras
+                        </small>
+                        <small *ngIf="formCliente.get('nombreComercial')?.hasError('minlength') && formCliente.get('nombreComercial')?.touched"
+                            style="color: red;">
+                            {{ isNIT ? 'El nombre comercial debe tener al menos 3 caracteres' : 'El apellido debe tener al menos 3 caracteres' }}
                         </small>                        
                     </div>
                     <div class="field col mt-2">
                         <span class="p-float-label">
-                            <input formControlName="ciudad" id="ciudad" type="text" pInputText (input)="validarCampo('ciudad')">
+                            <input formControlName="ciudad" id="ciudad" type="text" pInputText (input)="validarCiudad()">
                             <label for="ciudad">Ciudad</label>
                         </span>
                         <small *ngIf="formCliente.get('ciudad')?.hasError('required') && formCliente.get('ciudad')?.touched"
@@ -173,7 +181,11 @@
                             style="color: red;">
                             Solo se permiten letras
                         </small>
-                    </div>
+                        <small *ngIf="formCliente.get('ciudad')?.hasError('minlength') && formCliente.get('ciudad')?.touched"
+                            style="color: red;">
+                            La ciudad debe tener al menos 4 caracteres
+                        </small>
+                    </div>                                        
                 </div>
 
                 <div class="formgrid grid mt-2">
@@ -185,13 +197,16 @@
                     </div>
                     <div class="field col mt-2">
                         <span class="p-float-label">
-                            <!-- contacto -->
-                            <input formControlName="contacto" id="contacto" type="text" pInputText (input)="validarCampo('contacto')">
+                            <input formControlName="contacto" id="contacto" type="text" pInputText (input)="validarContacto()">
                             <label for="contacto">Contacto</label>
                         </span>                        
                         <small *ngIf="formCliente.get('contacto')?.hasError('soloLetras') && formCliente.get('contacto')?.touched"
                             style="color: red;">
                             Solo se permiten letras
+                        </small>
+                        <small *ngIf="formCliente.get('contacto')?.hasError('minlength') && formCliente.get('contacto')?.touched"
+                            style="color: red;">
+                            El contacto debe tener al menos 3 caracteres
                         </small>
                     </div>
                 </div>
@@ -205,9 +220,13 @@
                     </div>
                     <div class="field col mt-2">
                         <span class="p-float-label">
-                            <input formControlName="correo" id="correo" type="text" pInputText>
+                            <input formControlName="correo" id="correo" type="text" (input)="validarCorreo()" pInputText>
                             <label for="correo">Email</label>
                         </span>
+                        <small *ngIf="formCliente.get('correo')?.hasError('correoInvalido') && formCliente.get('correo')?.touched"
+                            style="color: red;">
+                            El correo debe tener un formato válido
+                        </small>
                     </div>
                 </div>
 

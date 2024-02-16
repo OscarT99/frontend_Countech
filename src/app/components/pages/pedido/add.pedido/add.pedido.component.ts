@@ -21,6 +21,8 @@
     templateUrl: './add.pedido.component.html',
   })
   export class AddPedidoComponent implements OnInit {
+    
+    listPedidos: PedidoInstance[] = []
 
     id: number = 0;
     mostrarID:boolean=false;
@@ -96,17 +98,27 @@
     ngOnInit(): void {
       this.aRouter.params.subscribe(params => {
         this.id = +params['id'];
+      
+        this.getListPedidos()  
+        this.obtenerListaClientes();
+
+        this.formPedido.get('cliente')?.valueChanges.subscribe(() => {
+          this.validarOrdenTrabajo();
+        });
 
         if (this.id !== 0) {
-          this.obtenerListaClientes();
-          this.getPedido(this.id)          
-        } else {
-          this.obtenerListaClientes();
-        }
+          this.getPedido(this.id) 
+        } 
+        
       });
     }
 
-
+    getListPedidos(){     
+      this._pedidoService.getListPedidos().subscribe((data:any) =>{              
+        this.listPedidos = data.listaPedidos; 
+        console.log(this.listPedidos);
+      })        
+  }
     
     getPedido(id: number) {
       this._pedidoService.getPedido(id).subscribe((data: PedidoInstance) => {
@@ -201,6 +213,9 @@
       if (clienteSeleccionado) {
         this.formPedido.get('contacto')!.setValue(clienteSeleccionado.contacto || '');
       }        
+
+        // Actualizar la validación al cambiar el cliente
+      this.validarOrdenTrabajo();
     }
 
     realizarBusquedaEnTiempoReal(event: any): void {
@@ -466,5 +481,22 @@
           // El usuario ha cancelado la acción, no hacer nada
         }
       });
+    }
+
+
+
+    validarOrdenTrabajo() {
+      const ordenTrabajoControl = this.formPedido.get('ordenTrabajo');
+      const ordenTrabajoValue = ordenTrabajoControl?.value;
+    
+      // Verificar la existencia en la lista de pedidos
+      const ordenExistente = this.listPedidos.some(pedido => pedido.cliente === this.formPedido.value.cliente && pedido.ordenTrabajo === ordenTrabajoValue);
+    
+      if (ordenExistente) {
+        ordenTrabajoControl?.setErrors({ 'ordenTrabajoExistente': true });
+      } else {
+        // Si la orden de trabajo no existe, asegúrate de borrar cualquier error anterior.
+        ordenTrabajoControl?.setErrors(null);
+      }
     }
   }

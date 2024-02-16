@@ -20,11 +20,11 @@
                                 </ng-template>
                             </p-autoComplete>
                         </div>
-                        <span
+                        <small
                             *ngIf="formCompra.get('proveedor')?.hasError('required') && formCompra.get('proveedor')?.touched"
                             style="color: red;">
                             El Proveedor es <strong>requerido</strong>
-                        </span>
+                        </small>
                     </div>
 
                     <div class="col-4">
@@ -41,11 +41,11 @@
                         <div>
                             <input formControlName="numeroFactura" class="inputs-pedido" type="text" pInputText />
                         </div>
-                        <span
+                        <small
                             *ngIf="formCompra.get('numeroFactura')?.hasError('required') && formCompra.get('numeroFactura')?.touched"
                             style="color: red;">
                             El N° factura es <strong>requerido</strong>
-                        </span>
+                        </small>
                     </div>
                 </div>
 
@@ -56,11 +56,11 @@
                             <p-calendar formControlName="fechaCompra" class="inputs-pedido" dateFormat="yy-mm-dd"
                                 [showIcon]="true" [maxDate]="maxDate"></p-calendar>
                         </div>
-                        <span
+                        <small
                             *ngIf="formCompra.get('fechaCompra')?.hasError('required') && formCompra.get('fechaCompra')?.touched"
                             style="color: red;">
                             La fecha compra es <strong>requerida</strong>
-                        </span>
+                        </small>
                     </div>
                 </div>
 
@@ -85,10 +85,10 @@
                                 </ng-template>
                             </p-autoComplete>
                         </div>
-                        <span *ngIf="formCompra.get('insumo')?.hasError('required') && formCompra.get('insumo')?.touched 
+                        <small *ngIf="formCompra.get('insumo')?.hasError('required') && formCompra.get('insumo')?.touched 
                                 && detallesInsumo.length === 0" style="color: red;">
                             El insumo es <strong>requerido</strong>
-                        </span>
+                        </small>
                     </div>
                     <div class="col-3">
                         <label>Cantidad</label>
@@ -99,11 +99,11 @@
                                 incrementButtonClass="p-button-secondary" incrementButtonIcon="pi pi-plus"
                                 decrementButtonIcon="pi pi-minus"></p-inputNumber>
                         </div>
-                        <span *ngIf="formCompra.get('cantidad')?.touched 
+                        <small *ngIf="formCompra.get('cantidad')?.touched 
                                 && formCompra.get('cantidad')?.value < 1 && detallesInsumo.length === 0"
                             style="color: red;">
                             La cantidad del insumo debe ser mayor a <strong>0</strong>
-                        </span>
+                        </small>
                     </div>
                     <div class="col-2">
                         <label>Valor Unitario</label>
@@ -111,11 +111,11 @@
                             <p-inputNumber [min]="0" mode="currency" currency="USD" locale="en-US" class="inputs-pedido"
                                 formControlName="valorUnitario"></p-inputNumber>
                         </div>
-                        <span *ngIf="formCompra.get('valorUnitario')?.touched 
+                        <small *ngIf="formCompra.get('valorUnitario')?.touched 
                                 && formCompra.get('valorUnitario')?.value < 1 && detallesInsumo.length === 0"
                             style="color: red;">
                             El valor debe ser mayor a <strong>0</strong>
-                        </span>
+                        </small>
                     </div>
                     <div class="col-2">
                         <label>Impuesto</label>
@@ -167,11 +167,11 @@
                             <label htmlFor="formaPago"><strong>Formas de Pago</strong></label>
                             <p-dropdown [autoDisplayFirst]="false" placeholder="Seleccione forma de pago"
                                 formControlName="formaPago" [options]="formaPago"></p-dropdown>
-                            <span
+                            <small
                                 *ngIf="formCompra.get('formaPago')?.hasError('required') && formCompra.get('formaPago')?.touched"
                                 style="color: red;">
                                 La forma de pago es <strong>requerida</strong>
-                            </span>
+                            </small>
                         </div>
                     </div>
                     <div class="col-7 ">
