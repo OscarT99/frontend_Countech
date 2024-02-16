@@ -16,3 +16,4 @@ export interface Empleado {
     asignarProcesoEmpleados?: AsignarProcesoEmpleado[]; 
   }
 
+

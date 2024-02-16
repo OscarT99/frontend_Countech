@@ -1,16 +1,21 @@
 import { Component, OnInit } from '@angular/core';
 import { MessageService } from 'primeng/api';
-import { EmpleadoService } from 'src/app/services/empleado/empleado.service'; 
+import { EmpleadoService } from 'src/app/services/empleado/empleado.service';
+import { Table } from 'primeng/table';
 import { Empleado} from 'src/app/interfaces/empleado/empleado.interface';
 import { PedidoService } from 'src/app/services/pedido/pedido.service';
 import { PedidoInstance } from 'src/app/interfaces/pedido/pedido.interface'; 
-import { FormBuilder, FormControl, FormControlName, FormGroup, Validators } from '@angular/forms';
+import { AsyncValidatorFn, FormBuilder, FormControl, FormControlName, FormGroup } from '@angular/forms';
+import { ValidatorFn, AbstractControl, Validators } from '@angular/forms';
 import { ToastrService } from 'ngx-toastr';
 import { ActivatedRoute } from '@angular/router';
+import { AvanceProcesoEmpleado } from 'src/app/interfaces/produccion/avanceProcesoEmpleado.interface';
+import { AvanceProcesoEmpleadoService } from 'src/app/services/produccion/avanceProcesoEmpleado.service';
+import { Observable } from 'rxjs';
 
 interface City {
-  name: string;
-  code: string;
+  label: string;
+  value: string;
 }
 
 @Component({
@@ -31,6 +36,8 @@ export class EmpleadoComponent implements OnInit {
 
   form: FormGroup;
 
+  formAvance: FormGroup;
+
   pedido: PedidoInstance = {};
 
   empleado: Empleado = {};
@@ -39,37 +46,36 @@ export class EmpleadoComponent implements OnInit {
 
   changeStateDialog: boolean = false;
 
-  selectedProduct!: Empleado;
-
-  submitted: boolean = false;
-
   cols: any[] = [];
 
-  cities: City[] | undefined;
+  listTipoIdentidad: City[] | undefined;
 
-  selectedCity: City | undefined;
-
+  // selectedTipo: tipoIdentidad | undefined;
 
 
   constructor(private fb: FormBuilder,
       private _empleadoService: EmpleadoService,
       private _pedidoService: PedidoService,
+      private _avanceProcesoService: AvanceProcesoEmpleadoService,
       private toastr: ToastrService,      
       private aRouter:ActivatedRoute,
       ) {
         this.form = this.fb.group({
-          tipoIdentidad: ['',Validators.required],
-          numIdentidad: ['',Validators.required],
-          nombre: ['',Validators.required],
-          apellido: ['',Validators.required],
-          correo: ['',Validators.required],
-          telefono: ['',Validators.required],
-          ciudad: ['',Validators.required],
+          tipoIdentidad: [null],
+          numIdentidad: ['', Validators.required],
+          nombre: ['', [Validators.required, this.customTextRegExpValidator(/^[A-Za-záéíóúüÜÁÉÍÓÚÑñ ]+$/)]],
+          apellido: ['', [Validators.required, this.customTextRegExpValidator(/^[A-Za-záéíóúüÜÁÉÍÓÚÑñ ]+$/)]],
+          correo: ['', [Validators.required, this.customEmailRegExpValidator(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/)]],
+          telefono: ['',[Validators.required, this.customNumberRegExpValidator(/^[0-9]{10}$/)]],
+          ciudad: ['', [Validators.required, this.customTextRegExpValidator(/^[A-Za-záéíóúüÜÁÉÍÓÚÑñ ]+$/)]],
           direccion: ['',Validators.required],
           fechaIngreso: ['',Validators.required],
-          estado: ['',Validators.required],
-          estadoOcupado: ['',Validators.required],
-        })
+          estado: [''],
+          estadoOcupado: [''],
+        });
+        this.formAvance = this.fb.group({
+          cantidadHecha: ['', [Validators.required, Validators.min(1)]],
+        });
         this.aRouter.params.subscribe(params => {
           this.id = +params['id'];
         });
@@ -77,16 +83,81 @@ export class EmpleadoComponent implements OnInit {
 
   ngOnInit(): void {
 
-      this.getEmpleadoProceso();
+    this.getEmpleadoProceso();
 
-      this.cities = [
-        { name: 'New York', code: 'NY' },
-        { name: 'Rome', code: 'RM' },
-        { name: 'London', code: 'LDN' },
-        { name: 'Istanbul', code: 'IST' },
-        { name: 'Paris', code: 'PRS' }
+    this.listTipoIdentidad = [
+      { label: 'Cédula de ciudadanía', value:'Cédula de ciudadanía' },
+      { label: 'Tarjeta de extranjería', value:'Tarjeta de extranjería' },
+      { label: 'Cédula de extranjero', value:'Cédula de extranjería' },
+      { label: 'Pasaporte', value:'Pasaporte' },
     ];
 
+  }
+
+  validateNumIdentidad() {
+    const numIdentidadControl = this.form.get('numIdentidad');
+    const numIdentidadValue = numIdentidadControl?.value;
+  
+    // Verificar si el número de identificación tiene al menos 6 dígitos
+    if (numIdentidadValue && numIdentidadValue.length < 6) {
+      numIdentidadControl?.setErrors({ minlength: true });
+        return;
+    }
+  
+    // Verificar si el número de identificación ya existe en la base de datos
+    const existingNumber = this.listEmpleados.some(empleado => empleado.numIdentidad === numIdentidadValue);
+    if (existingNumber) {
+      numIdentidadControl?.setErrors({ numeroExistente: true });
+    } else {
+      numIdentidadControl?.setErrors(null);
+    }
+  }
+
+  validateEmail() {
+    const correoControl = this.form.get('correo');
+    const correoValue = correoControl?.value;
+  
+    // Verificar si el número de identificación ya existe en la base de datos
+    const existingEmail = this.listEmpleados.some(empleado => empleado.correo === correoValue);
+    if (existingEmail) {
+      correoValue?.setErrors({ correoExistente: true });
+    } else {
+      correoControl?.setErrors(null);
+    }
+  }
+
+
+
+  existingNumberValidator(listEmpleados: any[]): AsyncValidatorFn {
+    return (control: AbstractControl): Promise<{ [key: string]: any } | null> | Observable<{ [key: string]: any } | null> => {
+      const numIdentidadValue = control.value;
+      const numeroExistente = listEmpleados.some(empleado => empleado.numIdentidad === numIdentidadValue);
+      return Promise.resolve(numeroExistente ? { 'numeroExistente': true } : null);
+    };
+  }
+
+
+  customNumberRegExpValidator(numberRegExp: RegExp): ValidatorFn {
+    return (control: AbstractControl): { [key: string]: any } | null => {
+      const isValid = numberRegExp.test(control.value);
+      return isValid ? null : { 'customNumberRegExp': { value: control.value } };
+    };
+  }
+
+
+
+  customTextRegExpValidator(textRegExp: RegExp): ValidatorFn {
+    return (control: AbstractControl): { [key: string]: any } | null => {
+      const isValid = textRegExp.test(control.value);
+      return isValid ? null : { 'customTextRegExp': { value: control.value } };
+    };
+  }
+
+  customEmailRegExpValidator(emailRegExp: RegExp): ValidatorFn {
+    return (control: AbstractControl): { [key: string]: any } | null => {
+      const isValid = emailRegExp.test(control.value);
+      return isValid ? null : { 'customEmailRegExp': { value: control.value } };
+    };
   }
   
   getPedido(id: number) {
@@ -97,7 +168,12 @@ export class EmpleadoComponent implements OnInit {
 
   getEmpleadoProceso() {
     this._empleadoService.getEmpleadoProcesos().subscribe((data: any) => {
-      this.listEmpleados = data.EmpleadoProcesos;
+      this.listEmpleados = data.EmpleadoProcesos.map((empleadoProceso: any) => {
+        empleadoProceso.asignarProcesoEmpleados = empleadoProceso.asignarProcesoEmpleados.filter((asignacion: any) => !asignacion.estadoProcAsig);
+        return empleadoProceso;
+      });
+      
+      // console.log(this.listEmpleados);
     });
   }
 
@@ -113,18 +189,18 @@ export class EmpleadoComponent implements OnInit {
     this.getEmpleado(id);
   }
 
+
   showCreateDialog() {
     this.form.reset();
     this.createDialog = true;
   }
-
+ 
 
   hideDialog() {
     this.infoDialog = false;
     this.editDialog = false;
     this.createDialog = false;
-    // this.empleadoInfoDialog = false;
-    // this.submitted = false;
+    this.form.get('tipoIdentidad')?.setValue(null)
   }
 
   getEstado(estado: boolean) {
@@ -172,12 +248,21 @@ export class EmpleadoComponent implements OnInit {
     };
   }
 
+    // Registrar una cantidad hecha de un proceso asignado a un empleado
+    crearAvance(id: number){
+      const dataAvance: AvanceProcesoEmpleado = {
+        cantidadHecha: this.formAvance.value.cantidadHecha,
+        asignarProcesoEmpleadoId: id
+      }
+      this._avanceProcesoService.postAvanceProcesoEmpleado(dataAvance).subscribe(() => {
+        this.toastr.success('Registro exitoso');
+      });
+    }
 
-  addEmpleado() {  
-      this.submitted = false;
+  addEmpleado() {
 
       const empleado: Empleado = {
-        tipoIdentidad: this.form.value.tipoIdentidad,
+        tipoIdentidad: this.form.value.tipoIdentidad.value,
         numIdentidad: this.form.value.numIdentidad,
         nombre: this.form.value.nombre,
         apellido: this.form.value.apellido,
@@ -188,48 +273,9 @@ export class EmpleadoComponent implements OnInit {
         fechaIngreso: this.form.value.fechaIngreso,
       }
 
-      if (empleado.tipoIdentidad == null || empleado.tipoIdentidad == '' || empleado.tipoIdentidad == undefined) {
-        this.toastr.error('El tipo de identificación es requerido', 'Error');
-        return;
+      console.log(empleado)
 
-      }
-      if (empleado.numIdentidad == null || empleado.numIdentidad == '' || empleado.numIdentidad == undefined) {
-        this.toastr.error('El número de identificación es requerido', 'Error');
-        return;
-
-      }
-      if (empleado.nombre == null || empleado.nombre == '' || empleado.nombre == undefined) {
-        this.toastr.error('El nombre es requerido', 'Error');
-        return;
-
-      }
-      if (empleado.apellido == null || empleado.apellido == '' || empleado.apellido == undefined) {
-        this.toastr.error('El apellido es requerido', 'Error');
-        return;
-
-      }
-      if (empleado.correo == null || empleado.correo == '' || empleado.correo == undefined) {
-        this.toastr.error('El correo es requerido', 'Error');
-        return;
-
-      }
-      if (empleado.telefono == null || empleado.telefono == '' || empleado.telefono == undefined) {
-        this.toastr.error('El teléfono es requerido', 'Error');
-        return;
-
-      }
-      if (empleado.ciudad == null || empleado.ciudad == '' || empleado.ciudad == undefined) {
-        this.toastr.error('La ciudad es requerida', 'Error');
-        return;
-
-      }
-      if (empleado.direccion == null || empleado.direccion == '' || empleado.direccion == undefined) {
-        this.toastr.error('La dirección es requerida', 'Error');
-        return;
-
-      }
-
-      else if (this.id) {
+      if (this.id) {
         console.log(this.id)
         this._empleadoService.putEmpleado(this.id, empleado).subscribe(() => {
           this.editDialog = false;
@@ -237,44 +283,52 @@ export class EmpleadoComponent implements OnInit {
           this.getEmpleadoProceso();
         });
       } else {
-        this._empleadoService.postEmpleado(empleado).subscribe(() => {
-          this.createDialog = false;
-          this.toastr.success(`El empleado ${empleado.nombre} fue registrado con éxito`, 'Empleado agregado');
-          this.getEmpleadoProceso();
-        });
+        this._empleadoService.postEmpleado(empleado).subscribe(
+          () => {
+            this.createDialog = false;
+            this.toastr.success(`El empleado ${empleado.nombre} fue registrado con éxito`, 'Empleado agregado');
+            this.getEmpleadoProceso();
+          },
+          (error) => {
+            console.error('Ha ocurrido un error al registrar el empleado:', error);
+            this.toastr.error('Ha ocurrido un error al registrar el empleado', 'Error');
+          }
+        );
       }
 
       this.createDialog = false;
   
   }
 
-  // cambiarEstado(empleado: Empleado) {
-  //   this.changeStateDialog = true;
-  //   this.empleadoSeleccionado = empleado;
-  // }
+  cambiarEstado(empleado: Empleado) {
+    this.changeStateDialog = true;
+    this.empleadoSeleccionado =  empleado;
+    console.log(this.empleadoSeleccionado);
+    this.getEmpleadoProceso();
+  }
 
-  // confirmChangeState(confirmacion: boolean) {
-  //   this.empleadoInfoDialog = false;
-  //   if (confirmacion && this.empleadoSeleccionado && this.empleadoSeleccionado.estadoProduccion === false) {
-  //     if (this.empleadoSeleccionado.idEmpleado){
-  //       this._empleadoService.putEmpleado(this.empleadoSeleccionado.idEmpleado, this.empleadoSeleccionado).subscribe(() => {
-  //         this.empleado.estado = !this.empleado.estado;
-  //         if (this.empleado.estado == false) {
-  //         this.messageService.add({ severity: 'success', summary: 'Completado', detail: 'Empleado activo', life: 3000 });
-  //         } else{
-  //         this.messageService.add({ severity: 'success', summary: 'Completado', detail: 'Empleado inactivo', life: 3000 });
-  //         }
-  //         this.getListEmpleados();
-  //       });
+  confirmChangeState(confirmacion: boolean) {
+    // this.empleadoInfoDialog = false;
+    if (confirmacion && this.empleadoSeleccionado && this.empleadoSeleccionado.estadoOcupado === false) {
+      if (this.empleadoSeleccionado.id){
+        this._empleadoService.putEmpleado(this.empleadoSeleccionado.id, this.empleadoSeleccionado).subscribe(() => {
+          this.empleado.estado = !this.empleado.estado;
+          if (this.empleado.estado == false) {
+            this.toastr.success('Empleado activo', 'Éxito');
+          } else{
+            this.toastr.success('Empleado inactivo', 'Éxito');
+          }
+          this.getEmpleadoProceso();
+        });
       
-  //     }
-  //   }
-  //   else{
-  //     this.messageService.add({ severity: 'error', summary: 'Error', detail: 'No se pudo cambiar el estado', life: 3000 });
-  //     this.getListEmpleados();
-  //   }
-  //   this.changeStateDialog = false;
-  // }
+      }
+    }
+    else{
+      this.toastr.error('No se puedo cambiar el estado', 'Error');
+      this.getEmpleadoProceso();
+    }
+    this.changeStateDialog = false;
+  }
 
   getEmpleado(id:number) {
     
@@ -297,13 +351,9 @@ export class EmpleadoComponent implements OnInit {
     });
   }
 
-
-
-
-
-//   onGlobalFilter(table: Table, event: Event) {
-//     table.filterGlobal((event.target as HTMLInputElement).value, 'contains');
-// }
+  onGlobalFilter(table: Table, event: Event) {
+    table.filterGlobal((event.target as HTMLInputElement).value, 'contains');
+}
 
  }
 
