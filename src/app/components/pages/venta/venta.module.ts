@@ -19,6 +19,7 @@ import { DialogModule } from 'primeng/dialog';
 import { AutoCompleteModule } from "primeng/autocomplete";
 import { InputSwitchModule } from 'primeng/inputswitch';
 import { ConfirmPopupModule } from 'primeng/confirmpopup';
+import { PanelModule } from 'primeng/panel';
 
 @NgModule({
     imports: [
@@ -41,7 +42,8 @@ import { ConfirmPopupModule } from 'primeng/confirmpopup';
         AutoCompleteModule,
         ReactiveFormsModule,
         InputSwitchModule,    
-        ConfirmPopupModule,         
+        ConfirmPopupModule,
+        PanelModule,         
     ],
     declarations: [VentaComponent]
 })
