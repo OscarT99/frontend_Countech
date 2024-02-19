@@ -1,0 +1,166 @@
+<div class="grid">
+    <div class="col-12">
+        <div class="card px-6 py-6">            
+            <p-toolbar styleClass="mb-4">
+                <ng-template pTemplate="left">
+                    <div class="my-2">
+                        <button pButton pRipple label="Nuevo" icon="pi pi-plus" class="p-button-success mr-2" [routerLink]="['/pages/compra/add', 0]"></button>                        
+                    </div>
+                </ng-template>
+
+                <ng-template pTemplate="right">                    
+                    <button pButton pRipple label="Exportar" icon="pi pi-upload" class="p-button-help" ></button>
+                </ng-template>
+            </p-toolbar>
+
+            <p-table #dt [value]="listCompras"  responsiveLayout="scroll" [rows]="10" [globalFilterFields]="[]" [paginator]="true" [rowsPerPageOptions]="[5,10,15]" [showCurrentPageReport]="true" currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries" [rowHover]="true" dataKey="id">
+                <ng-template pTemplate="caption">
+                    <div class="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
+                        <h5 class="m-0">Lista de Compras</h5>
+                        <span class="block mt-2 md:mt-0 p-input-icon-left">
+                            <i class="pi pi-search"></i>
+                            <input pInputText type="text" (input)="onGlobalFilter(dt, $event)" placeholder="Buscar..."  class="w-full sm:w-auto"/>
+                        </span>
+                    </div>
+                </ng-template>
+                <ng-template pTemplate="header">
+                    <tr>                        
+                        <th pSortableColumn="proveedor">Proveedor<p-sortIcon field="proveedor"></p-sortIcon></th>
+                        <th pSortableColumn="numeroFactura">N° Factura<p-sortIcon field="numeroFactura"></p-sortIcon></th>                        
+                        <th pSortableColumn="fechaCompra">Fecha Compra<p-sortIcon field="fechaCompra"></p-sortIcon></th>
+                        <th pSortableColumn="formaPago">Forma Pago<p-sortIcon field="formaPago"></p-sortIcon></th>
+                        <th pSortableColumn="totalNeto">Valor Total<p-sortIcon field="totalNeto"></p-sortIcon></th>                        
+                        <th pSortableColumn="estadoPago">Saldo<p-sortIcon field="estadoPago"></p-sortIcon></th>
+                        <th pSortableColumn="estadoCompra">Estado<p-sortIcon field="estadoCompra"></p-sortIcon></th>
+                        <th></th>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-compra>
+                    <tr>                        
+                        <td style="width:14%; min-width:5rem;"><span class="p-column-title">Proveedor</span>
+                            {{ compra.Proveedor.razonSocial }}
+                        </td>
+                        <td style="width:14%; min-width:10rem;">
+                            <span class="p-column-title">N° Factura</span>
+                            {{ compra.numeroFactura }}
+                        </td>                        
+                        <td style="width:14%; min-width:8rem;">
+                            <span class="p-column-title">Fecha Compra</span>
+                            {{ compra.fechaCompra }}
+                        </td>
+                        <td style="width:14%; min-width:10rem;">
+                            <span class="p-column-title">Forma Pago</span>
+                            {{ compra.formaPago }}
+                        </td>  
+                        <td style="width:14%; min-width:10rem;">
+                            <span class="p-column-title">Total Neto</span>
+                            {{ compra.totalNeto }}
+                        </td>                        
+                        <td style="width:14%; min-width: 5rem;">
+                            <span class="p-column-title">Saldo</span>
+                            {{ compra.estadoPago }}
+                        </td>
+                        <td style="width:14%; min-width: 5rem;">
+                            <span class="p-column-title">Estado</span>
+                            {{ compra.estadoCompra }}
+                        </td>
+                        <td>
+                            <div class="flex">
+                                <button pButton pRipple icon="pi pi-file" class="p-button-rounded p-button-warning mr-2" (click)="mostrarDetalleCompra(compra.id)"></button>                                                                
+                                <button *ngIf="compra.estadoCompra == true" pButton pRipple icon="pi pi-pencil" class="p-button-rounded p-button-success mr-2" (click)="editarCompra(compra.id)"></button>        
+                                <button *ngIf="compra.estadoCompra == true" pButton pRipple icon="pi pi-times" class="p-button-rounded p-button-danger" (click)="anularCompra(compra)"></button>                                                        
+                            </div>
+                        </td>
+                    </tr>
+                </ng-template>
+            </p-table>  
+
+            <p-dialog header="Detalle de la compra" [(visible)]="mostrarModalDetalle" [modal]="true" [responsive]="true" [style]="{ width: '50vw' }">
+                <div *ngIf="detalleCompra">
+                    <div class="grid mt-1">                        
+                            <div class="col-4">
+                                <span style="font-weight: bold;">Proveedor:</span>
+                                <span>{{ detalleCompra.Proveedor.razonSocial }}</span>
+                            </div>
+                            <div class="col-4">
+                                <span style="font-weight: bold;">Contacto:</span>
+                                <span>{{ detalleCompra.Proveedor.contacto }}</span>
+                            </div>
+                            <div class="col-4">
+                                <span style="font-weight: bold;">N° Factura:</span>
+                                <span>{{ detalleCompra.numeroFactura }}</span>
+                            </div>
+                        
+                            <div class="col-4">
+                                <span style="font-weight: bold;">Fecha Compra:</span>
+                                <span>{{ detalleCompra.fechaCompra }}</span>
+                            </div>
+                            
+                            <div class="col-12">
+                                <p-table [value]="detalleCompra.DetalleEnCompras" styleClass="p-datatable-sm">
+                                    <ng-template pTemplate="header">
+                                        <tr>                                                                                        
+                                            <th>Insumo</th>
+                                            <th>Valor Unitario</th>
+                                            <th>Cantidad</th>
+                                            <th>Iva</th>
+                                            <th>Valor Total</th>
+                                        </tr>
+                                    </ng-template>
+                                    <ng-template pTemplate="body" let-detalleInsumo>
+                                        <tr>
+                                            <td>{{detalleInsumo.insumo}}</td>                                            
+                                            <td>{{detalleInsumo.valorUnitario}}</td>
+                                            <td>{{detalleInsumo.cantidad}}</td>
+                                            <td>{{detalleInsumo.impuestoIva}}</td>
+                                            <td>{{detalleInsumo.valorTotal}}</td>
+                                            <td></td>
+                                        </tr>                                        
+                                    </ng-template>
+                                </p-table>
+                            </div>
+
+                            <div class="col-6">
+                                <span style="font-weight: bold;">Forma Pago:</span>
+                                <span>{{ detalleCompra.formaPago }}</span>
+                            </div>
+                            <div class="col-6">
+                                <div>
+                                    <span style="font-weight: bold;">Total bruto:</span>
+                                    <span>{{ detalleCompra.totalBruto }}</span>
+                                </div>
+                                <div>
+                                    <span style="font-weight: bold;">Iva:</span>
+                                    <span>{{ detalleCompra.iva }}</span>
+                                </div>
+                                <div>
+                                    <span style="font-weight: bold;">Total Neto:</span>
+                                    <span>{{ detalleCompra.totalNeto }}</span>
+                                </div>
+                                
+                            </div>
+                    </div>
+
+                </div>
+                
+                <!-- <button pButton type="button" label="Cerrar" class="p-button-secondary" (click)="cerrarModalDetallePedido()"></button> -->
+            </p-dialog>
+
+            <p-dialog
+                [(visible)]="showConfirmationDialogCompra"
+                header="Confirmación"
+                [modal]="true"
+                [closable]="false"
+                appendTo="body"
+            >
+                <p>
+                    ¿Está seguro de que desea anular la compra? despues de anulada no se podra volver a modificar
+                </p>
+                <input pInputText type="text" [(ngModel)]="motivoAnulacion" placeholder="Motivo de Anulación" />
+                <button pButton type="button" label="Sí" icon="pi pi-check" (click)="confirmActionCompra(true)"></button>
+                <button pButton type="button" label="No" icon="pi pi-times" (click)="confirmActionCompra(false)"></button>
+            </p-dialog>
+
+        </div>    
+    </div>
+</div>
