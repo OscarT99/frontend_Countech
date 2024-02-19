@@ -73,8 +73,9 @@
                             <!-- FINAL TABLE REFERENCIA -->
                         
                         <!-- INICIO TABVIEW PROCESO -->
-                        <p-tabView *ngIf="pedido.ProcesoEnReferenciaEnPedidos && pedido.ProcesoEnReferenciaEnPedidos.length">
-                            <ng-container *ngFor="let proceso of pedido.ProcesoEnReferenciaEnPedidos; let i = index" >
+                        <p-tabView>
+                            <ng-container *ngFor="let proceso of listPedidoProceso; let i = index">
+                            <ng-container *ngIf="pedido.id === proceso.pedido">
                                 <!-- INICIO TABPANEL PROCESO INFO -->
                                 <p-tabPanel>
                                     <ng-template pTemplate="header">
@@ -114,7 +115,7 @@
                                  
                                                   <td>
                                                     <div class="flex">
-                                                      <p-button *ngIf="proceso.estado === false" icon="pi pi-plus" [rounded]="true" pTooltip="Asignar proceso" (click)="showAsignarProcesoDialog(proceso)"></p-button>
+                                                      <p-button *ngIf="proceso.estado === false && proceso.cantidadPendiente > 0" icon="pi pi-plus" [rounded]="true" pTooltip="Asignar proceso" (click)="showAsignarProcesoDialog(proceso)"></p-button>
                                                       <p-button icon="pi pi-info" [rounded]="true" pTooltip="Procesos asignados" (click)="showDetalleProcAsigDialog(proceso)"></p-button>
                                                     </div>
                                                   </td>
@@ -147,8 +148,9 @@
                                     </p-table>
 
                                 </p-tabPanel>
-                                <!-- FINAL TABPANEL PROCESO -->
                             </ng-container>
+                        </ng-container>
+                                <!-- FINAL TABPANEL PROCESO -->
                         </p-tabView>
                         <!-- FINAL TABVIEW PROCESO -->
                     <!-- </p-accordionTab> -->
@@ -181,33 +183,44 @@
                     
                     <small *ngIf="formAsignarProcesoEmpleado.get('empleado')?.hasError('required') && formAsignarProcesoEmpleado.get('empleado')?.touched" style="color: red;">
                         El empleado es <strong>requerido</strong>
-                      </small>
+                    </small>
                 </div>
 
                 <div class="formgrid grid">
                     <div class="field col">
                         <span class="p-float-label">
                             <input type="number" id="cantidadPendiente" [readOnly]="true" [ngStyle]="{'pointer-events': 'none', 'background-color': '#ffffff', 'caret-color': 'transparent'}" pInputText formControlName="cantidadPendiente"/>
-                            <label for="cantidadPendiente">Cantidad pendiente</label>
+                            <label for="cantidadPendiente">Cantidad disponible</label>
                         </span>
                     </div>
                     <div class="field col">
                         <span class="p-float-label">
-                            <input id="cantidadAsignada" type="number" pInputText formControlName="cantidadAsignada"/>
+                            <input id="cantidadAsignada" pKeyFilter="int" type="number" pInputText formControlName="cantidadAsignada" (input)="validateCantAsignada()"/>
                             <label for="cantidadAsignada">Cantidad por asignar</label>
                         </span>
+                        <small>
+                            <span *ngIf="formAsignarProcesoEmpleado.get('cantidadAsignada')?.hasError('required') && formAsignarProcesoEmpleado.get('cantidadAsignada')?.touched" style="color: red;">
+                                La cantidad es <strong>requerida.</strong>
+                            </span>
+                            <span *ngIf="formAsignarProcesoEmpleado.get('cantidadAsignada')?.hasError('min') && formAsignarProcesoEmpleado.get('cantidadAsignada')?.touched" style="color: red;">
+                                La cantidad asignada debe ser mayor a 0.
+                            </span>
+                            <span *ngIf="formAsignarProcesoEmpleado.get('cantidadAsignada')?.hasError('cantError') && formAsignarProcesoEmpleado.get('cantidadAsignada')?.touched" style="color: red;">
+                                La cantidad asignada no puede ser mayor a la cantidad disponible.
+                            </span>
+                        </small>
                     </div>
                 </div>
 
                 <div class="formgrid col grid mt-2 justify-content-end">
                     <p-button label="Cancelar" icon="pi pi-times" [text]="true" (click)="hideDialog()"></p-button>
-                    <p-button type="submit" label="Guadar" icon="pi pi-check"></p-button>
+                    <p-button type="submit" label="Asignar" [disabled]="formAsignarProcesoEmpleado.invalid" icon="pi pi-check"></p-button>
                 </div>
                   
         </form>
     </p-dialog>
 
-    <p-dialog [(visible)]="detalleProcAsigDialog" header="Procesos asignados" [breakpoints]="{'960px': '75vw'}" [style]="{width:'50vw'}" [draggable]="false" [resizable]="false" [modal]="true" class="p-fluid">
+    <p-dialog [(visible)]="detalleProcAsigDialog" header="Procesos asignados" [style]="{width:'80vw'}" [draggable]="false" [resizable]="false" [modal]="true" class="p-fluid">
         <!-- <div class="card"> -->
             <p-table [value]="listFilterAsigProcEmpleado" dataKey="id">
                 <!-- <ng-template pTemplate="caption">
@@ -223,43 +236,56 @@
                         <th>Cantidad hecha</th>
                         <th>Estado producción</th>
                         <th>Estado proceso</th>
-                        <th></th>
                     </tr>
                 </ng-template>
                 <ng-template pTemplate="body" let-proceso let-expanded="expanded">
                     <tr>
                         <td>
-                            <button type="button" pButton pRipple [pRowToggler]="proceso" class="p-button-text p-button-rounded p-button-plain" [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"></button>
+                            <ng-container *ngIf="proceso.estadoAnular === false">
+                                <button type="button" pButton pRipple [pRowToggler]="proceso" class="p-button-text p-button-rounded p-button-plain" [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"></button>
+                            </ng-container>
                         </td>
                         <!-- <td>{{proceso.id}}</td> -->
                         <td>{{proceso.nombreEmpleado}}</td>
                         <td>{{proceso.cantidadAsignada}}</td>
                         <td>{{proceso.cantRestante}}</td>
-                        <td *ngIf="proceso.estadoProcAsig === true">{{proceso.cantidadHecha}}</td>
-                        <td *ngIf="proceso.estadoProcAsig === false">
-                            <form [formGroup]="formAvance" (ngSubmit)="crearAvance(proceso.id)">
-                                <div class="field">
-                                    <input type="number" pInputText formControlName="cantidadHecha"/>
-                                </div>
-                                <div class="field">
-                                    <p-button type="submit" icon="pi pi-save" [rounded]="true" [text]="true" severity="success" pTooltip="Guardar"></p-button>        
-                                </div>  
-                            </form>
-                        </td>
-
+                        <ng-container *ngIf="proceso.estadoProcAsig === true">
+                            <td>
+                                0
+                            </td>
+                        </ng-container>
+                        <ng-container *ngIf="proceso.estadoProcAsig === false">
+                            <td *ngIf="proceso.estadoProcAsig === false">
+                                <form [formGroup]="formAvance" (ngSubmit)="crearAvance(proceso.id)">
+                                    <div class="formgrid col grid mt-2 justify-content-end" style="display: flex; flex-direction: row;">
+                                        <div style="flex: 1;">
+                                            <span class="p-float-label">
+                                                <input type="number" pInputText formControlName="cantidadHecha"/>
+                                                <label for="cantidadHecha">Cantidad hecha</label>
+                                            </span>
+                                        </div>
+                                        <div style="margin-left: 8px;">
+                                            <p-button type="submit" icon="pi pi-save" [rounded]="true" [text]="true" severity="success" pTooltip="Guardar"></p-button>        
+                                        </div>
+                                    </div>
+                                </form>
+                            </td>
+                        </ng-container>
                         <td>
-                            <p-tag [value]="changeEstado(proceso.estadoProcAsig)" [severity]="getEstadoProd(proceso.estadoProcAsig)"></p-tag>
+                            <p-tag [value]="changeEstadoProd(proceso.estadoProcAsig, proceso.estadoAnular)" [severity]="getEstadoProd(proceso.estadoProcAsig, proceso.estadoAnular)"></p-tag>
                         </td>
-                        <td>
-                            <p-tag *ngIf="proceso.estadoAnular === true" [value]="changeEstadoAnular(proceso.estadoAnular)" [severity]="styleEstadoAnular(proceso.estadoAnular)"></p-tag>
-                        </td>
-                        <td>
+                        <ng-container *ngIf="proceso.estadoAnular === true">
+                            <td>
+                                <p-tag [value]="changeEstadoAnular(proceso.estadoAnular)" [severity]="styleEstadoAnular(proceso.estadoAnular)"></p-tag>
+                            </td>
+                        </ng-container>
+                        <ng-container *ngIf="proceso.estadoAnular === false">
                             <div style="display: flex; justify-content: center; align-items: center;">
                                 <div class="field">
-                                    <p-button *ngIf="proceso.estadoAnular === false && proceso.estado === false" (click)="anularProceso(proceso.id)" icon="pi pi-times-circle" [rounded]="true" [text]="true" severity="danger" pTooltip="Anular"></p-button>
+                                    <p-button *ngIf="proceso.estadoAnular === false && proceso.estadoProcAsig === false" (click)="anularProceso(proceso.id)" icon="pi pi-times-circle" [rounded]="true" [text]="true" severity="danger" pTooltip="Anular"></p-button>
                                 </div> 
                             </div>
-                        </td>
+                        </ng-container>
                     </tr>
                 </ng-template>
                 <ng-template pTemplate="rowexpansion" let-proceso>
@@ -286,7 +312,7 @@
                                     </ng-template>
                                     <ng-template pTemplate="emptymessage">
                                         <tr>
-                                            <td colspan="6">No tiene procesos asignados pendientes</td>
+                                            <td colspan="3">No tiene registro de avances</td>
                                         </tr>
                                     </ng-template>
                                 </p-table>
@@ -298,7 +324,7 @@
             <p-confirmDialog></p-confirmDialog>
 
             <ng-template pTemplate="footer">
-                <button pButton pRipple label="Cerrar" class="p-button-rounded p-button-danger" (click)="hideDialog()"></button>
+                <p-button label="Cerrar" icon="pi pi-times" [text]="true" (click)="hideDialog()"></p-button>
             </ng-template>
         <!-- </div> -->
     </p-dialog>

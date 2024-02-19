@@ -173,7 +173,7 @@ export class EmpleadoComponent implements OnInit {
         return empleadoProceso;
       });
       
-      // console.log(this.listEmpleados);
+      console.log(this.listEmpleados);
     });
   }
 

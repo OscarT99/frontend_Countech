@@ -14,6 +14,10 @@ export interface ProcesoReferenciaPedidoInstance {
   estado?: boolean;
   ColorEnProcesoEnReferenciaEnPedidos?: ColorProcesoReferenciaPedidoInstance[];
   AsignarProcesoEmpleado?: AsignarProcesoEmpleado[];
+
 }
+
+
+
 
   
