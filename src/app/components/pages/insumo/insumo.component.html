@@ -5,7 +5,7 @@
             <p-toolbar styleClass="mb-4">
                 <ng-template pTemplate="left">
                     <div class="my-2">
-                        <button pButton pRipple label="Crear insumo" icon="pi pi-plus"
+                        <button pButton pRipple label="Registrar insumo" icon="pi pi-plus"
                             (click)="openNewInsumo()"></button>
                         <p-button class="mr-2" label="Salida de insumo" icon="pi pi-sign-out" [raised]="true" severity="danger"
                         (click)="openSalidaInsumo()"></p-button>
@@ -17,7 +17,7 @@
                 </ng-template>
             </p-toolbar>
 
-            <p-table #dt [value]="insumos" responsiveLayout="scroll" [rows]="5" [globalFilterFields]="['nombre']"
+            <p-table #dt [value]="listInsumos" responsiveLayout="scroll" [rows]="5" [globalFilterFields]="['nombre']"
                 [paginator]="true" [rowsPerPageOptions]="[5,10,15]" [showCurrentPageReport]="true"
                 currentPageReportTemplate="Mostrando del {first} al {last} de {totalRecords} insumos" [rowHover]="true"
                 dataKey="id">
@@ -61,6 +61,11 @@
                         </td>
                     </tr>
                 </ng-template>
+                <ng-template pTemplate="emptymessage">
+                    <tr>
+                        <td colspan="6" class="text-center">No se encontraron insumos</td>
+                    </tr>
+                </ng-template>
             </p-table>
 
             <p-dialog header="Nuevo Insumo" class="p-fluid" [(visible)]="modalCrearInsumo" [style]="{width: '450px'}"
@@ -71,13 +76,25 @@
                         class="formgrid grid mt-3" >
                             <div class="field col mt-2">
                                 <span class="p-float-label">
-                                    <input formControlName="nombre" id="nombre" type="text" pInputText>
+                                    <input formControlName="nombre" id="nombre" type="text" pInputText (input)="validarNombreInsumo()">
                                     <label for="nombre">Nombre</label>
                                 </span>
                                 <small
                                     *ngIf="formInsumo.get('nombre')?.hasError('required') && formInsumo.get('nombre')?.touched"
                                     style="color: red;">
                                     El nombre del insumo <strong>requerido</strong>
+                                </small>
+                                <small *ngIf="formInsumo.get('nombre')?.hasError('insumoExistente') && formInsumo.get('nombre')?.touched"
+                                    style="color: red;">
+                                    El insumo ya existe en la base de datos
+                                </small>
+                                <small *ngIf="formInsumo.get('nombre')?.hasError('soloLetras') && formInsumo.get('nombre')?.touched"
+                                    style="color: red;">
+                                    Solo se permiten letras
+                                </small>
+                                <small *ngIf="formInsumo.get('nombre')?.hasError('minlength') && formInsumo.get('nombre')?.touched"
+                                    style="color: red;">
+                                    La ciudad debe tener al menos 4 caracteres
                                 </small>
                             </div>
                             <div class="field col mt-2">

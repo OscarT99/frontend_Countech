@@ -5,7 +5,7 @@
             <p-toolbar styleClass="mb-4">
                 <ng-template pTemplate="left">
                     <div class="my-2">
-                        <button pButton pRipple label="Crear cliente" icon="pi pi-plus"
+                        <button pButton pRipple label="Registrar cliente" icon="pi pi-plus"
                             (click)="openNew()"></button>
                     </div>
                 </ng-template>
@@ -34,7 +34,7 @@
                 <ng-template pTemplate="header">
                     <tr>
                         <th pSortableColumn="tipoCliente">Tipo<p-sortIcon field="tipoCliente"></p-sortIcon></th>
-                        <th pSortableColumn="numeroIdentificacion">N° Identificación<p-sortIcon
+                        <th pSortableColumn="numeroIdentificacion">Documento<p-sortIcon
                                 field="numeroIdentificacion"></p-sortIcon></th>
                         <th pSortableColumn="razonSocial">Razon Social<p-sortIcon field="razonSocial"></p-sortIcon></th>
                         <th pSortableColumn="telefono">Télefono<p-sortIcon field="telefono"></p-sortIcon></th>
@@ -44,28 +44,28 @@
                 </ng-template>
                 <ng-template pTemplate="body" let-cliente>
                     <tr>
-                        <td style="width:5%; min-width:5rem;"><span class="p-column-title">Tipo</span>
+                        <td style=" min-width:1rem;"><span class="p-column-title">Tipo</span>
                             {{ cliente.tipoCliente }}
                         </td>
-                        <td style="width:15%; min-width:10rem;">
-                            <span class="p-column-title">N° Identificación</span>
+                        <td style=" min-width:10rem;">
+                            <span class="p-column-title">Documento</span>
                             {{ cliente.numeroIdentificacion }}
                         </td>
-                        <td style="width:25%; min-width:8rem;">
+                        <td style=" min-width:10rem;">
                             <span class="p-column-title">Razon Social</span>
                             {{ cliente.tipoIdentificacion !== 'NIT' ?
                                     cliente.razonSocial + ' ' + cliente.nombreComercial :
                                     cliente.razonSocial }}
                         </td>
-                        <td style="width:5; min-width:10rem;">
+                        <td style=" min-width:9rem;">
                             <span class="p-column-title">Telefono</span>
                             {{ cliente.telefono }}
                         </td>
-                        <td style="width:15%; min-width:10rem;">
+                        <td style=" min-width:10rem;">
                             <span class="p-column-title">Email</span>
                             {{ cliente.correo }}
                         </td>
-                        <td style="width:20%; min-width:5rem;"><span class="p-column-title">Estado</span>
+                        <td style=" min-width:12rem;"><span class="p-column-title">Estado</span>
                             <div class="flex flex-wrap gap-3 ">
                                 <p-inputSwitch (click)="showConfirmation(cliente)"
                                 class="mt-3 {{ cliente.estado ? 'p-inputswitch-success' : 'p-inputswitch-warning' }}"
@@ -79,16 +79,24 @@
                         </td>
                     </tr>
                 </ng-template>
+                <ng-template pTemplate="emptymessage">
+                    <tr>
+                        <td colspan="6" class="text-center">No se encontraron clientes</td>
+                    </tr>
+                </ng-template>
             </p-table>
         </div>
 
-        <p-dialog [(visible)]="productDialog" [style]="{width: '500px'}" header="Nuevo Cliente" [modal]="true"
+        <p-dialog [(visible)]="productDialog" [style]="{width: '500px'}" [header]="nuevoCliente ? 'Nuevo Cliente' : 'Editar Cliente'" [modal]="true"
             class="p-fluid">
             <form [formGroup]="formCliente" (ngSubmit)="addCliente()">
-                <div class="formgrid grid">
+                <div class="formgrid grid mt-3">
                     <div class="field col">
-                        <p-dropdown formControlName="tipoCliente" [options]="tiposDeCliente"
+                        <span class="p-float-label" >
+                            <p-dropdown formControlName="tipoCliente" [options]="tiposDeCliente"
                             placeholder="Seleccione un tipo"></p-dropdown>
+                            <label>Tipo Cliente</label>
+                        </span>                        
                         <span
                             *ngIf="formCliente.get('tipoCliente')?.hasError('required') && formCliente.get('tipoCliente')?.touched"
                             style="color: red;">
@@ -96,20 +104,23 @@
                         </span>
                     </div>
                     <div class="field col">
-                        <p-dropdown formControlName="tipoIdentificacion" [options]="tipoIdentificacion"
-                            placeholder="Tipo Documento"></p-dropdown>
+                        <span class="p-float-label">
+                            <p-dropdown formControlName="tipoIdentificacion" [options]="tipoIdentificacion"
+                             placeholder="Tipo de identificación"></p-dropdown>
+                             <label>Tipo Identificación</label>
+                        </span>                        
                         <small
                             *ngIf="formCliente.get('tipoIdentificacion')?.hasError('required') && formCliente.get('tipoIdentificacion')?.touched"
                             style="color: red;">
                             El Tipo de identificación es <strong>requerido</strong>
                         </small>
-                    </div>
+                    </div> 
                 </div>
 
                 <div class="formgrid grid mt-2">
                     <div class="field col mt-2">
                         <span class="p-float-label">
-                            <input pInputText formControlName="numeroIdentificacion" [maxlength]="12" [minlength]="6" (input)="validarNumeroIdentificacion()">                            
+                            <input pInputText type="text" formControlName="numeroIdentificacion" [maxlength]="12" [minlength]="6" (input)="validarNumeroIdentificacion()">                            
                             <label for="numeroIdentificacion">N° Identificación</label>
                         </span>
                         <small *ngIf="formCliente.get('numeroIdentificacion')?.hasError('required') && formCliente.get('numeroIdentificacion')?.touched"
@@ -131,7 +142,7 @@
                     </div>
                     <div class="field col mt-2">
                         <span class="p-float-label">                            
-                            <input formControlName="razonSocial" [maxlength]="30" type="text" pInputText (input)="validarCampo('razonSocial')">
+                            <input formControlName="razonSocial" [maxlength]="50" type="text" pInputText (input)="validarCampo('razonSocial')">
                             <label for="razonSocial">{{ isNIT ? 'Razon Social' : 'Nombres' }}</label>
                         </span>
                         <small *ngIf="formCliente.get('razonSocial')?.hasError('required') && formCliente.get('razonSocial')?.touched"
@@ -152,7 +163,7 @@
                 <div class="formgrid grid mt-2">
                     <div class="field col mt-2">
                         <span class="p-float-label">
-                            <input formControlName="nombreComercial" id="nombreComercial" type="text" pInputText (input)="validarCampo('nombreComercial')">
+                            <input formControlName="nombreComercial" [maxlength]="50" id="nombreComercial" type="text" pInputText (input)="validarCampo('nombreComercial')">
                             <label for="nombreComercial">{{ isNIT ? 'Nombre Comercial' : 'Apellidos' }}</label>
                         </span>
                         <small *ngIf="formCliente.get('nombreComercial')?.hasError('required') && formCliente.get('nombreComercial')?.touched"
@@ -197,6 +208,7 @@
                     </div>
                     <div class="field col mt-2">
                         <span class="p-float-label">
+
                             <input formControlName="contacto" id="contacto" type="text" pInputText (input)="validarContacto()">
                             <label for="contacto">Contacto</label>
                         </span>                        

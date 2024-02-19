@@ -5,7 +5,7 @@
             <p-toolbar styleClass="mb-4">
                 <ng-template pTemplate="left">
                     <div class="my-2">
-                        <button pButton pRipple label="Crear proveedor" icon="pi pi-plus"
+                        <button pButton pRipple label="Registrar proveedor" icon="pi pi-plus"
                             (click)="openNew()"></button>
                     </div>
                 </ng-template>
@@ -34,7 +34,7 @@
                 <ng-template pTemplate="header">
                     <tr>
                         <th pSortableColumn="tipoProveedor">Tipo<p-sortIcon field="tipoProveedor"></p-sortIcon></th>
-                        <th pSortableColumn="numeroIdentificacion">N° Identificación<p-sortIcon
+                        <th pSortableColumn="numeroIdentificacion">Documento<p-sortIcon
                                 field="numeroIdentificacion"></p-sortIcon></th>
                         <th pSortableColumn="razonSocial">Razon Social<p-sortIcon field="razonSocial"></p-sortIcon></th>
                         <th pSortableColumn="telefono">Télefono<p-sortIcon field="telefono"></p-sortIcon></th>
@@ -44,28 +44,28 @@
                 </ng-template>
                 <ng-template pTemplate="body" let-proveedor>
                     <tr>
-                        <td style="width:5%; min-width:5rem;"><span class="p-column-title">Tipo</span>
+                        <td style="min-width:1rem;"><span class="p-column-title">Tipo</span>
                             {{ proveedor.tipoProveedor }}
                         </td>
-                        <td style="width:15%; min-width:10rem;">
-                            <span class="p-column-title">N° Identificación</span>
+                        <td style="min-width:10rem;">
+                            <span class="p-column-title">Documento</span>
                             {{ proveedor.numeroIdentificacion }}
                         </td>
-                        <td style="width:25%; min-width:8rem;">
+                        <td style="min-width:10rem;">
                             <span class="p-column-title">Razon Social</span>
                             {{ proveedor.tipoIdentificacion !== 'NIT' ?
                                 proveedor.razonSocial + ' ' + proveedor.nombreComercial :
                                 proveedor.razonSocial }}
                         </td>
-                        <td style="width:10%; min-width:10rem;">
+                        <td style="min-width:9rem;">
                             <span class="p-column-title">Telefono</span>
                             {{ proveedor.telefono }}
                         </td>
-                        <td style="width:15%; min-width:10rem;">
+                        <td style="min-width:10rem;">
                             <span class="p-column-title">Email</span>
                             {{ proveedor.correo }}
                         </td>
-                        <td style="width:20%; min-width:5rem;"><span class="p-column-title">Estado</span>
+                        <td style="min-width:12rem;"><span class="p-column-title">Estado</span>
                             <div class="flex flex-wrap gap-3 ">
                                 <p-inputSwitch (click)="showConfirmation(proveedor)"
                                 class="mt-3 {{ proveedor.estado ? 'p-inputswitch-success' : 'p-inputswitch-warning' }}"
@@ -79,10 +79,15 @@
                         </td>
                     </tr>
                 </ng-template>
+                <ng-template pTemplate="emptymessage">
+                    <tr>
+                        <td colspan="6" class="text-center">No se encontraron proveedores</td>
+                    </tr>
+                </ng-template>
             </p-table>
         </div>
 
-        <p-dialog [(visible)]="productDialog" [style]="{width: '500px'}" header="Nuevo Proveedor" [modal]="true"
+        <p-dialog [(visible)]="productDialog" [style]="{width: '500px'}" [header]="nuevoProveedor ? 'Nuevo Proveedor' : 'Editar Proveedor'" [modal]="true"
             class="p-fluid">
             <form [formGroup]="formProveedor" (ngSubmit)="addProveedor()">                
                 <div class="formgrid grid">
@@ -131,7 +136,7 @@
                     </div>
                     <div class="field col mt-2">
                         <span class="p-float-label">                            
-                            <input formControlName="razonSocial" [maxlength]="30" type="text" pInputText (input)="validarCampo('razonSocial')">
+                            <input formControlName="razonSocial" [maxlength]="50" type="text" pInputText (input)="validarCampo('razonSocial')">
                             <label for="razonSocial">{{ isNIT ? 'Razon Social' : 'Nombres' }}</label>
                         </span>
                         <small *ngIf="formProveedor.get('razonSocial')?.hasError('required') && formProveedor.get('razonSocial')?.touched"
@@ -152,7 +157,7 @@
                 <div class="formgrid grid mt-2">
                     <div class="field col mt-2">
                         <span class="p-float-label">
-                            <input formControlName="nombreComercial" id="nombreComercial" type="text" pInputText (input)="validarCampo('nombreComercial')">
+                            <input formControlName="nombreComercial" id="nombreComercial" [maxlength]="50" type="text" pInputText (input)="validarCampo('nombreComercial')">
                             <label for="nombreComercial">{{ isNIT ? 'Nombre Comercial' : 'Apellidos' }}</label>
                         </span>
                         <small *ngIf="formProveedor.get('nombreComercial')?.hasError('required') && formProveedor.get('nombreComercial')?.touched"

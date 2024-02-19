@@ -40,7 +40,7 @@ export class InsumoComponent implements OnInit {
     formInsumo:FormGroup;
     formSalidaInsumo:FormGroup;
 
-    insumos: InsumoInstance[] = []
+    listInsumos: InsumoInstance[] = []
 
     modalCrearInsumo:  boolean = false;
     modalSalidaInsumo: boolean = false;
@@ -69,7 +69,7 @@ export class InsumoComponent implements OnInit {
 
     getListInsumos(){
         this._insumoService.getListInsumos().subscribe((data:any) => {
-            this.insumos = data.listInsumos
+            this.listInsumos = data.listInsumos
         })
     }
 
@@ -285,7 +285,7 @@ export class InsumoComponent implements OnInit {
 
       data.push(headers)
 
-      this.insumos.forEach(insumo => {
+      this.listInsumos.forEach(insumo => {
         const row = [
           insumo.nombre,
           {t:'n', v: insumo.cantidad},
@@ -310,5 +310,41 @@ export class InsumoComponent implements OnInit {
     cerrarModalSalidaInsumo(){      
       this.modalSalidaInsumo = false;
       this.listInsumosGastados = [];
+    }
+
+
+    // Verificar la existencia en la base de datos
+
+    validarNombreInsumo() {
+      console.log('Entrando a validarNombreInsumo');
+
+      const insumoControl = this.formInsumo.get('nombre');
+      const insumoValue = insumoControl?.value;
+    
+      // Verificar si es requerido
+      if (insumoControl?.hasError('required')) {
+          return;
+      }
+    
+      // Verificar solo letras y longitud mínima
+      const soloLetrasRegex = /^[a-zA-ZáéíóúüÁÉÍÓÚÜÑñ\s]*$/;
+      const minCaracteres = 4;
+    
+      if (!soloLetrasRegex.test(insumoValue)) {
+          insumoControl?.setErrors({ soloLetras: true });
+      } else if (insumoValue && insumoValue.length < minCaracteres) {
+          insumoControl?.setErrors({ minlength: true });
+      } else {
+          insumoControl?.setErrors(null);
+      }
+
+      // Verificar la existencia en la base de datos
+      const insumoExistente = this.listInsumos.some(insumo => insumo.nombre === insumoValue);
+
+      if (insumoExistente) {
+          insumoControl?.setErrors({ insumoExistente: true });
+      } else {
+        insumoControl?.setErrors(null);
+      }
     }
 }      

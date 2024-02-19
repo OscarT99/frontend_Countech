@@ -21,7 +21,7 @@
                             </p-autoComplete>
                         </div>
                         <small
-                            *ngIf="formPedido.get('cliente')?.hasError('required') && formPedido.get('cliente')?.touched"
+                            *ngIf="formPedido.get('razonSocial')?.hasError('required') && formPedido.get('razonSocial')?.touched"
                             style="color: red;">
                             El Cliente es <strong>requerido</strong>
                         </small>
@@ -38,7 +38,7 @@
                     <div class="col-3">
                         <label htmlFor="ordenTrabajo">Orden de Trabajo </label>
                         <div>
-                            <input (input)="validarOrdenTrabajo()" [maxLength]="8" formControlName="ordenTrabajo" class="mt-1 inputs-pedido" type="text" 
+                            <input type="number" (input)="validarOrdenTrabajo()" [maxLength]="8" formControlName="ordenTrabajo" class="mt-1 inputs-pedido"  
                                 pInputText />
                         </div>
                         <small
