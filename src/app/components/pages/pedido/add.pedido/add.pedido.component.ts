@@ -73,7 +73,7 @@
     ) { 
       this.formPedido = this.fb.group({        
         cliente:['',Validators.required],
-        razonSocial:[],
+        razonSocial:['',Validators.required],
         contacto: [{ value: '', disabled: true }],
         ordenTrabajo:['',Validators.required],
         fechaOrdenTrabajo:['',Validators.required],
@@ -489,6 +489,11 @@
       const ordenTrabajoControl = this.formPedido.get('ordenTrabajo');
       const ordenTrabajoValue = ordenTrabajoControl?.value;
     
+      // Verificar si es requerido
+      if (ordenTrabajoControl?.hasError('required')) {
+        return;
+      }
+
       // Verificar la existencia en la lista de pedidos
       const ordenExistente = this.listPedidos.some(pedido => pedido.cliente === this.formPedido.value.cliente && pedido.ordenTrabajo === ordenTrabajoValue);
     

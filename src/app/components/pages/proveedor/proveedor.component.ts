@@ -14,6 +14,8 @@ import * as XLSX from 'xlsx';
     
 })
 export class ProveedorComponent implements OnInit {
+    nuevoProveedor: boolean = true;
+
     listProveedores: Proveedor[] = []
     proveedor: Proveedor = {}
     formProveedor:FormGroup;
@@ -146,12 +148,14 @@ export class ProveedorComponent implements OnInit {
         this.id = 0;                
         this.formProveedor.reset()
         this.productDialog = true;
+        this.nuevoProveedor = true;
     }
     
     editProduct(id:number) {
         this.id=id;
         this.productDialog = true;
-        this.getProveedor(id)
+        this.getProveedor(id);
+        this.nuevoProveedor = false;
     }
 
     hideDialog() {
@@ -195,9 +199,14 @@ export class ProveedorComponent implements OnInit {
     
       // Agregar encabezados a la matriz de datos
       const headers = [
-        'Tipo',
-        'N° Identificación',
+        'Tipo Proveedor',
+        'Tipo Identificación',
+        'N° Iden  tificación',
         'Razon Social',
+        'Nombre Comercial',
+        'Ciudad',
+        'Dirección',
+        'Contacto',
         'Telefono',
         'Email',
         'Estado'
@@ -209,8 +218,13 @@ export class ProveedorComponent implements OnInit {
       this.listProveedores.forEach(proveedor => {
         const row = [
             proveedor.tipoProveedor,
+            proveedor.tipoIdentificacion,
             proveedor.numeroIdentificacion,
             proveedor.razonSocial,
+            proveedor.nombreComercial,
+            proveedor.ciudad,
+            proveedor.direccion,
+            proveedor.contacto,
             proveedor.telefono,
             proveedor.correo,
             proveedor.estado ? 'Activo' : 'Inactivo'

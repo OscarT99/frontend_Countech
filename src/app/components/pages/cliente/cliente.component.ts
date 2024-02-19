@@ -13,6 +13,8 @@ import * as XLSX from 'xlsx';
 
 })
 export class ClienteComponent implements OnInit {
+  nuevoCliente: boolean = true;
+
   listClientes: Cliente[] = []
   cliente: Cliente = {}
   formCliente: FormGroup;
@@ -48,7 +50,7 @@ export class ClienteComponent implements OnInit {
 
   productDialog: boolean = false;
 
-  // rowsPerPageOptions = [5, 10, 15];
+
 
   constructor(private fb: FormBuilder,
     private _clienteService: ClienteService,
@@ -146,12 +148,14 @@ export class ClienteComponent implements OnInit {
     this.id = 0;
     this.formCliente.reset()
     this.productDialog = true;
+    this.nuevoCliente = true;    
   }
 
   editProduct(id: number) {
     this.id = id;
     this.productDialog = true;
     this.getCliente(id)
+    this.nuevoCliente = false;
   }
 
   hideDialog() {
@@ -197,9 +201,14 @@ export class ClienteComponent implements OnInit {
 
     // Agregar encabezados a la matriz de datos
     const headers = [
-      'Tipo',
+      'Tipo Cliente',
+      'Tipo Identificación',
       'N° Identificación',
       'Razon Social',
+      'Nombre Comercial',
+      'Ciudad',
+      'Dirección',
+      'Contacto',
       'Telefono',
       'Email',
       'Estado'
@@ -211,8 +220,13 @@ export class ClienteComponent implements OnInit {
     this.listClientes.forEach(cliente => {
       const row = [
         cliente.tipoCliente,
+        cliente.tipoIdentificacion,
         cliente.numeroIdentificacion,
         cliente.razonSocial,
+        cliente.nombreComercial,
+        cliente.ciudad,
+        cliente.direccion,
+        cliente.contacto,
         cliente.telefono,
         cliente.correo,
         cliente.estado ? 'Activo' : 'Inactivo'
@@ -274,10 +288,10 @@ validarNumeroIdentificacion() {
     if (!/^\d+$/.test(numeroIdentificacionValue)) {
       numeroIdentificacionControl?.setErrors({ soloNumeros: true });
       return;
-  }
+    }
 
   // Verificar la longitud mínima
-  if (numeroIdentificacionValue && numeroIdentificacionValue.length < 6) {
+  if (numeroIdentificacionValue && numeroIdentificacionValue < 100000) {
       numeroIdentificacionControl?.setErrors({ minlength: true });
       return;
   }
