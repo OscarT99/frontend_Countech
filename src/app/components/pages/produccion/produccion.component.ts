@@ -30,6 +30,8 @@ export class ProduccionComponent implements OnInit {
 
     // Getter
     listPedidos: PedidoInstance[] = []
+    getPedidoById: PedidoInstance = {}
+    listPedidoProceso: ProcesoReferenciaPedidoInstance[] = []
     listAsignarProcesoEmpleado: AsignarProcesoEmpleado[] = []
     listEmpleados: Empleado[] = []
     listAvanceProcesoEmpleado: AvanceProcesoEmpleado[] = []
@@ -44,8 +46,6 @@ export class ProduccionComponent implements OnInit {
     // Dialogs
     asignarProcDialog: boolean = false;
     detalleProcAsigDialog: boolean = false;
-
-
 
     // asignarProceso: AsignarProcesoEmpleado = {}
 
@@ -62,8 +62,6 @@ export class ProduccionComponent implements OnInit {
 
     // pedidoIdSeleccionado!: number;
 
-    detallePedido: any;
-    @ViewChild('detallePedidoModal') detallePedidoModal!: Dialog;
    
     rowsPerPageOptions = [5, 10, 15];
 
@@ -81,8 +79,8 @@ export class ProduccionComponent implements OnInit {
     private router : Router,
     ){
       this.formAsignarProcesoEmpleado = this.fb.group({
-        empleadoId: [''],
-        pedidoprocesoId: ['', Validators.required],
+        empleadoId: ['', Validators.required],
+        pedidoprocesoId: [''],
         cantidadPendiente: [''],
         cantidadAsignada: ['', [Validators.required, Validators.min(1)]],
       });
@@ -102,18 +100,33 @@ export class ProduccionComponent implements OnInit {
 
 
   ngOnInit():void {
+    this.validateProcesoPedido(1)
     this.getListPedidos();
+    this.getListPedidoProcesos();
     this.getEmpleadoList();
     this.getAsignarProcesoEmpleado();
   }
 
-  changeEstado(estado: boolean) {
-    switch (estado) {
-      case true:
-        return 'TERMINADO';
-      case false:
-        return 'PENDIENTE';
-    };
+  changeEstadoProd(estadoPro: boolean, estadoAnu: boolean) {
+    let value = '';
+    if(estadoPro === true && estadoAnu === false){
+      value =  'TERMINADO'
+    } else if(estadoPro === false && estadoAnu === false){
+      value =  'PENDIENTE'
+    }else{
+      value = 'ANULADO'
+    }
+    return value;
+  }
+
+  getEstadoProd(estadoPro: boolean, estadoAnu: boolean) {
+    if(estadoPro === true && estadoAnu === false){
+      return 'success'
+    } else if(estadoPro === false && estadoAnu === false){
+      return 'warning'
+    }else{
+      return 'danger'
+    }
   }
 
   changeEstadoAnular(estado: boolean) {
@@ -134,24 +147,45 @@ export class ProduccionComponent implements OnInit {
     };
   }
 
-
-
-  getEstadoProd(estado: boolean) {
-    switch (estado) {
-      case true:
-        return 'success';
-      case false:
-        return 'warning';
-    };
-  }
-
-
   // Listar los pedidos en producción
   getListPedidos(){     
     this._pedidoService.getListPedidos().subscribe((data:any) =>{      
-      this.listPedidos = data.listaPedidos;        
-    })        
+      this.listPedidos = data.listaPedidos;
+      console.log(this.listPedidos);        
+    })
   }
+
+  validateProcesoPedido(id: number){     
+    this._pedidoService.getPedido(id).subscribe((data:any) =>{
+      this.getPedidoById = data;
+    
+      if(data.ProcesoEnReferenciaEnPedidos.length > 0){
+        
+      }
+      console.log(this.getPedidoById);
+      });     
+  }
+
+  getListPedidoProcesos(){
+    this._pedidoService.getPedidoProcesos().subscribe((data:any) =>{
+      this.listPedidoProceso = data.listaProcesos;
+      console.log(this.listPedidoProceso);
+    });
+  }
+
+  // getListPedidosProceso(){
+  //   this._pedidoService.getListPedidos().subscribe((data:any) =>{      
+  //     this.listPedidoProceso = data.listaPedidos.reduce((acumulador: any[], pedido: PedidoInstance) => {
+  //       const procesos = pedido.ProcesoEnReferenciaEnPedidos?.filter(proceso => proceso.estado === false);
+  //       if (procesos && procesos.length > 0) {
+  //         acumulador.push(...procesos);
+  //       }
+  //       return acumulador;
+  //     }, []);
+  
+  //     console.log({data: this.listPedidoProceso});     
+  //   })
+  // }
   
   // Listar los procesos asignados a los empleados
   getAsignarProcesoEmpleado() {
@@ -180,12 +214,12 @@ export class ProduccionComponent implements OnInit {
       });
   }
 
-  
 
   // Listar los empleados
   getEmpleadoList(){
     this._empleadoService.getEmpleadoList().subscribe((data: any) => {
       this.listEmpleados = data.Empleados;
+      // console.log(this.listEmpleados);
     });
   }
 
@@ -196,25 +230,39 @@ export class ProduccionComponent implements OnInit {
     this.detalleProcAsigDialog = false;
   }
 
+
   // Dialogs
 
   // Mostrar el dialogo para asignar un proceso a un empleado
   showAsignarProcesoDialog(proceso: any) {
-    this.formAsignarProcesoEmpleado.reset();
     this.asignarProcDialog = true;
+    this.formAsignarProcesoEmpleado.reset();
     this.procesoId = proceso.id;
     this.formAsignarProcesoEmpleado.get('cantidadPendiente')!.setValue(proceso.cantidadPendiente);
-    console.log({data: proceso});
+    // console.log({data: proceso});
   }
 
   // Mostrar el dialogo para ver la lista de procesos asignados a un empleado de un proceso
   showDetalleProcAsigDialog(proceso: any) {
     this.detalleProcAsigDialog = true;
     console.log({data: proceso});
+    this.formAvance.reset();
 
     // Filtrar la lista de listAsignarProcesoEmpleado por el id del proceso
     this.listFilterAsigProcEmpleado = this.listAsignarProcesoEmpleado.filter(listFiltered => listFiltered.pedidoprocesoId === proceso.id);
     console.log({data: this.listFilterAsigProcEmpleado});
+  }
+
+  
+  validateCantAsignada() {
+    const cantidadPendienteValue = this.formAsignarProcesoEmpleado.get('cantidadPendiente');
+    const cantidadAsignadaControl = this.formAsignarProcesoEmpleado.get('cantidadAsignada');
+    const cantidadAsignadaValue = cantidadAsignadaControl?.value;
+
+    if (cantidadAsignadaValue && cantidadAsignadaValue > cantidadPendienteValue?.value) {
+      cantidadAsignadaControl?.setErrors({ cantError: true });
+        return;
+    }
   }
 
   // Registrar un proceso asignado a un empleado
@@ -225,14 +273,21 @@ export class ProduccionComponent implements OnInit {
       cantidadAsignada: this.formAsignarProcesoEmpleado.value.cantidadAsignada,
     }
 
-    console.log({data: dataAsignarProceso});
+    console.log(dataAsignarProceso);
     this._asignarProcesoService.postAsignarProcesoEmpleado(dataAsignarProceso).subscribe(() => {
       this.toastr.success('Proceso asignado correctamente', 'Éxito');
+      this.getListPedidoProcesos();
       this.getAsignarProcesoEmpleado();
-      this.getListPedidos();
       this.hideDialog();
     });
   }
+
+  getAsignarProcesoEmpleadoById(id: number) {
+    this._pedidoService.getPedidoProcesoById(id).subscribe((data: any) => {
+      console.log(data);
+    });
+  }
+
 
   // Registrar una cantidad hecha de un proceso asignado a un empleado
   crearAvance(id: number){
@@ -242,6 +297,7 @@ export class ProduccionComponent implements OnInit {
     }
     this._avanceProcesoService.postAvanceProcesoEmpleado(dataAvance).subscribe(() => {
       this.toastr.success('Registro exitoso');
+      this.getAsignarProcesoEmpleado();
     });
   }
 
@@ -259,7 +315,7 @@ export class ProduccionComponent implements OnInit {
         console.log({data: dataAnular}); 
         this._asignarProcesoService.putAnularProceso(id, dataAnular).subscribe(() => {
           this.toastr.success('Proceso anulado correctamente', 'Éxito');
-          // this.getAsignarProcesoEmpleado();
+          this.getAsignarProcesoEmpleado();
         });
       },
       reject: () => {
@@ -485,68 +541,68 @@ cantidadTotal: number = 0;
   
 // }
 
-async actualizarCantidadHecha(procesoId: number): Promise<void> {
-  try {
-    const AsignarProcesoEmpleado = this.listAsignarProcesoEmpleado
-      .filter(asignar => asignar.proceso === procesoId && asignar.estadoProcAsig === true);
+// async actualizarCantidadHecha(procesoId: number): Promise<void> {
+//   try {
+//     const AsignarProcesoEmpleado = this.listAsignarProcesoEmpleado
+//       .filter(asignar => asignar.proceso === procesoId && asignar.estadoProcAsig === true);
 
-    const cantidadHecha = AsignarProcesoEmpleado.reduce((suma, asignar) => suma + (asignar.cantidadAsignada || 0), 0);
+//     const cantidadHecha = AsignarProcesoEmpleado.reduce((suma, asignar) => suma + (asignar.cantidadAsignada || 0), 0);
 
-    const procesoReferencia: ProcesoReferenciaPedidoInstance = {
-      cantidadHecha: cantidadHecha,
-    };
+//     const procesoReferencia: ProcesoReferenciaPedidoInstance = {
+//       cantidadHecha: cantidadHecha,
+//     };
 
-    // Actualiza la propiedad cantidadHecha en el proceso
-    await this._procesoReferenciaPedidoService.putProcesoCantidad(procesoId, procesoReferencia).toPromise();
+//     // Actualiza la propiedad cantidadHecha en el proceso
+//     await this._procesoReferenciaPedidoService.putProcesoCantidad(procesoId, procesoReferencia).toPromise();
 
-    console.log('Cantidad hecha:', cantidadHecha);
-    console.log('Cantidad total:', this.cantidadTotal);
+//     console.log('Cantidad hecha:', cantidadHecha);
+//     console.log('Cantidad total:', this.cantidadTotal);
     
-    // Verifica si la cantidadTotal es igual a cantidadHecha
-    if (cantidadHecha === this.cantidadTotal) {
-      // Actualiza el estado del proceso si es necesario
-      const estadoActualizado = cantidadHecha === this.cantidadTotal;
-      const procesoReferenciaConEstado: ProcesoReferenciaPedidoInstance = {
-        cantidadHecha: cantidadHecha,
-        estado: estadoActualizado,
-      };
+//     // Verifica si la cantidadTotal es igual a cantidadHecha
+//     if (cantidadHecha === this.cantidadTotal) {
+//       // Actualiza el estado del proceso si es necesario
+//       const estadoActualizado = cantidadHecha === this.cantidadTotal;
+//       const procesoReferenciaConEstado: ProcesoReferenciaPedidoInstance = {
+//         cantidadHecha: cantidadHecha,
+//         estado: estadoActualizado,
+//       };
 
-      console.log(procesoReferenciaConEstado)
+//       console.log(procesoReferenciaConEstado)
       
-      // Actualiza la propiedad cantidadHecha y el estado en el proceso
-      await this._procesoReferenciaPedidoService.putProcesoCantidad(procesoId, procesoReferenciaConEstado).toPromise();
-    }
-    this.getAsignarProcesoEmpleado();
-    // this.getProcesosEnReferenciaEnPedido();
-    // Actualiza la lista de procesos (opcional)
-  } catch (error) {
-    console.error('Error al actualizar cantidadHecha:', error);
-  }
-}
+//       // Actualiza la propiedad cantidadHecha y el estado en el proceso
+//       await this._procesoReferenciaPedidoService.putProcesoCantidad(procesoId, procesoReferenciaConEstado).toPromise();
+//     }
+//     this.getAsignarProcesoEmpleado();
+//     // this.getProcesosEnReferenciaEnPedido();
+//     // Actualiza la lista de procesos (opcional)
+//   } catch (error) {
+//     console.error('Error al actualizar cantidadHecha:', error);
+//   }
+// }
 
-async calcularSumaCantAsignada() {
-  try {
-    const data: any = await this._asignarProcesoService.getAsignarProcesoEmpleado().toPromise();
-    this.listAsignarProcesoEmpleado = data.listAsignarProcedimientos;
+// async calcularSumaCantAsignada() {
+//   try {
+//     const data: any = await this._asignarProcesoService.getAsignarProcesoEmpleado().toPromise();
+//     this.listAsignarProcesoEmpleado = data.listAsignarProcedimientos;
 
-    // Filtra solo los elementos que pertenecen al proceso actual
-    const asignarProcesoProcesoActual = this.listAsignarProcesoEmpleado.filter(asignar => asignar.proceso === this.procesoId);
+//     // Filtra solo los elementos que pertenecen al proceso actual
+//     const asignarProcesoProcesoActual = this.listAsignarProcesoEmpleado.filter(asignar => asignar.proceso === this.procesoId);
 
-    // Realiza la suma solo de los elementos filtrados
-    this.cantidadAsignada = asignarProcesoProcesoActual.reduce((suma, asignar) => suma + (asignar.cantidadAsignada ?? 0), 0);
-    this.cantidadPendiente = this.cantidadTotal - this.cantidadAsignada;
+//     // Realiza la suma solo de los elementos filtrados
+//     this.cantidadAsignada = asignarProcesoProcesoActual.reduce((suma, asignar) => suma + (asignar.cantidadAsignada ?? 0), 0);
+//     this.cantidadPendiente = this.cantidadTotal - this.cantidadAsignada;
 
-    const procesoReferencia: ProcesoReferenciaPedidoInstance = {
-      cantidadAsignada: this.cantidadAsignada,
-      cantidadPendiente: this.cantidadPendiente
-    };
+//     const procesoReferencia: ProcesoReferenciaPedidoInstance = {
+//       cantidadAsignada: this.cantidadAsignada,
+//       cantidadPendiente: this.cantidadPendiente
+//     };
 
-    await this._procesoReferenciaPedidoService.putProcesoCantidad(this.procesoId, procesoReferencia).toPromise();
-    // this.getProcesosEnReferenciaEnPedido();
-  } catch (error) {
-    console.error('Error al calcular:', error);
-  }
-}
+//     await this._procesoReferenciaPedidoService.putProcesoCantidad(this.procesoId, procesoReferencia).toPromise();
+//     // this.getProcesosEnReferenciaEnPedido();
+//   } catch (error) {
+//     console.error('Error al calcular:', error);
+//   }
+// }
 
 // showInfo(procesoId: number) {
 //   // this.getListEmpleados()

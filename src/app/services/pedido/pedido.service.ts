@@ -2,6 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { environment } from 'src/enviroments/environment';
 import { PedidoInstance } from 'src/app/interfaces/pedido/pedido.interface'; 
+import { ProcesoReferenciaPedidoInstance } from 'src/app/interfaces/pedido/procesoReferenciaPedido.interface'; 
 import { Observable } from 'rxjs';
 
 @Injectable()
@@ -20,6 +21,14 @@ import { Observable } from 'rxjs';
     
     getListPedidos(): Observable<PedidoInstance[]>{
       return this.http.get<PedidoInstance[]>(`${this.myAppUrl}${this.myApiUrl}`)    
+    }
+
+    getPedidoProcesos(): Observable<ProcesoReferenciaPedidoInstance[]>{
+      return this.http.get<ProcesoReferenciaPedidoInstance[]>(`${this.myAppUrl}${this.myApiUrl}proceso`)
+    }
+
+    getPedidoProcesoById(id:number): Observable<ProcesoReferenciaPedidoInstance[]>{
+      return this.http.get<ProcesoReferenciaPedidoInstance[]>(`${this.myAppUrl}${this.myApiUrl}proceso/${id}`)
     }
   
     postPedido(pedido : PedidoInstance):Observable<void>{
