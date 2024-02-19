@@ -12,10 +12,14 @@
         <i class="pi pi-ellipsis-v"></i>
     </button>
 
-    <div #topbarmenu class="layout-topbar-menu">        
-        <button class="p-link layout-topbar-button">
-            <i class="pi pi-cog"></i>
-            <span>Settings</span>
-        </button>
+    <div #topbarmenu class="layout-topbar-menu">
+        
+        <button type="button" class="p-link layout-topbar-button" (click)="logout()" 
+        pTooltip="Cerrar sesión" tooltipPosition="bottom">
+        <i class="pi pi-sign-out"></i>
+        <span>Logout</span>
+</button>
+
+    
     </div>
 </div>
