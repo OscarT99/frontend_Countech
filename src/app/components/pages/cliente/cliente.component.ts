@@ -7,6 +7,7 @@ import { ToastrService } from 'ngx-toastr';
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import * as XLSX from 'xlsx';
+import { AuthService } from 'src/app/services/login/login.service';
 
 @Component({
   templateUrl: './cliente.component.html',
@@ -54,6 +55,7 @@ export class ClienteComponent implements OnInit {
     private _clienteService: ClienteService,
     private toastr: ToastrService,
     private aRouter: ActivatedRoute,
+    private authService: AuthService,
   ) {
     this.formCliente = this.fb.group({
       tipoCliente: [undefined, Validators.required],
@@ -236,4 +238,8 @@ export class ClienteComponent implements OnInit {
       console.error('Error al obtener el detalle del cliente:', error);
     }
   }
+
+  // login(){
+  //   this.authService.
+  // }
 }

@@ -1,5 +1,5 @@
 import { Injectable} from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { environment } from 'src/enviroments/environment';
 import { SalidaInsumoInstance } from 'src/app/interfaces/insumo/salidaInsumo.interface'; 
 import { Observable } from 'rxjs';
@@ -19,12 +19,18 @@ export class SalidaInsumoService {
 
  
    getListSalidaInsumo():Observable<SalidaInsumoInstance[]>{
-    return this.http.get<SalidaInsumoInstance[]>(`${this.myAppUrl}${this.myApiUrl}`)
+    const token = localStorage.getItem('token');
+    const headers = new HttpHeaders().set('x-token', token || '');
+
+    return this.http.get<SalidaInsumoInstance[]>(`${this.myAppUrl}${this.myApiUrl}`, {headers})
    }
 
  
    postSalidaInsumo(salidaInsumo: SalidaInsumoInstance):Observable<void>{
-    return this.http.post<void>(`${this.myAppUrl}${this.myApiUrl}`,salidaInsumo)
+    const token = localStorage.getItem('token');
+    const headers = new HttpHeaders().set('x-token', token || '');
+
+    return this.http.post<void>(`${this.myAppUrl}${this.myApiUrl}`,salidaInsumo, {headers})
    }
 
 }
