@@ -169,9 +169,10 @@ export class ProduccionComponent implements OnInit {
   getListPedidoProcesos(){
     this._pedidoService.getPedidoProcesos().subscribe((data:any) =>{
       this.listPedidoProceso = data.listaProcesos;
-      console.log(this.listPedidoProceso);
+      // console.log(this.listPedidoProceso);
     });
   }
+
 
   // getListPedidosProceso(){
   //   this._pedidoService.getListPedidos().subscribe((data:any) =>{      
@@ -297,7 +298,6 @@ export class ProduccionComponent implements OnInit {
     }
     this._avanceProcesoService.postAvanceProcesoEmpleado(dataAvance).subscribe(() => {
       this.toastr.success('Registro exitoso');
-      this.getAsignarProcesoEmpleado();
     });
   }
 
@@ -309,13 +309,13 @@ export class ProduccionComponent implements OnInit {
       header: 'Anular Proceso',
       icon: 'pi pi-exclamation-triangle',
       accept: () => {
+        this.getAsignarProcesoEmpleado();
         const dataAnular: EstadoAnular = {
           estadoAnular: true
         }
-        console.log({data: dataAnular}); 
+        // console.log({data: dataAnular}); 
         this._asignarProcesoService.putAnularProceso(id, dataAnular).subscribe(() => {
           this.toastr.success('Proceso anulado correctamente', 'Éxito');
-          this.getAsignarProcesoEmpleado();
         });
       },
       reject: () => {
@@ -410,16 +410,7 @@ seleccionarEmpleado(event: any): void {
 
   console.log(this.empleadoId)
 
-  // if (empleadoSeleccionado) {
-  //   this.formAsignarProcesoEmpleado.get('contacto')!.setValue(empleadoSeleccionado.nombre || '');
-  // }
 }
-
-
-cantidadAsignada: number = 0;
-cantidadHecha: number = 0;
-cantidadPendiente: number = 0;
-cantidadTotal: number = 0;
 
 // getProcesosEnReferenciaEnPedido() {
 //   this._procesoReferenciaPedidoService.getProcesosEnReferenciaEnPedido().subscribe((data: any) => {

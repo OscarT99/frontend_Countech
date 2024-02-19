@@ -2,17 +2,18 @@
 <div class="col-12">
 <!-- Listar pedidos para producción  -->
 <div class="card">
-    <h3>Pedidos activos</h3>
+    <h3>Pedidos activos en producción</h3>
     <p-accordion [multiple]="true">        
         <p-accordionTab *ngFor="let pedido of listPedidos" class="line-height-3 m-2">
 
             <!-- HEADER ACCORDIONTAB -->
             <ng-template pTemplate="header">
                 <div class="flex align-items-center">
-                    <span class="vertical-align-middle">Orden de trabajo: {{ pedido.ordenTrabajo }}</span>
+                    <span class="vertical-align-middle">Orden de trabajo: <strong>{{ pedido.ordenTrabajo }}</strong></span>
                     <!-- PENDIENTE Organizar el icono si ya se asigno una tarea  -->
-                    <!-- <i *ngIf="pedido.id !== undefined && validarRegistroProceso(pedido.id)" class="pi pi-check ml-2" style="color: green"></i>
-                    <i *ngIf="pedido.id !== undefined && !validarRegistroProceso(pedido.id)" class="pi pi-times ml-2" style="color: red"></i> -->
+                    <i *ngIf="pedido.id !== undefined && pedido.estado === 'En proceso'" class="pi pi-hourglass ml-2" style="color: rgb(4, 192, 255)"></i>
+                    <i *ngIf="pedido.id !== undefined && pedido.estado === 'Registrado'" class="pi pi-exclamation-circle ml-2" style="color: rgb(255, 175, 77)"></i>
+                    <i *ngIf="pedido.id !== undefined && pedido.estado === 'Terminado'" class="pi pi-check-circle ml-2" style="color: rgb(94, 255, 0)"></i>
                 </div>
             </ng-template>
 
@@ -38,7 +39,7 @@
                         <td>{{pedido.fechaOrdenTrabajo}}</td>
                         <td>{{pedido.fechaEntregaOrden}}</td>
                         <td>{{pedido.valorTotal}}</td>
-                        <td>{{pedido.estado}}</td>                                                                
+                        <td><strong>{{pedido.estado}}</strong></td>                                                                
                     </tr>
                 </ng-template>
             </p-table>
@@ -74,12 +75,20 @@
                         
                         <!-- INICIO TABVIEW PROCESO -->
                         <p-tabView>
-                            <ng-container *ngFor="let proceso of listPedidoProceso; let i = index">
+
+                            <ng-container *ngFor="let proceso of listPedidoProceso">
                             <ng-container *ngIf="pedido.id === proceso.pedido">
+                                <!-- <ng-container *ngFor=" let i = index"> -->
                                 <!-- INICIO TABPANEL PROCESO INFO -->
                                 <p-tabPanel>
                                     <ng-template pTemplate="header">
-                                        <span [style.color]="proceso.estado ? 'green' : 'red'">{{i + 1}}. {{ proceso.proceso }}</span>  
+                                        <div class="flex align-items-center">
+                                            <span class="vertical-align-middle"><strong>{{ proceso.proceso }}</strong></span>
+                                            <!-- PENDIENTE Organizar el icono si ya se asigno una tarea  -->
+                                            <i *ngIf="proceso.proceso !== undefined && proceso.cantidadAsignada !== undefined && proceso.estado === false && (proceso.cantidadAsignada > 0)" class="pi pi-hourglass ml-2" style="color: rgb(4, 192, 255)"></i>
+                                            <i *ngIf="proceso.cantidadAsignada !== undefined && (proceso.cantidadAsignada === 0)" class="pi pi-exclamation-circle ml-2" style="color: rgb(255, 175, 77)"></i>
+                                            <i *ngIf="proceso.proceso !== undefined && proceso.estado === true" class="pi pi-check-circle ml-2" style="color: rgb(94, 255, 0)"></i>
+                                        </div>
                                         <!-- <i *ngIf="proceso.id !== undefined && validarRegistroProceso2(proceso.id) && proceso.estado === false" class="pi pi-check ml-2" style="color: green"></i>
                                         <i *ngIf="proceso.estado !== undefined && proceso.estado === true" class="pi pi-circle-fill ml-2" style="color: rgb(255, 255, 0)"></i>
                                         <i *ngIf="proceso.id !== undefined && !validarRegistroProceso2(proceso.id)" class="pi pi-times ml-2" style="color: red"></i>                     -->
@@ -105,16 +114,19 @@
                                                   <td>{{proceso.cantidadPendiente || 0}}</td>
                                                   <td>{{proceso.cantidadHecha || 0}}</td>
                                                   <td>
-                                                    <ng-container *ngIf="proceso.estado === false; else terminado">
+                                                    <ng-container *ngIf="proceso.estado === false && proceso.cantidadAsignada === 0">
+                                                        <strong>Pendiente</strong>
+                                                      </ng-container>
+                                                    <ng-container *ngIf="proceso.estado === false && proceso.cantidadAsignada > 0">
                                                       <strong>En proceso</strong>
                                                     </ng-container>
-                                                    <ng-template #terminado>
+                                                    <ng-container *ngIf="proceso.estado === true">
                                                       <strong>Terminado</strong>
-                                                    </ng-template>
+                                                    </ng-container>
                                                   </td>
                                  
                                                   <td>
-                                                    <div class="flex">
+                                                    <div class="flex gap-2 justify-content-center">
                                                       <p-button *ngIf="proceso.estado === false && proceso.cantidadPendiente > 0" icon="pi pi-plus" [rounded]="true" pTooltip="Asignar proceso" (click)="showAsignarProcesoDialog(proceso)"></p-button>
                                                       <p-button icon="pi pi-info" [rounded]="true" pTooltip="Procesos asignados" (click)="showDetalleProcAsigDialog(proceso)"></p-button>
                                                     </div>
@@ -150,6 +162,7 @@
                                 </p-tabPanel>
                             </ng-container>
                         </ng-container>
+                        <!-- </ng-container> -->
                                 <!-- FINAL TABPANEL PROCESO -->
                         </p-tabView>
                         <!-- FINAL TABVIEW PROCESO -->
@@ -271,7 +284,7 @@
                                 </form>
                             </td>
                         </ng-container>
-                        <td>
+                        <td class="justify-content-center">
                             <p-tag [value]="changeEstadoProd(proceso.estadoProcAsig, proceso.estadoAnular)" [severity]="getEstadoProd(proceso.estadoProcAsig, proceso.estadoAnular)"></p-tag>
                         </td>
                         <ng-container *ngIf="proceso.estadoAnular === true">
@@ -279,12 +292,13 @@
                                 <p-tag [value]="changeEstadoAnular(proceso.estadoAnular)" [severity]="styleEstadoAnular(proceso.estadoAnular)"></p-tag>
                             </td>
                         </ng-container>
-                        <ng-container *ngIf="proceso.estadoAnular === false">
-                            <div style="display: flex; justify-content: center; align-items: center;">
-                                <div class="field">
-                                    <p-button *ngIf="proceso.estadoAnular === false && proceso.estadoProcAsig === false" (click)="anularProceso(proceso.id)" icon="pi pi-times-circle" [rounded]="true" [text]="true" severity="danger" pTooltip="Anular"></p-button>
-                                </div> 
-                            </div>
+                        <ng-container *ngIf="proceso.estadoAnular === false && proceso.estadoProcAsig === false && proceso.cantidadAsignada === proceso.cantRestante">
+                            <td>
+                                <div class="flex">
+                                    <!-- <p-button icon="pi pi-times" [rounded]="true" severity="danger"></p-button> -->
+                                    <p-button (click)="anularProceso(proceso.id)" icon="pi pi-times-circle" [rounded]="true" severity="danger" pTooltip="Anular"></p-button>
+                                </div>
+                            </td>
                         </ng-container>
                     </tr>
                 </ng-template>
@@ -328,6 +342,8 @@
             </ng-template>
         <!-- </div> -->
     </p-dialog>
+
+    
 
     <!-- Dialog detalle tareas asignadas -->
     <!-- <p-dialog [(visible)]="viewInfoDialog" [style]="{width: '640px'}" header="Tareas asignadas" [modal]="true" class="p-fluid">

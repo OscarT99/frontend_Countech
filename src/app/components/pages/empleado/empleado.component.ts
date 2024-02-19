@@ -31,6 +31,8 @@ export class EmpleadoComponent implements OnInit {
   editDialog: boolean = false;
   
   createDialog: boolean = false;
+
+  avanceDialog: boolean = false;
   
   id: number = 0;
 
@@ -187,6 +189,10 @@ export class EmpleadoComponent implements OnInit {
     this.editDialog = true;
     this.id = id;
     this.getEmpleado(id);
+  }
+
+  showDialogAvance(id: number) {
+    this.avanceDialog = true;
   }
 
 
