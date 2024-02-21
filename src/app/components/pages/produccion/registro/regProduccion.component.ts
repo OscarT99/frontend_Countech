@@ -19,15 +19,15 @@ import { ToastrService } from 'ngx-toastr';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 
-import { ConfirmationService, MessageService, ConfirmEventType } from 'primeng/api';
+import { ConfirmationService, MessageService} from 'primeng/api';
 import { Subscription } from 'rxjs';
 
 
 @Component({
-  templateUrl: './produccion.component.html',
+  templateUrl: './regProduccion.component.html',
   providers: [ConfirmationService, MessageService]
 })
-export class ProduccionComponent implements OnInit {
+export class RegProduccionComponent implements OnInit {
 
     // Getter
     listPedidos: PedidoInstance[] = []
@@ -53,7 +53,7 @@ export class ProduccionComponent implements OnInit {
 
     filteredPedidos: PedidoInstance[] = [];
 
-    listSearchPedido: any[] = [];
+    listSearchPedido: PedidoInstance[] = [];
 
     searchText: string = '';
 
@@ -63,15 +63,11 @@ export class ProduccionComponent implements OnInit {
 
     procesoId: number = 0;
 
-    pedidoId: number = 0;
-
     empleadoId: number = 0;
 
     subscription: Subscription = new Subscription();
    
     rowsPerPageOptions = [5, 10, 15];
-
-    activeAccordionTabIndex: number = 0;
 
   constructor(
     private confirmationService: ConfirmationService,
@@ -100,7 +96,7 @@ export class ProduccionComponent implements OnInit {
       });
     }
 
-  ngOnInit(): void {
+  ngOnInit():void {
     //Obtiene la información principal del pedido
     this.getPedidoInfoEstado()
     // Obtiene los pedidos registrados
@@ -111,6 +107,11 @@ export class ProduccionComponent implements OnInit {
     this.getEmpleadoList();
     // Obtiene los procesos asignados con su relación de avances
     this.getAsignarProcesoEmpleado();
+
+    this.subscription = this._avanceProcesoService.refresh$.subscribe(() => {
+      this.getAsignarProcesoEmpleado();
+    });
+
   }
 
   changeSeverityPedido(estado: string) {
@@ -132,7 +133,6 @@ export class ProduccionComponent implements OnInit {
       return 'success'
     }
   }
-
 
   changeEstadoProd(estadoPro: boolean, estadoAnu: boolean) {
     let value = '';
@@ -176,26 +176,25 @@ export class ProduccionComponent implements OnInit {
 
   // Listar los pedidos en producción
   getListPedidos(){     
-     this._pedidoService.getListPedidos().subscribe((data:any) =>{      
+    this._pedidoService.getListPedidos().subscribe((data:any) =>{      
       this.listPedidos = data.listaPedidos;
-       this.filteredPedidos = this.listPedidos.filter((pedido: any) => pedido.estado === 'Registrado' || pedido.estado === 'En proceso');   
-       this.listSearchPedido = this.filteredPedidos;
-      })
+      this.filteredPedidos = this.listPedidos.filter((pedido: any) => pedido.estado === 'Terminado');
+      // console.log(this.listPedidos);
+      this.listSearchPedido = this.filteredPedidos;      
+    })
   }
 
+  
   filterPedidosByOrdenTrabajo(ordenTrabajo: string) {
-      this.listSearchPedido = this.filteredPedidos.filter(pedido =>
-      pedido?.ordenTrabajo?.toLowerCase().includes(ordenTrabajo.toLowerCase()) 
+    this.listSearchPedido = this.filteredPedidos.filter(pedido =>
+      (pedido.ordenTrabajo ?? '').toLowerCase().includes(ordenTrabajo.toLowerCase())
     );
   }
-  
 
   getListPedidoProcesos(){
     this._pedidoService.getPedidoProcesos().subscribe((data:any) =>{
       this.listPedidoProceso = data.listaProcesos;
       // console.log(this.listPedidoProceso);
-
-
     });
   }
 
@@ -223,7 +222,6 @@ export class ProduccionComponent implements OnInit {
         });
 
         this.filteredProcesosAsignados = this.listAsignarProcesoEmpleado.filter((proceso: any) => proceso.pedidoprocesoId === this.procesoId);
-        // console.log(this.filteredProcesosAsignados);
   
         // Iteramos el objeto para obtener el nombre del empleado
          this.filteredProcesosAsignados.forEach((proceso: any) => {
@@ -266,7 +264,6 @@ export class ProduccionComponent implements OnInit {
   // Mostrar el dialogo para ver la lista de procesos asignados a un empleado de un proceso
   showDetalleProcAsigDialog(proceso: any) {
     this.procesoId = proceso.id;
-    this.pedidoId = proceso.pedido;
     this.getAsignarProcesoEmpleado();
     this.detalleProcAsigDialog = true;
     console.log({data: proceso});
@@ -280,17 +277,6 @@ export class ProduccionComponent implements OnInit {
 
     if (cantidadAsignadaValue && cantidadAsignadaValue > cantidadPendienteValue?.value) {
       cantidadAsignadaControl?.setErrors({ cantError: true });
-        return;
-    }
-  }
-
-  validateCantHecha(cantRestante: number) {
-    const cantidadHechaControl = this.formAvance.get('cantidadHecha');
-    const cantidadHechaValue = cantidadHechaControl?.value;
-    const cantidadRestanteControl = cantRestante;
-
-    if (cantidadHechaValue && cantidadHechaValue > cantidadRestanteControl) {
-      cantidadHechaControl?.setErrors({ cantError: true });
         return;
     }
   }
@@ -323,7 +309,6 @@ export class ProduccionComponent implements OnInit {
 
   // Registrar una cantidad hecha de un proceso asignado a un empleado
   crearAvance(id: number) {
-
     const dataAvance: AvanceProcesoEmpleado = {
       cantidadHecha: this.formAvance.value.cantidadHecha,
       asignarProcesoEmpleadoId: id
@@ -333,15 +318,9 @@ export class ProduccionComponent implements OnInit {
       this.getListPedidoProcesos();
       this.getAsignarProcesoEmpleado();
       this.getPedidoInfoEstado();
-
-      this._pedidoService.getPedido(this.pedidoId).subscribe((data: any) => {
-        if(data.estado === 'Terminado'){
-          this.toastr.success('Pedido terminado correctamente', 'Éxito');
-          this.getListPedidos();
-        }
-      });
-
     });
+
+
   };
 
 
@@ -368,15 +347,48 @@ export class ProduccionComponent implements OnInit {
     });
   }
 
+
+  // async asignarTarea(proceso: { id: number }) {
+//   this.getListEmpleados();
+//   this.formularioAsignarProceso.reset();
+//   this.asignarTareaDialog = true;
+//   this.procesoId = proceso.id;
+
+//   console.log('Proceso:', proceso.id);
+
+//   // Obtener información adicional del proceso usando getProcesosEnReferenciaEnPedido
+//   await this._procesoReferenciaPedidoService.getProcesosEnReferenciaEnPedido().toPromise();
+  
+//   let procesoEnReferencia = this.listProcesos.find(p => p.id === proceso.id);
+
+//   if (procesoEnReferencia) {
+//     this.cantidadTotal = procesoEnReferencia.cantidadTotal || 0;
+//     this.cantidadHecha = procesoEnReferencia.cantidadHecha || 0;
+//     this.cantidadPendiente = procesoEnReferencia.cantidadPendiente || 0;
+//     // console.log('Cantidad pendiente:', this.cantidadPendiente);
+//   }
+
+//   console.log('Cantidad pendiente:', this.cantidadPendiente);
+
+//   this.formularioAsignarProceso.patchValue({
+//     cantidadPendiente: this.cantidadPendiente,
+//   });
+// }
+
   onGlobalFilter(table: Table, event: Event) {
     table.filterGlobal((event.target as HTMLInputElement).value, 'contains');
   }
 
 
-
   buscarEmpleado(event: any): void {
     this.listEmpleados = this.filterEmpleados(event.query);
-  }
+}
+
+// getNombreEmpleado(idEmpleado: number): string {
+//   const empleado = this.listEmpleados.find(emp => emp.id === idEmpleado);
+//   return empleado ? `${empleado.nombre} ${empleado.apellido}` : 'Empleado no disponible';
+// }
+
 
 filterEmpleados(query: string): Empleado[] {
   return this.listEmpleados
@@ -402,5 +414,197 @@ seleccionarEmpleado(event: any): void {
   console.log(this.empleadoId)
 
 }
+
+// getProcesosEnReferenciaEnPedido() {
+//   this._procesoReferenciaPedidoService.getProcesosEnReferenciaEnPedido().subscribe((data: any) => {
+//     this.listProcesos = data.ProcesoEnReferenciaEnPedidos;
+//     // console.log(this.listProcesos);
+//   });
+// }
+
+
+// validarRegistroProceso(pedidoId: number): boolean {
+//   const pedido = this.listPedidos.find(p => p.id === pedidoId);
+
+//   if (pedido && pedido.ProcesoEnReferenciaEnPedidos) {
+//     for (const proceso of pedido.ProcesoEnReferenciaEnPedidos) {
+//           if (proceso.AsignarProcesoEmpleado && proceso.AsignarProcesoEmpleado.length > 0) {
+//             return true;
+//           }
+//     }
+//   }
+
+//   return false;
+  
+// }
+
+
+// validarRegistroProceso2(procesoId: number): boolean {
+//   const proceso = this.listPedidos.find(p => p.id === procesoId);
+//   // console.log(proceso);
+//   if (proceso) {
+//           const asignar = this.listAsignarProcesoEmpleado.find(a => a.proceso === procesoId);
+//           if (asignar) {
+//             return true;
+//           }
+//         }
+
+//   return false;
+  
+// }
+
+
+// changeStateDialog: boolean = false;
+// procesoSeleccionado: AsignarProcesoEmpleado = {};
+
+// cambiarEstadoProceso(proceso: AsignarProcesoEmpleado) {
+//   this.changeStateDialog = true;
+//   this.procesoSeleccionado = proceso;
+//   console.log('Proceso seleccionado:', proceso);  
+// }
+
+
+// async confirmChangeState(confirmacion: boolean) {
+//   if (confirmacion) {
+//     if (this.procesoSeleccionado?.idAsignarProceso){
+//       this.asignarProceso.estado = !this.asignarProceso.estado;
+//       this._AsignarProcesoService.putAsignarProcedimiento(this.procesoSeleccionado.idAsignarProceso, this.procesoSeleccionado).subscribe(() => {
+
+//       });
+      
+//       await this.actualizarCantidadHecha(this.procesoSeleccionado.proceso || 0);
+
+//       const empleadoTareaTerminada: Empleado = {
+//         id: this.procesoSeleccionado.empleado,
+//         estadoOcupado: false
+//       }
+
+//       this._empleadoService.putEmpleado(this.procesoSeleccionado.empleado || 0, empleadoTareaTerminada).subscribe(() => {
+//         this.getProcesosEnReferenciaEnPedido();
+//       });
+
+//       this.getAsignarProcesoEmpleado();
+//     }
+//   } else {
+//     console.log('No se pudo cambiar el estado');
+//     this.showInfo(this.procesoSeleccionado.proceso || 0);
+//   }
+//   this.getListEmpleados();
+//   this.changeStateDialog = false;
+// }
+
+// addAsignarProceso() {
+
+//   const cantidadAsignada = parseInt(this.formularioAsignarProceso.value.cantAsignada, 10);
+
+//   if (cantidadAsignada > this.cantidadTotal || cantidadAsignada <= 0) {
+//     console.log('La cantidad asignada no es válida.');
+//     return;
+//   }else if (cantidadAsignada > this.cantidadPendiente){
+//     console.log('La cantidad no puede ser mayor a la cantidad pendiente.');
+//     return;
+//   }
+
+
+//   const asignarProcesoEmpleado : AsignarProcesoEmpleado = {
+//     proceso: this.procesoId,
+//     empleado: this.empleadoId,
+//     cantAsignada: cantidadAsignada,
+//     estado: false
+//   }
+
+//   console.log('Asignar proceso:', asignarProcesoEmpleado)
+
+//   const empleadoTarea: Empleado = {
+//     id: this.empleadoId,
+//     estadoOcupado: true
+//   }
+
+//   // this._empleadoService.putEmpleado(this.empleadoId, empleadoTarea).subscribe(() => {
+//   //   this.getListEmpleados();
+//   //   console.log('Empleado ocupado');
+//   // });
+
+  
+//   this._AsignarProcesoService.postAsignarProcedimiento(asignarProcesoEmpleado).subscribe(() => {
+//     this.toastr.success('Proceso asignado correctamente', 'Éxito');
+//     this.getAsignarProcesoEmpleado();
+//     this.calcularSumaCantAsignada();
+//     this.hideDialog();
+//   });
+  
+// }
+
+// async actualizarCantidadHecha(procesoId: number): Promise<void> {
+//   try {
+//     const AsignarProcesoEmpleado = this.listAsignarProcesoEmpleado
+//       .filter(asignar => asignar.proceso === procesoId && asignar.estadoProcAsig === true);
+
+//     const cantidadHecha = AsignarProcesoEmpleado.reduce((suma, asignar) => suma + (asignar.cantidadAsignada || 0), 0);
+
+//     const procesoReferencia: ProcesoReferenciaPedidoInstance = {
+//       cantidadHecha: cantidadHecha,
+//     };
+
+//     // Actualiza la propiedad cantidadHecha en el proceso
+//     await this._procesoReferenciaPedidoService.putProcesoCantidad(procesoId, procesoReferencia).toPromise();
+
+//     console.log('Cantidad hecha:', cantidadHecha);
+//     console.log('Cantidad total:', this.cantidadTotal);
+    
+//     // Verifica si la cantidadTotal es igual a cantidadHecha
+//     if (cantidadHecha === this.cantidadTotal) {
+//       // Actualiza el estado del proceso si es necesario
+//       const estadoActualizado = cantidadHecha === this.cantidadTotal;
+//       const procesoReferenciaConEstado: ProcesoReferenciaPedidoInstance = {
+//         cantidadHecha: cantidadHecha,
+//         estado: estadoActualizado,
+//       };
+
+//       console.log(procesoReferenciaConEstado)
+      
+//       // Actualiza la propiedad cantidadHecha y el estado en el proceso
+//       await this._procesoReferenciaPedidoService.putProcesoCantidad(procesoId, procesoReferenciaConEstado).toPromise();
+//     }
+//     this.getAsignarProcesoEmpleado();
+//     // this.getProcesosEnReferenciaEnPedido();
+//     // Actualiza la lista de procesos (opcional)
+//   } catch (error) {
+//     console.error('Error al actualizar cantidadHecha:', error);
+//   }
+// }
+
+// async calcularSumaCantAsignada() {
+//   try {
+//     const data: any = await this._asignarProcesoService.getAsignarProcesoEmpleado().toPromise();
+//     this.listAsignarProcesoEmpleado = data.listAsignarProcedimientos;
+
+//     // Filtra solo los elementos que pertenecen al proceso actual
+//     const asignarProcesoProcesoActual = this.listAsignarProcesoEmpleado.filter(asignar => asignar.proceso === this.procesoId);
+
+//     // Realiza la suma solo de los elementos filtrados
+//     this.cantidadAsignada = asignarProcesoProcesoActual.reduce((suma, asignar) => suma + (asignar.cantidadAsignada ?? 0), 0);
+//     this.cantidadPendiente = this.cantidadTotal - this.cantidadAsignada;
+
+//     const procesoReferencia: ProcesoReferenciaPedidoInstance = {
+//       cantidadAsignada: this.cantidadAsignada,
+//       cantidadPendiente: this.cantidadPendiente
+//     };
+
+//     await this._procesoReferenciaPedidoService.putProcesoCantidad(this.procesoId, procesoReferencia).toPromise();
+//     // this.getProcesosEnReferenciaEnPedido();
+//   } catch (error) {
+//     console.error('Error al calcular:', error);
+//   }
+// }
+
+// showInfo(procesoId: number) {
+//   // this.getListEmpleados()
+//   this.viewInfoDialog = true;
+//   this.filteredAsignarProceso = this.listAsignarProceso.filter(asignar => asignar.proceso === procesoId);
+//   // console.log(this.filteredAsignarProceso);
+// }
+
+
 
 }

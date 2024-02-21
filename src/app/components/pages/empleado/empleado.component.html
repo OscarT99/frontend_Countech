@@ -13,7 +13,7 @@
           </ng-template>
       </p-toolbar>
 
-      <p-table #dt [value]="listEmpleados" dataKey="id" [tableStyle]="{'min-width': '60rem'}" responsiveLayout="scroll" [rows]="10" [globalFilterFields]="['nombre']" [paginator]="true" [rowsPerPageOptions]="[5,10,15]" [showCurrentPageReport]="true" currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries" [rowHover]="true">
+      <p-table #dt [value]="listEmpleados" dataKey="id" [tableStyle]="{'min-width': '60rem'}" responsiveLayout="scroll" [rows]="10" [globalFilterFields]="['nombre']" [paginator]="true" [rowsPerPageOptions]="[5,10,15]" [showCurrentPageReport]="true" currentPageReportTemplate="Mostrando {first} de {last} de {totalRecords} vistas" [rowHover]="true">
         <ng-template pTemplate="caption">
           <div class="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
               <h5 class="m-0">Lista de empleados</h5>
@@ -62,7 +62,6 @@
         <ng-template pTemplate="rowexpansion" let-empleado>
           <tr>
               <td colspan="10">
-                  <div class="p-3">
                       <p-table [value]="empleado.asignarProcesoEmpleados" dataKey="id">
                           <ng-template pTemplate="header">
                               <tr>
@@ -70,7 +69,6 @@
                                   <th>Cantidad asignada</th>
                                   <th>Cantidad restante</th>
                                   <th>Estado</th>
-                                  <th></th>
                                   <th></th>
                               </tr>
                           </ng-template>
@@ -81,27 +79,35 @@
                                 <td>{{ proceso.cantRestante }}</td>
                                 <td *ngIf="proceso.estadoProcAsig === false">
                                   <form [formGroup]="formAvance" (ngSubmit)="crearAvance(proceso.id)">
-                                      <div class="formgrid col grid mt-2 justify-content-end" style="display: flex; flex-direction: row;">
-                                          <div style="flex: 1;">
-                                              <span class="p-float-label">
-                                                  <input type="number" pInputText formControlName="cantidadHecha"/>
-                                                  <label for="cantidadHecha">Cantidad hecha</label>
-                                              </span>
-                                          </div>
-                                          <div style="margin-left: 8px;">
-                                              <p-button type="submit" icon="pi pi-save" [rounded]="true" [text]="true" severity="success" pTooltip="Guardar"></p-button>        
-                                          </div>
-                                      </div>
-                                  </form>
+                                    <div class="formgrid col grid mt-2 justify-content-end" style="display: flex; flex-direction: row;">
+                                        <div style="flex: 1;">
+                                            <span class="p-float-label">
+                                                <input type="number" pInputText formControlName="cantidadHecha" (input)="validateCantHecha(proceso.cantRestante)"/>
+                                                <label for="cantidadHecha">Cantidad hecha</label>
+                                            </span>
+                                            <small>
+                                                <span *ngIf="formAvance.get('cantidadHecha')?.hasError('required') && formAvance.get('cantidadHecha')?.touched" style="color: red;">
+                                                    La cantidad es <strong>requerida.</strong>
+                                                </span>
+                                                <span *ngIf="formAvance.get('cantidadHecha')?.hasError('min') && formAvance.get('cantidadHecha')?.touched" style="color: red;">
+                                                    La cantidad asignada debe ser mayor a 0.
+                                                </span>
+                                                <span *ngIf="formAvance.get('cantidadHecha')?.hasError('cantError') && formAvance.get('cantidadHecha')?.touched" style="color: red;">
+                                                    La cantidad hecha no puede ser mayor a la cantidad restante.
+                                                </span>
+                                            </small>
+                                        </div>
+                                        <div style="margin-left: 8px;">
+                                            <p-button type="submit" icon="pi pi-save" [disabled]="formAvance.invalid"  [rounded]="true" [text]="true" severity="success" pTooltip="Guardar"></p-button>        
+                                        </div>
+                                    </div>
+                                </form>
                               </td>
                                 <!-- <td>{{ proceso.estadoProcAsig }}</td> -->
                                 <td><p-tag [value]="changeEstadoProc(proceso.estadoProcAsig)" severity="warning"></p-tag></td>
                                 <!-- <td>
                                     <p-tag [value]="order.status" [severity]="getStatusSeverity(order.status)"></p-tag>
                                 </td> -->
-                                <td>
-                                  <p-button icon="pi pi-info" [rounded]="true" pTooltip="Procesos asignados"></p-button>
-                                </td>
                             </tr>
                               
                           </ng-template>
@@ -111,7 +117,7 @@
                               </tr>
                           </ng-template>
                       </p-table>
-                  </div>
+                  
               </td>
           </tr>
       </ng-template>
@@ -267,7 +273,6 @@
         El correo no es válido</small>
     </div> 
 
-
 <div class="formgrid grid">
 <div class="field col">
     <span class="p-float-label">
@@ -300,22 +305,11 @@
     <small *ngIf="form.get('direccion')?.hasError('required') && form.get('direccion')?.dirty || form.get('direccion')?.hasError('required') && form.get('direccion')?.touched">
         La dirección es requerida</small>
 </div>
-  
-    <div style="display: flex; justify-content: center; align-items: center;">
-      <div class="field">
-      </div>  
-      <div class="field" style="margin-left: 8px;"> <!-- Agrega un margen entre los botones -->
-      </div>
-  </div>
+  <div class="formgrid col grid mt-2 justify-content-end">
+    <p-button label="Cancelar" icon="pi pi-times" [text]="true" (click)="hideDialog()"></p-button>
+    <p-button type="submit" label="Editar" [disabled]="form.invalid" icon="pi pi-check"></p-button>
+</div>
 
-  <div style="display: flex; justify-content: center; align-items: center;">
-    <div class="field">
-      <button type="submit" pButton pRipple label="Editar" icon="pi pi-check" class="p-button-text"></button>
-    </div>
-    <div class="field" style="margin-left: 8px;"> <!-- Agrega un margen entre los botones -->
-      <button type="button" pButton pRipple label="Cancelar" icon="pi pi-times" class="p-button-text" (click)="hideDialog()"></button>
-    </div>
-  </div>
   </form>
 
 </p-dialog>

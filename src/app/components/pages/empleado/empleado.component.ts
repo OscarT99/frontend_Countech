@@ -13,6 +13,7 @@ import { AvanceProcesoEmpleado } from 'src/app/interfaces/produccion/avanceProce
 import { AvanceProcesoEmpleadoService } from 'src/app/services/produccion/avanceProcesoEmpleado.service';
 import { Observable } from 'rxjs';
 
+
 interface City {
   label: string;
   value: string;
@@ -161,6 +162,17 @@ export class EmpleadoComponent implements OnInit {
       return isValid ? null : { 'customEmailRegExp': { value: control.value } };
     };
   }
+
+  validateCantHecha(cantRestante: number) {
+    const cantidadHechaControl = this.formAvance.get('cantidadHecha');
+    const cantidadHechaValue = cantidadHechaControl?.value;
+    const cantidadRestanteControl = cantRestante;
+
+    if (cantidadHechaValue && cantidadHechaValue > cantidadRestanteControl) {
+      cantidadHechaControl?.setErrors({ cantError: true });
+        return;
+    }
+  }
   
   getPedido(id: number) {
     this._pedidoService.getPedido(id).subscribe((data: PedidoInstance) => {
@@ -174,6 +186,14 @@ export class EmpleadoComponent implements OnInit {
         empleadoProceso.asignarProcesoEmpleados = empleadoProceso.asignarProcesoEmpleados.filter((asignacion: any) => !asignacion.estadoProcAsig);
         return empleadoProceso;
       });
+      
+
+          // this.listEmpleados.forEach((procAsig: any) => {
+          //   this._pedidoService.getPedidoProcesoById(procAsig.id).subscribe((proceso: any) => {
+          //       procAsig.procesoNom = proceso.proceso;
+          //   })
+          // })
+     
       
       console.log(this.listEmpleados);
     });
@@ -254,6 +274,8 @@ export class EmpleadoComponent implements OnInit {
     };
   }
 
+
+
     // Registrar una cantidad hecha de un proceso asignado a un empleado
     crearAvance(id: number){
       const dataAvance: AvanceProcesoEmpleado = {
@@ -261,9 +283,11 @@ export class EmpleadoComponent implements OnInit {
         asignarProcesoEmpleadoId: id
       }
       this._avanceProcesoService.postAvanceProcesoEmpleado(dataAvance).subscribe(() => {
-        this.toastr.success('Registro exitoso');
+        this.toastr.success('Registro de avance exitoso', 'Éxito');
+        this.getEmpleadoProceso();
       });
     }
+
 
   addEmpleado() {
 

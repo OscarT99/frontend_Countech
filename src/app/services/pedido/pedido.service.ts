@@ -23,6 +23,12 @@ import { Observable } from 'rxjs';
       return this.http.get<PedidoInstance[]>(`${this.myAppUrl}${this.myApiUrl}`)    
     }
 
+    // Métodos para actualizar los registros
+
+    getPedidoInfo(): Observable<PedidoInstance[]>{
+      return this.http.get<PedidoInstance[]>(`${this.myAppUrl}${this.myApiUrl}info`)
+    }
+
     getPedidoProcesos(): Observable<ProcesoReferenciaPedidoInstance[]>{
       return this.http.get<ProcesoReferenciaPedidoInstance[]>(`${this.myAppUrl}${this.myApiUrl}proceso`)
     }

@@ -2,18 +2,25 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { environment } from 'src/enviroments/environment'; //Está mal escrito enviroments, debe ser environment
 import { AvanceProcesoEmpleado } from 'src/app/interfaces/produccion/avanceProcesoEmpleado.interface';
-import { Observable } from 'rxjs';
+import { Observable, Subject} from 'rxjs';
+import { tap } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AvanceProcesoEmpleadoService {
+  private _refresh$ = new Subject<void>();
   private myAppUrl: string;
   private myApiUrl: string;
 
   constructor(private http: HttpClient) {
     this.myAppUrl = environment.endpoint;
     this.myApiUrl = 'api/avanceproceso/';
+  }
+
+
+  get refresh$(){
+    return this._refresh$;
   }
 
   //getOneAsignarProcesoEmpleado sirve para obtener un proceso asignado a un empleado por su id
@@ -28,7 +35,12 @@ export class AvanceProcesoEmpleadoService {
 
   //postEmpleado sirve para crear un empleado
   postAvanceProcesoEmpleado(avanceProcesoEmpleado: AvanceProcesoEmpleado): Observable<void> {
-    return this.http.post<void>(`${this.myAppUrl}${this.myApiUrl}`, avanceProcesoEmpleado);
+    return this.http.post<void>(`${this.myAppUrl}${this.myApiUrl}`, avanceProcesoEmpleado)
+    .pipe(
+      tap(() => {
+        this._refresh$.next();
+      })
+    )
   }
 
   //putEmpleado sirve para actualizar un empleado
