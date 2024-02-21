@@ -3,6 +3,7 @@ import { RouterModule } from '@angular/router';
 
 @NgModule({
     imports:[RouterModule.forChild([
+        {path:'inicio',loadChildren:()=>import('./inicio/inicio.module').then(m => m.InicioModule)},
         {path:'proveedor',loadChildren:()=>import('./proveedor/proveedor.module').then(m => m.ProveedorModule)},        
         {path:'cliente',loadChildren:()=>import('./cliente/cliente.module').then(m => m.ClienteModule)},   
         {path:'usuario',loadChildren:()=>import('./usuario/usuario.module').then(m => m.UsuarioModule)},      

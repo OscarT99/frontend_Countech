@@ -53,6 +53,8 @@ export class EmpleadoComponent implements OnInit {
 
   listTipoIdentidad: City[] | undefined;
 
+  maxDate: Date = new Date();
+
   // selectedTipo: tipoIdentidad | undefined;
 
 
@@ -66,13 +68,13 @@ export class EmpleadoComponent implements OnInit {
         this.form = this.fb.group({
           tipoIdentidad: [null],
           numIdentidad: ['', Validators.required],
-          nombre: ['', [Validators.required, this.customTextRegExpValidator(/^[A-Za-záéíóúüÜÁÉÍÓÚÑñ ]+$/)]],
-          apellido: ['', [Validators.required, this.customTextRegExpValidator(/^[A-Za-záéíóúüÜÁÉÍÓÚÑñ ]+$/)]],
-          correo: ['', [Validators.required, this.customEmailRegExpValidator(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/)]],
+          nombre: ['', [Validators.required, this.customTextRegExpValidator(/^[A-Za-záéíóúüÜÁÉÍÓÚÑñ ]+$/), Validators.maxLength(30), this.customLengthtRegExpValidator(/^(\S+\s){0,2}\S*$/)]],
+          apellido: ['', [Validators.required, this.customTextRegExpValidator(/^[A-Za-záéíóúüÜÁÉÍÓÚÑñ ]+$/), Validators.maxLength(30), this.customLengthtRegExpValidator(/^(\S+\s){0,2}\S+$/)]],
+          correo: ['', [Validators.required, Validators.maxLength(40), this.customEmailRegExpValidator(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/)]],
           telefono: ['',[Validators.required, this.customNumberRegExpValidator(/^[0-9]{10}$/)]],
-          ciudad: ['', [Validators.required, this.customTextRegExpValidator(/^[A-Za-záéíóúüÜÁÉÍÓÚÑñ ]+$/)]],
-          direccion: ['',Validators.required],
-          fechaIngreso: ['',Validators.required],
+          ciudad: ['', [Validators.required, this.customTextRegExpValidator(/^[A-Za-záéíóúüÜÁÉÍÓÚÑñ ]+$/), this.customLengthtRegExpValidator(/^(\S+\s){0,2}\S+$/), Validators.maxLength(30)]],
+          direccion: ['', Validators.required, Validators.maxLength(40)],
+          fechaIngreso: ['', Validators.required],
           estado: [''],
           estadoOcupado: [''],
         });
@@ -97,6 +99,7 @@ export class EmpleadoComponent implements OnInit {
 
   }
 
+
   validateNumIdentidad() {
     const numIdentidadControl = this.form.get('numIdentidad');
     const numIdentidadValue = numIdentidadControl?.value;
@@ -104,6 +107,11 @@ export class EmpleadoComponent implements OnInit {
     // Verificar si el número de identificación tiene al menos 6 dígitos
     if (numIdentidadValue && numIdentidadValue.length < 6) {
       numIdentidadControl?.setErrors({ minlength: true });
+        return;
+    }
+
+    if (numIdentidadValue && numIdentidadValue.length > 10) {
+      numIdentidadControl?.setErrors({ maxlength: true });
         return;
     }
   
@@ -115,19 +123,20 @@ export class EmpleadoComponent implements OnInit {
       numIdentidadControl?.setErrors(null);
     }
   }
-
-  validateEmail() {
-    const correoControl = this.form.get('correo');
-    const correoValue = correoControl?.value;
   
-    // Verificar si el número de identificación ya existe en la base de datos
-    const existingEmail = this.listEmpleados.some(empleado => empleado.correo === correoValue);
-    if (existingEmail) {
-      correoValue?.setErrors({ correoExistente: true });
-    } else {
-      correoControl?.setErrors(null);
-    }
-  }
+
+  // validateEmail() {
+  //   const correoControl = this.form.get('correo');
+  //   const correoValue = correoControl?.value;
+  
+  //   // Verificar si el número de identificación ya existe en la base de datos
+  //   const existingEmail = this.listEmpleados.some(empleado => empleado.correo === correoValue);
+  //   if (existingEmail) {
+  //     correoValue?.setErrors({ correoExistente: true });
+  //   } else {
+  //     correoControl?.setErrors(null);
+  //   }
+  // }
 
 
 
@@ -147,12 +156,17 @@ export class EmpleadoComponent implements OnInit {
     };
   }
 
-
-
   customTextRegExpValidator(textRegExp: RegExp): ValidatorFn {
     return (control: AbstractControl): { [key: string]: any } | null => {
       const isValid = textRegExp.test(control.value);
       return isValid ? null : { 'customTextRegExp': { value: control.value } };
+    };
+  }
+
+  customLengthtRegExpValidator(lengthRegExp: RegExp): ValidatorFn {
+    return (control: AbstractControl): { [key: string]: any } | null => {
+      const isValid = lengthRegExp.test(control.value);
+      return isValid ? null : { 'customLengthRegExp': { value: control.value } };
     };
   }
 
@@ -186,15 +200,22 @@ export class EmpleadoComponent implements OnInit {
         empleadoProceso.asignarProcesoEmpleados = empleadoProceso.asignarProcesoEmpleados.filter((asignacion: any) => !asignacion.estadoProcAsig);
         return empleadoProceso;
       });
-      
+
+      this.listEmpleados.forEach((empleado: any) => {
+        empleado.asignarProcesoEmpleados.forEach((procAsig: any) => {
+          this._pedidoService.getPedidoProcesoById(procAsig.pedidoprocesoId).subscribe((proceso: any) => {
+              procAsig.procesoNom = proceso.proceso;
+          })
+          console.log(this.listEmpleados)
+        })
+      });
 
           // this.listEmpleados.forEach((procAsig: any) => {
           //   this._pedidoService.getPedidoProcesoById(procAsig.id).subscribe((proceso: any) => {
           //       procAsig.procesoNom = proceso.proceso;
           //   })
           // })
-     
-      
+    
       console.log(this.listEmpleados);
     });
   }
@@ -333,8 +354,8 @@ export class EmpleadoComponent implements OnInit {
   cambiarEstado(empleado: Empleado) {
     this.changeStateDialog = true;
     this.empleadoSeleccionado =  empleado;
-    console.log(this.empleadoSeleccionado);
-    this.getEmpleadoProceso();
+    // console.log(this.empleadoSeleccionado);
+    // this.getEmpleadoProceso();
   }
 
   confirmChangeState(confirmacion: boolean) {
@@ -346,7 +367,7 @@ export class EmpleadoComponent implements OnInit {
           if (this.empleado.estado == false) {
             this.toastr.success('Empleado activo', 'Éxito');
           } else{
-            this.toastr.success('Empleado inactivo', 'Éxito');
+            this.toastr.error('Empleado inactivo', 'Éxito');
           }
           this.getEmpleadoProceso();
         });

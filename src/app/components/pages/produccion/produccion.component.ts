@@ -349,8 +349,10 @@ export class ProduccionComponent implements OnInit {
   anularProceso(id: number){
     this.confirmationService.confirm({
       message: '¿Está seguro de anular el proceso?',
-      header: 'Anular Proceso',
+      header: 'Anular proceso',
       icon: 'pi pi-exclamation-triangle',
+      acceptLabel: 'Sí',
+      rejectLabel: 'No',
       accept: () => {
         const dataAnular: EstadoAnular = {
           estadoAnular: true

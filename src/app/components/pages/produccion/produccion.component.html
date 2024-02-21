@@ -145,17 +145,17 @@
                                                   
                                                     <ng-container *ngIf="proceso.estado === false && proceso.cantidadAsignada === 0">
                                                         <td>
-                                                            <p-tag value="PENDIENTE" [severity]="changeSeverityProceso('Pendiente')"></p-tag>
+                                                            <p-tag value="Pendiente" [severity]="changeSeverityProceso('Pendiente')"></p-tag>
                                                         </td>
                                                     </ng-container>
                                                     <ng-container *ngIf="proceso.estado === false && proceso.cantidadAsignada > 0">
                                                         <td>
-                                                            <p-tag value="EN PROCESO" [severity]="changeSeverityProceso('En proceso')"></p-tag>
+                                                            <p-tag value="En proceso" [severity]="changeSeverityProceso('En proceso')"></p-tag>
                                                         </td>
                                                     </ng-container>
                                                     <ng-container *ngIf="proceso.estado === true">
                                                         <td>
-                                                            <p-tag value="TERMINADO" [severity]="changeSeverityProceso('Terminado')"></p-tag>
+                                                            <p-tag value="Terminado" [severity]="changeSeverityProceso('Terminado')"></p-tag>
                                                         </td>
                                                     </ng-container>
                                                   
@@ -244,7 +244,7 @@
                     <div class="field col">
                         <span class="p-float-label">
                             <input id="cantidadAsignada" pKeyFilter="int" type="number" pInputText formControlName="cantidadAsignada" (input)="validateCantAsignada()"/>
-                            <label for="cantidadAsignada">Cantidad por asignar</label>
+                            <label for="cantidadAsignada">Cantidad por asignar*</label>
                         </span>
                         <small>
                             <span *ngIf="formAsignarProcesoEmpleado.get('cantidadAsignada')?.hasError('required') && formAsignarProcesoEmpleado.get('cantidadAsignada')?.touched" style="color: red;">
@@ -316,7 +316,7 @@
                                         <div style="flex: 1;">
                                             <span class="p-float-label">
                                                 <input type="number" pInputText formControlName="cantidadHecha" (input)="validateCantHecha(proceso.cantRestante)"/>
-                                                <label for="cantidadHecha">Cantidad hecha</label>
+                                                <label for="cantidadHecha">Cantidad hecha*</label>
                                             </span>
                                             <small>
                                                 <span *ngIf="formAvance.get('cantidadHecha')?.hasError('required') && formAvance.get('cantidadHecha')?.touched" style="color: red;">

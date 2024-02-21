@@ -134,17 +134,17 @@
                                                   <td>{{proceso.cantidadHecha || 0}}</td>
                                                   <ng-container *ngIf="proceso.estado === false && proceso.cantidadAsignada === 0">
                                                     <td>
-                                                        <p-tag value="PENDIENTE" [severity]="changeSeverityProceso('Pendiente')"></p-tag>
+                                                        <p-tag value="Pendiente" [severity]="changeSeverityProceso('Pendiente')"></p-tag>
                                                     </td>
                                                     </ng-container>
                                                     <ng-container *ngIf="proceso.estado === false && proceso.cantidadAsignada > 0">
                                                     <td>
-                                                        <p-tag value="EN PROCESO" [severity]="changeSeverityProceso('En proceso')"></p-tag>
+                                                        <p-tag value="En proceso" [severity]="changeSeverityProceso('En proceso')"></p-tag>
                                                     </td>
                                                     </ng-container>
                                                     <ng-container *ngIf="proceso.estado === true">
                                                     <td>
-                                                        <p-tag value="TERMINADO" [severity]="changeSeverityProceso('Terminado')"></p-tag>
+                                                        <p-tag value="Terminado" [severity]="changeSeverityProceso('Terminado')"></p-tag>
                                                     </td>
                                                 </ng-container>
 
