@@ -297,6 +297,9 @@ export class ProduccionComponent implements OnInit {
 
   // Registrar un proceso asignado a un empleado
   addAsignarProcesoEmpleado() {
+    this.formAsignarProcesoEmpleado.markAllAsTouched();
+
+    if(this.formAsignarProcesoEmpleado.valid){
     const dataAsignarProceso: AsignarProcesoEmpleado = {
       empleadoId: this.empleadoId,
       pedidoprocesoId: this.procesoId,
@@ -312,6 +315,9 @@ export class ProduccionComponent implements OnInit {
       // this.getAsignarProcesoEmpleado();
       this.hideDialog();
     });
+  }else {
+    this.toastr.error('Por favor, complete todos los campos obligatorios', 'Error de validación');
+  }
   }
 
   getAsignarProcesoEmpleadoById(id: number) {

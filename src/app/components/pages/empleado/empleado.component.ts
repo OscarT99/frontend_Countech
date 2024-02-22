@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { MessageService } from 'primeng/api';
 import { EmpleadoService } from 'src/app/services/empleado/empleado.service';
 import { Table } from 'primeng/table';
-import { Empleado} from 'src/app/interfaces/empleado/empleado.interface';
+import { Empleado } from 'src/app/interfaces/empleado/empleado.interface';
 import { PedidoService } from 'src/app/services/pedido/pedido.service';
 import { PedidoInstance } from 'src/app/interfaces/pedido/pedido.interface'; 
 import { AsyncValidatorFn, FormBuilder, FormControl, FormControlName, FormGroup } from '@angular/forms';
@@ -13,8 +13,7 @@ import { AvanceProcesoEmpleado } from 'src/app/interfaces/produccion/avanceProce
 import { AvanceProcesoEmpleadoService } from 'src/app/services/produccion/avanceProcesoEmpleado.service';
 import { Observable } from 'rxjs';
 
-
-interface City {
+interface OptionTipoIdentidad {
   label: string;
   value: string;
 }
@@ -51,7 +50,8 @@ export class EmpleadoComponent implements OnInit {
 
   cols: any[] = [];
 
-  listTipoIdentidad: City[] | undefined;
+
+  listTipoIdentidad: OptionTipoIdentidad[] | undefined;
 
   maxDate: Date = new Date();
 
@@ -66,15 +66,15 @@ export class EmpleadoComponent implements OnInit {
       private aRouter:ActivatedRoute,
       ) {
         this.form = this.fb.group({
-          tipoIdentidad: [null],
-          numIdentidad: ['', Validators.required],
-          nombre: ['', [Validators.required, this.customTextRegExpValidator(/^[A-Za-záéíóúüÜÁÉÍÓÚÑñ ]+$/), Validators.maxLength(30), this.customLengthtRegExpValidator(/^(\S+\s){0,2}\S*$/)]],
-          apellido: ['', [Validators.required, this.customTextRegExpValidator(/^[A-Za-záéíóúüÜÁÉÍÓÚÑñ ]+$/), Validators.maxLength(30), this.customLengthtRegExpValidator(/^(\S+\s){0,2}\S+$/)]],
+          tipoIdentidad: [''],
+          numIdentidad: ['', [Validators.required]],
+          nombre: ['', [Validators.required, Validators.maxLength(30), this.customTextRegExpValidator(/^[A-Za-záéíóúüÜÁÉÍÓÚÑñ ]+$/), this.customLengthtRegExpValidator(/^(\S+\s){0,2}\S*$/)]],
+          apellido: ['', [Validators.required, Validators.maxLength(30), this.customTextRegExpValidator(/^[A-Za-záéíóúüÜÁÉÍÓÚÑñ ]+$/), this.customLengthtRegExpValidator(/^(\S+\s){0,2}\S*$/)]],
           correo: ['', [Validators.required, Validators.maxLength(40), this.customEmailRegExpValidator(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/)]],
-          telefono: ['',[Validators.required, this.customNumberRegExpValidator(/^[0-9]{10}$/)]],
-          ciudad: ['', [Validators.required, this.customTextRegExpValidator(/^[A-Za-záéíóúüÜÁÉÍÓÚÑñ ]+$/), this.customLengthtRegExpValidator(/^(\S+\s){0,2}\S+$/), Validators.maxLength(30)]],
-          direccion: ['', Validators.required, Validators.maxLength(40)],
-          fechaIngreso: ['', Validators.required],
+          telefono: ['', [Validators.required, this.customNumberRegExpValidator(/^[0-9]{10}$/)]],
+          ciudad: ['', [Validators.required, Validators.maxLength(30), this.customTextRegExpValidator(/^[A-Za-záéíóúüÜÁÉÍÓÚÑñ ]+$/), this.customLengthtRegExpValidator(/^(\S+\s){0,2}\S+$/)]],
+          direccion: ['', [Validators .required, Validators.maxLength(40)]],
+          fechaIngreso: ['', [Validators.required]],
           estado: [''],
           estadoOcupado: [''],
         });
@@ -124,22 +124,6 @@ export class EmpleadoComponent implements OnInit {
     }
   }
   
-
-  // validateEmail() {
-  //   const correoControl = this.form.get('correo');
-  //   const correoValue = correoControl?.value;
-  
-  //   // Verificar si el número de identificación ya existe en la base de datos
-  //   const existingEmail = this.listEmpleados.some(empleado => empleado.correo === correoValue);
-  //   if (existingEmail) {
-  //     correoValue?.setErrors({ correoExistente: true });
-  //   } else {
-  //     correoControl?.setErrors(null);
-  //   }
-  // }
-
-
-
   existingNumberValidator(listEmpleados: any[]): AsyncValidatorFn {
     return (control: AbstractControl): Promise<{ [key: string]: any } | null> | Observable<{ [key: string]: any } | null> => {
       const numIdentidadValue = control.value;
@@ -230,12 +214,8 @@ export class EmpleadoComponent implements OnInit {
     this.editDialog = true;
     this.id = id;
     this.getEmpleado(id);
-  }
 
-  showDialogAvance(id: number) {
-    this.avanceDialog = true;
   }
-
 
   showCreateDialog() {
     this.form.reset();
@@ -295,8 +275,6 @@ export class EmpleadoComponent implements OnInit {
     };
   }
 
-
-
     // Registrar una cantidad hecha de un proceso asignado a un empleado
     crearAvance(id: number){
       const dataAvance: AvanceProcesoEmpleado = {
@@ -311,9 +289,11 @@ export class EmpleadoComponent implements OnInit {
 
 
   addEmpleado() {
+      this.form.markAllAsTouched();
 
+      if(this.form.valid) {
       const empleado: Empleado = {
-        tipoIdentidad: this.form.value.tipoIdentidad.value,
+        tipoIdentidad: this.form.value.tipoIdentidad,
         numIdentidad: this.form.value.numIdentidad,
         nombre: this.form.value.nombre,
         apellido: this.form.value.apellido,
@@ -348,7 +328,9 @@ export class EmpleadoComponent implements OnInit {
       }
 
       this.createDialog = false;
-  
+    }else {
+      this.toastr.error('Por favor, complete todos los campos obligatorios', 'Error de validación');
+    }
   }
 
   cambiarEstado(empleado: Empleado) {
@@ -385,6 +367,8 @@ export class EmpleadoComponent implements OnInit {
     
     this._empleadoService.getEmpleado(id).subscribe((data: Empleado) => {
 
+      console.log(data);
+
         this.form.setValue({
           tipoIdentidad: data.tipoIdentidad,
           numIdentidad: data.numIdentidad,
@@ -398,6 +382,7 @@ export class EmpleadoComponent implements OnInit {
           estado: data.estado,
           estadoOcupado: data.estadoOcupado
         });
+
       
     });
   }

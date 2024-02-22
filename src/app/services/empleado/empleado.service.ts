@@ -42,4 +42,9 @@ export class EmpleadoService {
     return this.http.put<void>(`${this.myAppUrl}${this.myApiUrl}${id}`, empleado);
   }
 
+  putEstadoEmpleado(id: number, empleado: Empleado): Observable<void> {
+    return this.http.put<void>(`${this.myAppUrl}${this.myApiUrl}/estado/${id}`, empleado);
+  }
+
+
 }
