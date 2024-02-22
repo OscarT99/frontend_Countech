@@ -35,10 +35,10 @@
                         </div>
                     </div>
 
-                    <div class="col-3">
+                    <div class="col-4">
                         <label htmlFor="ordenTrabajo">Orden de Trabajo </label>
                         <div>
-                            <input type="number" (input)="validarOrdenTrabajo()" [maxLength]="8" formControlName="ordenTrabajo" class="mt-1 inputs-pedido"  
+                            <input min="0" type="number" (input)="validarOrdenTrabajo()" [maxLength]="8" formControlName="ordenTrabajo" class="mt-1 inputs-pedido"  
                                 pInputText />
                         </div>
                         <small
@@ -107,7 +107,7 @@
                             La Descripción es <strong>requerida</strong>
                         </small>
                     </div>
-                    <div class="col-3">
+                    <div class="col-4">
                         <label htmlFor="valorUnitario">Valor Unitario</label>
                         <div>
                             <p-inputNumber mode="currency" currency="USD" locale="en-US" class="mt-1 inputs-pedido"
@@ -167,7 +167,7 @@
                 </div>
 
                 <div class="grid p-fluid mt-1" style="border-top: 1px solid var(--surface-border);">
-                    <div class="col-3">
+                    <div class="col-2">
                         <label htmlFor="color">color</label>
                         <div>
                             <input class="inputs-pedido" pInputText type="text" formControlName="color" id="color"
@@ -178,19 +178,19 @@
                             El color es <strong>requerido</strong>
                         </small>
                     </div>
-                    <div class="col-1">
+                    <div class="col-2">
                         <label htmlFor="tallaS">S</label>
                         <p-inputNumber class="inputs-pedido" formControlName="tallaS"></p-inputNumber>
                     </div>
-                    <div class="col-1">
+                    <div class="col-2">
                         <label htmlFor="tallaM">M</label>
                         <p-inputNumber class="inputs-pedido" formControlName="tallaM"></p-inputNumber>
                     </div>
-                    <div class="col-1">
+                    <div class="col-2">
                         <label htmlFor="tallaL">L</label>
                         <p-inputNumber class="inputs-pedido" formControlName="tallaL"></p-inputNumber>
                     </div>
-                    <div class="col-1">
+                    <div class="col-2">
                         <label htmlFor="tallaXL">XL</label>
                         <p-inputNumber class="inputs-pedido" formControlName="tallaXL"></p-inputNumber>
                     </div>
@@ -278,7 +278,7 @@
                     </div>
                 </div>
 
-                <div class="grid p-fluid mt-1 col-11 justify-content-between">
+                <div class="grid p-fluid mt-1 justify-content-between">
                     <div class="col-4">
                         <label htmlFor="formaPago"><strong>Formas de Pago</strong></label>
                         <p-dropdown [autoDisplayFirst]="false" placeholder="Seleccione forma de pago"

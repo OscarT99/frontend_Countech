@@ -1,5 +1,4 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
-import { FilterMetadata } from 'primeng/api';
 import { Table } from 'primeng/table';
 import { PedidoService } from 'src/app/services/pedido/pedido.service';
 import { PedidoInstance } from 'src/app/interfaces/pedido/pedido.interface';

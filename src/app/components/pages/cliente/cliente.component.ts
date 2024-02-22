@@ -7,12 +7,13 @@ import { ToastrService } from 'ngx-toastr';
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import * as XLSX from 'xlsx';
+import { ConfirmationService} from 'primeng/api';
 
 @Component({
   templateUrl: './cliente.component.html',
 
 })
-export class ClienteComponent implements OnInit {
+export class ClienteComponent implements OnInit {  
   nuevoCliente: boolean = true;
 
   listClientes: Cliente[] = []
@@ -29,14 +30,14 @@ export class ClienteComponent implements OnInit {
   mostrarModalDetalle: boolean = false;
 
   tiposDeCliente = [
-    { label: 'Empresa', value: 'Empresa' },
-    { label: 'Persona', value: 'Persona' }
+    { label: 'Persona jurídica', value: 'Persona jurídica' },
+    { label: 'Persona natural', value: 'Persona natural' }
   ];
 
-  tipoIdentificacion = [
-    { label: 'NIT', value: 'NIT' },
+
+  tipoIdentificacion = [ 
+    { label: 'NIT', value: 'NIT' },   
     { label: 'Cédula de ciudadanía', value: 'Cédula de ciudadanía' },
-    { label: 'Registro civil', value: 'Registro civil' },
     { label: 'Tarjeta de extranjería', value: 'Tarjeta de extranjería' },
     { label: 'Cedula de extranjero', value: 'Cédula de extranjería' },
     { label: 'Pasaporte', value: 'Pasaporte' },
@@ -54,12 +55,13 @@ export class ClienteComponent implements OnInit {
 
   constructor(private fb: FormBuilder,
     private _clienteService: ClienteService,
+    private confirmationService: ConfirmationService,
     private toastr: ToastrService,
     private aRouter: ActivatedRoute,
   ) {
     this.formCliente = this.fb.group({
-      tipoCliente: [undefined, Validators.required],
-      tipoIdentificacion: [undefined, Validators.required],
+      tipoCliente: ['', Validators.required],
+      tipoIdentificacion: ['', Validators.required],
       numeroIdentificacion: ['', Validators.required],
       razonSocial: ['', Validators.required],
       nombreComercial: ['', Validators.required],
@@ -166,27 +168,30 @@ export class ClienteComponent implements OnInit {
     table.filterGlobal((event.target as HTMLInputElement).value, 'contains');
   }
 
-  showConfirmation(cliente: Cliente) {
-    this.switchState = cliente.estado;
+  confirm(cliente: Cliente) {
     this.clienteSeleccionado = cliente;
-    this.showConfirmationDialog = true;
-  }
-
-  confirmAction(confirmation: boolean) {
-    if (confirmation && this.clienteSeleccionado) {
-      if (this.clienteSeleccionado.id) {
-        console.log(this.clienteSeleccionado)
-        this._clienteService.putCliente(this.clienteSeleccionado.id, this.clienteSeleccionado).subscribe(() => {
-          if (this.clienteSeleccionado!.estado !== undefined) {
-            this.valSwitch = this.clienteSeleccionado!.estado;
-          }
-        });
+  
+    this.confirmationService.confirm({
+      header: 'Confirmación',
+      acceptIcon: 'pi pi-check mr-2',
+      rejectIcon: 'pi pi-times mr-2',
+      rejectButtonStyleClass: 'p-button-sm',
+      acceptButtonStyleClass: 'p-button-outlined p-button-sm',
+      accept: () => {
+        if (this.clienteSeleccionado != null && this.clienteSeleccionado.id != null) {
+          this._clienteService.putCliente(this.clienteSeleccionado.id, this.clienteSeleccionado)
+            .subscribe(() => {
+              if (this.clienteSeleccionado!.estado !== undefined) {
+                this.valSwitch = this.clienteSeleccionado!.estado;
+              }
+            });
+        }
+      },
+      reject: () => {
+        // Puedes manejar el rechazo aquí si es necesario
       }
-    }
-    this.showConfirmationDialog = false;
-    this.clienteSeleccionado = null;
+    });
   }
-
 
   get isNIT(): boolean {
     return this.formCliente.get('tipoIdentificacion')?.value === 'NIT';
@@ -256,30 +261,30 @@ export class ClienteComponent implements OnInit {
   /////  VALIDACIONES DE LOS CAMPOS DEL FORMULARIO
 
 validarCampo(campo: string) {
-  const control = this.formCliente.get(campo);
-
-  if (control?.hasError('required')) {
+    const control = this.formCliente.get(campo);
+  
+    if (control?.hasError('required')) {
       return;
-  }
+    }
+  
+    if (campo === 'razonSocial' || campo === 'nombreComercial' ) {
+      const minCaracteresRegex = /^.{3,}$/;
 
-  const soloLetrasRegex = /^[a-zA-ZáéíóúüÁÉÍÓÚÜÑñ\s.]*$/;
-
-  if (!soloLetrasRegex.test(control?.value)) {
-      control?.setErrors({ soloLetras: true });
-  } else {
-      if (campo === 'razonSocial' || campo === 'nombreComercial') {
-          const minLetrasRegex = /^[a-zA-ZáéíóúüÁÉÍÓÚÜÑñ\s.]{3,}$/;
-          if (!minLetrasRegex.test(control?.value)) {
-              control?.setErrors({ minlength: true });
-          } else {
-              control?.setErrors(null);
-          }
+      if (!minCaracteresRegex.test(control?.value)) {
+        control?.setErrors({ minlength: true });
       } else {
-          control?.setErrors(null);
+        control?.setErrors(null);
       }
-  }
+    } else {
+      const soloLetrasRegex = /^[a-zA-ZáéíóúüÁÉÍÓÚÜÑñ\s.]*$/;
+      if (!soloLetrasRegex.test(control?.value)) {
+        control?.setErrors({ soloLetras: true });
+      } else {
+        control?.setErrors(null);
+      }
+    }
 }
-
+  
 validarNumeroIdentificacion() {
   const numeroIdentificacionControl = this.formCliente.get('numeroIdentificacion');
   const numeroIdentificacionValue = numeroIdentificacionControl?.value;
@@ -332,17 +337,17 @@ validarContacto() {
   const contactoControl = this.formCliente.get('contacto');
   const contactoValue = contactoControl?.value;
 
-
-  // Verificar solo letras y longitud mínima
-  const soloLetrasRegex = /^[a-zA-ZáéíóúüÁÉÍÓÚÜÑñ\s]*$/;
+  // Verificar longitud mínima
   const minCaracteres = 3;
 
-  if (!soloLetrasRegex.test(contactoValue)) {
-      contactoControl?.setErrors({ soloLetras: true });
-  } else if (contactoValue && contactoValue.length < minCaracteres) {
-      contactoControl?.setErrors({ minlength: true });
+  if (contactoControl?.hasError('required')) {
+    return;
+  }
+
+  if (contactoValue && contactoValue.length < minCaracteres) {
+    contactoControl?.setErrors({ minlength: true });
   } else {
-      contactoControl?.setErrors(null);
+    contactoControl?.setErrors(null);
   }
 }
 

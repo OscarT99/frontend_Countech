@@ -1,16 +1,16 @@
 <div class="grid">
     <div class="col-12">
-        <div class="card px-6 py-6">
+        <div class="card">
             <p-toolbar styleClass="mb-4">
                 <ng-template pTemplate="left">
-                    <div class="my-2">
-                        <button pButton pRipple label="Registrar compra" icon="pi pi-plus"
-                            [routerLink]="['/pages/compra/add']"></button>
+                    <div>
+                        <p-button [raised]="true" label="Registrar compra" icon="pi pi-plus"
+                            [routerLink]="['/pages/compra/add']"></p-button>
                     </div>
                 </ng-template>
 
                 <ng-template pTemplate="right">
-                    <button pButton class="p-button-success" label="Excel" icon="pi pi-file-excel" pTooltip="Descargar" (click)="exportToExcel()"></button>
+                    <p-button [raised]="true" severity="success" label="Excel" icon="pi pi-file-excel" pTooltip="Descargar" (click)="exportToExcel()"></p-button>
                 </ng-template>
             </p-toolbar>
 
@@ -82,6 +82,11 @@
                                     (click)="anularCompra(compra)" pTooltip="Anular"></p-button>
                             </div>
                         </td>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="emptymessage">
+                    <tr>
+                        <td colspan="6" class="text-center">No se encontraron compras</td>
                     </tr>
                 </ng-template>
             </p-table>
