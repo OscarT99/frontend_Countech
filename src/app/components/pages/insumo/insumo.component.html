@@ -1,19 +1,19 @@
 <div class="grid">
     <div class="col-12">
-        <div class="card px-6 py-6">
+        <div class="card">
             
             <p-toolbar styleClass="mb-4">
                 <ng-template pTemplate="left">
-                    <div class="my-2">
-                        <button pButton pRipple label="Registrar insumo" icon="pi pi-plus"
-                            (click)="openNewInsumo()"></button>
+                    <div class="flex flex-wrap gap-3 ">
+                        <p-button [raised]="true" label="Registrar insumo" icon="pi pi-plus"
+                            (click)="openNewInsumo()"></p-button>
                         <p-button class="mr-2" label="Salida de insumo" icon="pi pi-sign-out" [raised]="true" severity="danger"
                         (click)="openSalidaInsumo()"></p-button>
                     </div>
                 </ng-template>
 
                 <ng-template pTemplate="right">                    
-                    <button pButton class="p-button-success" label="Excel" icon="pi pi-file-excel" pTooltip="Descargar" (click)="exportToExcel()"></button>
+                    <p-button [raised]="true" severity="success" label="Excel" icon="pi pi-file-excel" pTooltip="Descargar" (click)="exportToExcel()"></p-button>
                 </ng-template>
             </p-toolbar>
 
@@ -50,10 +50,8 @@
                         </td>
                         <td>
                             <div class="flex flex-wrap gap-3 ">
-                                <p-inputSwitch
-                                    class="mt-2 {{ insumo.estado ? 'p-inputswitch-success' : 'p-inputswitch-warning' }}"
-                                    [(ngModel)]="insumo.estado" (onChange)="confirmarCambioEstadoInsumo(insumo)"
-                                    pTooltip="Cambiar estado">
+                                <p-inputSwitch class="mt-3" [(ngModel)]="insumo.estado" 
+                                    (click)="confirm(insumo)" pTooltip="Cambiar estado">
                                 </p-inputSwitch>
                                 <p-button icon="pi pi-pencil" [rounded]="true" severity="warning"
                                 (click)="editInsumo(insumo.id)" pTooltip="Editar"></p-button>
@@ -198,15 +196,18 @@
 
         </div>
 
-        <p-dialog [(visible)]="showConfirmationDialogInsumo" header="Confirmación" [modal]="true" [closable]="false"
-            appendTo="body">
-            <p>
-                ¿Está seguro de que desea
-                {{ insumoSeleccionado?.estado ? 'activar' : 'desactivar' }} el insumo?
-            </p>
-            <button pButton type="button" label="Sí" icon="pi pi-check" (click)="confirmActionInsumo(true)"></button>
-            <button pButton type="button" label="No" icon="pi pi-times" (click)="confirmActionInsumo(false)"></button>
-        </p-dialog>
+        <p-toast></p-toast>
+        <p-confirmDialog>
+            <ng-template pTemplate="message">
+                <div class="flex flex-column align-items-center w-full gap-3 border-bottom-1 surface-border">
+                    <i class="pi pi-exclamation-circle text-6xl text-primary-500"></i>
+                    <p>
+                        ¿Está seguro de que desea
+                        <span style="font-weight: bold">{{ insumoSeleccionado?.estado ? 'ACTIVAR' : 'DESACTIVAR' }}</span> el cliente?
+                      </p>
+                </div>
+            </ng-template>
+        </p-confirmDialog>
 
         <p-dialog [(visible)]="showConfirmationSalidaInsumo" header="Confirmación" [modal]="true" [closable]="false"
             appendTo="body">

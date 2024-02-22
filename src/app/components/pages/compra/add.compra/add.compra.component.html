@@ -36,7 +36,7 @@
                     </div>
 
 
-                    <div class="col-3">
+                    <div class="col-4">
                         <label>N° Factura</label>
                         <div>
                             <input formControlName="numeroFactura" class="inputs-pedido" type="text" pInputText />
@@ -90,14 +90,10 @@
                             El insumo es <strong>requerido</strong>
                         </small>
                     </div>
-                    <div class="col-3">
+                    <div class="col-2">
                         <label>Cantidad</label>
                         <div>
-                            <p-inputNumber [min]="0" class="inputs-pedido" formControlName="cantidad"
-                                [style]="{'width': '30rem'}" [showButtons]="true" buttonLayout="horizontal"
-                                spinnerMode="horizontal" inputId="vertical" decrementButtonClass="p-button-secondary"
-                                incrementButtonClass="p-button-secondary" incrementButtonIcon="pi pi-plus"
-                                decrementButtonIcon="pi pi-minus"></p-inputNumber>
+                            <p-inputNumber [min]="0" class="inputs-pedido" formControlName="cantidad"></p-inputNumber>
                         </div>
                         <small *ngIf="formCompra.get('cantidad')?.touched 
                                 && formCompra.get('cantidad')?.value < 1 && detallesInsumo.length === 0"
@@ -122,14 +118,18 @@
                         <p-dropdown class="inputs-pedido" formControlName="ivaInsumo" [options]="impuestos"
                             optionLabel="label"></p-dropdown>
                     </div>
-                    <div class="col-2 mt-3">
-                        <button pButton pRipple type="button" icon="pi pi-plus" class="p-button-rounded"
-                            (click)="agregarInsumo()" pTooltip="Agregar"></button>
+                    <div class="mt-5">
+                        <p-button *ngIf="formCompra.get('idTemporal')!.value != null" (click)="agregarInsumo()" icon="pi pi-plus"
+                        label="Editar Insumo"  severity="warning">
+                    </p-button>
+                        <p-button *ngIf="formCompra.get('idTemporal')!.value === null" (click)="agregarInsumo()" icon="pi pi-plus"
+                         label="Agregar insumo" 
+                        ></p-button>                        
                     </div>
                 </div>
 
                 <div class="grid p-fluid">
-                    <div class="col-11">
+                    <div class="col-12">
                         <p-table styleClass="p-datatable-gridlines p-datatable-sm" [value]="detallesInsumo"
                             [tableStyle]="{ 'min-width': '50rem' }">
                             <ng-template pTemplate="header">
@@ -174,7 +174,7 @@
                             </small>
                         </div>
                     </div>
-                    <div class="col-7 ">
+                    <div class="col-7 text-right">
                         <div>
                             <label>Total bruto</label>
                             <p-inputNumber mode="currency" currency="USD" locale="en-US" formControlName="totalBruto"

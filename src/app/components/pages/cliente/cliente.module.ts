@@ -20,6 +20,8 @@ import { AutoCompleteModule } from "primeng/autocomplete";
 import { InputSwitchModule } from 'primeng/inputswitch';
 import { InputMaskModule } from 'primeng/inputmask';
 import { TooltipModule } from 'primeng/tooltip';
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import { MessageService } from 'primeng/api';
 
 @NgModule({
     imports: [
@@ -43,8 +45,10 @@ import { TooltipModule } from 'primeng/tooltip';
         ReactiveFormsModule,
         InputSwitchModule,
         InputMaskModule,
-        TooltipModule             
+        TooltipModule,
+        ConfirmDialogModule             
     ],
+    providers: [MessageService],
     declarations: [ClienteComponent]
 })
 export class ClienteModule { }

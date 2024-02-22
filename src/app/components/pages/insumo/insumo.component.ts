@@ -7,6 +7,7 @@ import { ToastrService } from 'ngx-toastr';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import * as XLSX from 'xlsx';
+import { ConfirmationService } from 'primeng/api';
 import { SalidaInsumoInstance } from 'src/app/interfaces/insumo/salidaInsumo.interface';
 import { SalidaInsumoService } from 'src/app/services/insumo/salidaInsumo.service';
 
@@ -33,9 +34,8 @@ export class InsumoComponent implements OnInit {
     showConfirmationDialogInsumo: boolean = false;
     insumoSeleccionado: InsumoInstance | null = null;
 
-    showConfirmationDialogCategoria: boolean = false;
-
-
+    valSwitch: boolean = false;
+    
     idInsumo:number=0;      
     formInsumo:FormGroup;
     formSalidaInsumo:FormGroup;
@@ -47,6 +47,7 @@ export class InsumoComponent implements OnInit {
 
     constructor(private fb:FormBuilder,
       private _insumoService:InsumoService,
+      private confirmationService: ConfirmationService,
       private toastr: ToastrService,      
       private _salidaInsumoService:SalidaInsumoService
       ){
@@ -139,25 +140,29 @@ export class InsumoComponent implements OnInit {
       });
     }
 
-    confirmarCambioEstadoInsumo(insumo: InsumoInstance): void {
+    confirm(insumo: InsumoInstance) {
       this.insumoSeleccionado = insumo;
-      this.showConfirmationDialogInsumo = true;
-    }
     
-    confirmActionInsumo(aceptar: boolean): void {
-      if (aceptar && this.insumoSeleccionado && this.insumoSeleccionado.id !== undefined && this.insumoSeleccionado.estado !== undefined) {
-        this.insumoSeleccionado.estado = !this.insumoSeleccionado.estado;
-        this.toastr.success(
-          `El estado del insumo ${this.insumoSeleccionado.nombre} ha sido cambiado con éxito.`,
-          'Estado Cambiado'
-        );
-      
-        this._insumoService.actualizarEstadoInsumo(this.insumoSeleccionado.id, this.insumoSeleccionado.estado)
-          .subscribe();
-      }
-      
-      this.showConfirmationDialogInsumo = false;
-      this.insumoSeleccionado = null;
+      this.confirmationService.confirm({
+        header: 'Confirmación',
+        acceptIcon: 'pi pi-check mr-2',
+        rejectIcon: 'pi pi-times mr-2',
+        rejectButtonStyleClass: 'p-button-sm',
+        acceptButtonStyleClass: 'p-button-outlined p-button-sm',
+        accept: () => {
+          if (this.insumoSeleccionado != null && this.insumoSeleccionado.id != null) {
+            this._insumoService.putInsumo(this.insumoSeleccionado.id, this.insumoSeleccionado)
+              .subscribe(() => {
+                if (this.insumoSeleccionado!.estado !== undefined) {
+                  this.valSwitch = this.insumoSeleccionado!.estado;
+                }
+              });
+          }
+        },
+        reject: () => {
+          // Puedes manejar el rechazo aquí si es necesario
+        }
+      });
     }
    
     obtenerListaInsumos(): void {
