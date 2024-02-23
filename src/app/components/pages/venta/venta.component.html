@@ -1,13 +1,9 @@
 <div class="grid">
     <div class="col-12">
-        <div class="card px-6 py-6"> 
+        <div class="card"> 
             <p-toolbar styleClass="mb-4">
-                <ng-template pTemplate="left">
-                    <div class="my-2">
-
-                    </div>
+                <ng-template pTemplate="left">                    
                 </ng-template>
-
                 <ng-template pTemplate="right">
                     <button pButton class="p-button-success" label="Excel" icon="pi pi-file-excel" pTooltip="Descargar"
                         (click)="exportToExcel()"></button>
@@ -76,6 +72,11 @@
                             </div>
                             
                         </td>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="emptymessage">
+                    <tr>
+                        <td colspan="6" class="text-center">No se encontraron ventas</td>
                     </tr>
                 </ng-template>
             </p-table>            

@@ -12,10 +12,7 @@ export class AppMenuComponent implements OnInit {
     constructor(public layoutService: LayoutService) { }
 
     ngOnInit() {
-        this.model = [
-            {
-                Image
-            },
+        this.model = [            
             // {
             //     label: 'Home',
             //     items: [
@@ -25,7 +22,7 @@ export class AppMenuComponent implements OnInit {
             {
                 label: 'Usuarios',
                 items: [
-                    { label: 'usuarios', icon: 'pi pi-fw pi-users', routerLink: ['/pages/usuario'] },                    
+                    { label: 'Usuarios', icon: 'pi pi-fw pi-users', routerLink: ['/pages/usuario'] },                    
                 ]
             },
             {
@@ -40,7 +37,8 @@ export class AppMenuComponent implements OnInit {
                 label: 'Producción',
                 items: [
                     { label: 'Empleados', icon: 'pi pi-fw pi-user', routerLink: ['/pages/empleado'] },
-                    { label: 'Producción', icon: 'pi pi-fw pi-desktop', routerLink: ['/pages/produccion'] },
+                    { label: 'Producción', icon: 'pi pi-fw pi-chart-bar', routerLink: ['/pages/produccion'] },
+                    { label: 'Registro de producción', icon: 'pi pi-fw pi-file', routerLink: ['/pages/produccion/registro'] },
                 ]
             },
             {

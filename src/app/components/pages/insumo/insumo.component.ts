@@ -57,7 +57,7 @@ export class InsumoComponent implements OnInit {
       }),
       this.formSalidaInsumo=this.fb.group({
         insumo:['',Validators.required],
-        insumoNombre:['',Validators.required],
+        insumoNombre:[''],
         cantidad:[0,Validators.required],
         tipoDeMaquina:['',Validators.required]
       })

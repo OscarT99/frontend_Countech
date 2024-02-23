@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { MessageService } from 'primeng/api';
 import { EmpleadoService } from 'src/app/services/empleado/empleado.service';
 import { Table } from 'primeng/table';
-import { Empleado} from 'src/app/interfaces/empleado/empleado.interface';
+import { Empleado } from 'src/app/interfaces/empleado/empleado.interface';
 import { PedidoService } from 'src/app/services/pedido/pedido.service';
 import { PedidoInstance } from 'src/app/interfaces/pedido/pedido.interface'; 
 import { AsyncValidatorFn, FormBuilder, FormControl, FormControlName, FormGroup } from '@angular/forms';
@@ -13,7 +13,7 @@ import { AvanceProcesoEmpleado } from 'src/app/interfaces/produccion/avanceProce
 import { AvanceProcesoEmpleadoService } from 'src/app/services/produccion/avanceProcesoEmpleado.service';
 import { Observable } from 'rxjs';
 
-interface City {
+interface OptionTipoIdentidad {
   label: string;
   value: string;
 }
@@ -50,7 +50,10 @@ export class EmpleadoComponent implements OnInit {
 
   cols: any[] = [];
 
-  listTipoIdentidad: City[] | undefined;
+
+  listTipoIdentidad: OptionTipoIdentidad[] | undefined;
+
+  maxDate: Date = new Date();
 
   // selectedTipo: tipoIdentidad | undefined;
 
@@ -63,15 +66,15 @@ export class EmpleadoComponent implements OnInit {
       private aRouter:ActivatedRoute,
       ) {
         this.form = this.fb.group({
-          tipoIdentidad: [null],
-          numIdentidad: ['', Validators.required],
-          nombre: ['', [Validators.required, this.customTextRegExpValidator(/^[A-Za-záéíóúüÜÁÉÍÓÚÑñ ]+$/)]],
-          apellido: ['', [Validators.required, this.customTextRegExpValidator(/^[A-Za-záéíóúüÜÁÉÍÓÚÑñ ]+$/)]],
-          correo: ['', [Validators.required, this.customEmailRegExpValidator(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/)]],
-          telefono: ['',[Validators.required, this.customNumberRegExpValidator(/^[0-9]{10}$/)]],
-          ciudad: ['', [Validators.required, this.customTextRegExpValidator(/^[A-Za-záéíóúüÜÁÉÍÓÚÑñ ]+$/)]],
-          direccion: ['',Validators.required],
-          fechaIngreso: ['',Validators.required],
+          tipoIdentidad: [''],
+          numIdentidad: ['', [Validators.required]],
+          nombre: ['', [Validators.required, Validators.maxLength(30), this.customTextRegExpValidator(/^[A-Za-záéíóúüÜÁÉÍÓÚÑñ ]+$/), this.customLengthtRegExpValidator(/^(\S+\s){0,2}\S*$/)]],
+          apellido: ['', [Validators.required, Validators.maxLength(30), this.customTextRegExpValidator(/^[A-Za-záéíóúüÜÁÉÍÓÚÑñ ]+$/), this.customLengthtRegExpValidator(/^(\S+\s){0,2}\S*$/)]],
+          correo: ['', [Validators.required, Validators.maxLength(40), this.customEmailRegExpValidator(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/)]],
+          telefono: ['', [Validators.required, this.customNumberRegExpValidator(/^[0-9]{10}$/)]],
+          ciudad: ['', [Validators.required, Validators.maxLength(30), this.customTextRegExpValidator(/^[A-Za-záéíóúüÜÁÉÍÓÚÑñ ]+$/), this.customLengthtRegExpValidator(/^(\S+\s){0,2}\S+$/)]],
+          direccion: ['', [Validators .required, Validators.maxLength(40)]],
+          fechaIngreso: ['', [Validators.required]],
           estado: [''],
           estadoOcupado: [''],
         });
@@ -96,6 +99,7 @@ export class EmpleadoComponent implements OnInit {
 
   }
 
+
   validateNumIdentidad() {
     const numIdentidadControl = this.form.get('numIdentidad');
     const numIdentidadValue = numIdentidadControl?.value;
@@ -103,6 +107,11 @@ export class EmpleadoComponent implements OnInit {
     // Verificar si el número de identificación tiene al menos 6 dígitos
     if (numIdentidadValue && numIdentidadValue.length < 6) {
       numIdentidadControl?.setErrors({ minlength: true });
+        return;
+    }
+
+    if (numIdentidadValue && numIdentidadValue.length > 10) {
+      numIdentidadControl?.setErrors({ maxlength: true });
         return;
     }
   
@@ -114,22 +123,7 @@ export class EmpleadoComponent implements OnInit {
       numIdentidadControl?.setErrors(null);
     }
   }
-
-  validateEmail() {
-    const correoControl = this.form.get('correo');
-    const correoValue = correoControl?.value;
   
-    // Verificar si el número de identificación ya existe en la base de datos
-    const existingEmail = this.listEmpleados.some(empleado => empleado.correo === correoValue);
-    if (existingEmail) {
-      correoValue?.setErrors({ correoExistente: true });
-    } else {
-      correoControl?.setErrors(null);
-    }
-  }
-
-
-
   existingNumberValidator(listEmpleados: any[]): AsyncValidatorFn {
     return (control: AbstractControl): Promise<{ [key: string]: any } | null> | Observable<{ [key: string]: any } | null> => {
       const numIdentidadValue = control.value;
@@ -146,12 +140,17 @@ export class EmpleadoComponent implements OnInit {
     };
   }
 
-
-
   customTextRegExpValidator(textRegExp: RegExp): ValidatorFn {
     return (control: AbstractControl): { [key: string]: any } | null => {
       const isValid = textRegExp.test(control.value);
       return isValid ? null : { 'customTextRegExp': { value: control.value } };
+    };
+  }
+
+  customLengthtRegExpValidator(lengthRegExp: RegExp): ValidatorFn {
+    return (control: AbstractControl): { [key: string]: any } | null => {
+      const isValid = lengthRegExp.test(control.value);
+      return isValid ? null : { 'customLengthRegExp': { value: control.value } };
     };
   }
 
@@ -160,6 +159,17 @@ export class EmpleadoComponent implements OnInit {
       const isValid = emailRegExp.test(control.value);
       return isValid ? null : { 'customEmailRegExp': { value: control.value } };
     };
+  }
+
+  validateCantHecha(cantRestante: number) {
+    const cantidadHechaControl = this.formAvance.get('cantidadHecha');
+    const cantidadHechaValue = cantidadHechaControl?.value;
+    const cantidadRestanteControl = cantRestante;
+
+    if (cantidadHechaValue && cantidadHechaValue > cantidadRestanteControl) {
+      cantidadHechaControl?.setErrors({ cantError: true });
+        return;
+    }
   }
   
   getPedido(id: number) {
@@ -174,7 +184,22 @@ export class EmpleadoComponent implements OnInit {
         empleadoProceso.asignarProcesoEmpleados = empleadoProceso.asignarProcesoEmpleados.filter((asignacion: any) => !asignacion.estadoProcAsig);
         return empleadoProceso;
       });
-      
+
+      this.listEmpleados.forEach((empleado: any) => {
+        empleado.asignarProcesoEmpleados.forEach((procAsig: any) => {
+          this._pedidoService.getPedidoProcesoById(procAsig.pedidoprocesoId).subscribe((proceso: any) => {
+              procAsig.procesoNom = proceso.proceso;
+          })
+          console.log(this.listEmpleados)
+        })
+      });
+
+          // this.listEmpleados.forEach((procAsig: any) => {
+          //   this._pedidoService.getPedidoProcesoById(procAsig.id).subscribe((proceso: any) => {
+          //       procAsig.procesoNom = proceso.proceso;
+          //   })
+          // })
+    
       console.log(this.listEmpleados);
     });
   }
@@ -189,12 +214,8 @@ export class EmpleadoComponent implements OnInit {
     this.editDialog = true;
     this.id = id;
     this.getEmpleado(id);
-  }
 
-  showDialogAvance(id: number) {
-    this.avanceDialog = true;
   }
-
 
   showCreateDialog() {
     this.form.reset();
@@ -261,14 +282,18 @@ export class EmpleadoComponent implements OnInit {
         asignarProcesoEmpleadoId: id
       }
       this._avanceProcesoService.postAvanceProcesoEmpleado(dataAvance).subscribe(() => {
-        this.toastr.success('Registro exitoso');
+        this.toastr.success('Registro de avance exitoso', 'Éxito');
+        this.getEmpleadoProceso();
       });
     }
 
-  addEmpleado() {
 
+  addEmpleado() {
+      this.form.markAllAsTouched();
+
+      if(this.form.valid) {
       const empleado: Empleado = {
-        tipoIdentidad: this.form.value.tipoIdentidad.value,
+        tipoIdentidad: this.form.value.tipoIdentidad,
         numIdentidad: this.form.value.numIdentidad,
         nombre: this.form.value.nombre,
         apellido: this.form.value.apellido,
@@ -303,14 +328,16 @@ export class EmpleadoComponent implements OnInit {
       }
 
       this.createDialog = false;
-  
+    }else {
+      this.toastr.error('Por favor, complete todos los campos obligatorios', 'Error de validación');
+    }
   }
 
   cambiarEstado(empleado: Empleado) {
     this.changeStateDialog = true;
     this.empleadoSeleccionado =  empleado;
-    console.log(this.empleadoSeleccionado);
-    this.getEmpleadoProceso();
+    // console.log(this.empleadoSeleccionado);
+    // this.getEmpleadoProceso();
   }
 
   confirmChangeState(confirmacion: boolean) {
@@ -322,7 +349,7 @@ export class EmpleadoComponent implements OnInit {
           if (this.empleado.estado == false) {
             this.toastr.success('Empleado activo', 'Éxito');
           } else{
-            this.toastr.success('Empleado inactivo', 'Éxito');
+            this.toastr.error('Empleado inactivo', 'Éxito');
           }
           this.getEmpleadoProceso();
         });
@@ -340,6 +367,8 @@ export class EmpleadoComponent implements OnInit {
     
     this._empleadoService.getEmpleado(id).subscribe((data: Empleado) => {
 
+      console.log(data);
+
         this.form.setValue({
           tipoIdentidad: data.tipoIdentidad,
           numIdentidad: data.numIdentidad,
@@ -353,6 +382,7 @@ export class EmpleadoComponent implements OnInit {
           estado: data.estado,
           estadoOcupado: data.estadoOcupado
         });
+
       
     });
   }

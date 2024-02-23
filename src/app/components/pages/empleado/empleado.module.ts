@@ -20,6 +20,7 @@ import { DialogModule } from 'primeng/dialog';
 import { InputSwitchModule } from 'primeng/inputswitch';
 import { KeyFilterModule } from 'primeng/keyfilter';
 import { CalendarModule } from 'primeng/calendar';
+import { TooltipModule } from 'primeng/tooltip';
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core'
 
 
@@ -47,7 +48,7 @@ import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core'
         DialogModule,
         InputSwitchModule,
         KeyFilterModule,
-
+        TooltipModule
     ],
     schemas: [CUSTOM_ELEMENTS_SCHEMA],
     declarations: [EmpleadoComponent]

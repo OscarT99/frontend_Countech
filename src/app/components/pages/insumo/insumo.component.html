@@ -71,8 +71,8 @@
                 <div style="display: flex; flex-direction: row;">
                     <form [formGroup]="formInsumo" (ngSubmit)="addInsumo()">
                         <div 
-                        class="formgrid grid mt-3" >
-                            <div class="field col mt-2">
+                        class="formgrid grid" >
+                            <div class="field col">
                                 <span class="p-float-label">
                                     <input formControlName="nombre" id="nombre" type="text" pInputText (input)="validarNombreInsumo()">
                                     <label for="nombre">Nombre</label>
@@ -95,7 +95,7 @@
                                     La ciudad debe tener al menos 4 caracteres
                                 </small>
                             </div>
-                            <div class="field col mt-2">
+                            <div class="field col">
                                 <span class="p-float-label">
                                     <p-inputNumber *ngIf="idInsumo == 0" formControlName="cantidad" [min]="0"> </p-inputNumber>
                                     <p-inputNumber [disabled]="true" [readonly]="true" *ngIf="idInsumo != 0" formControlName="cantidad" ></p-inputNumber>

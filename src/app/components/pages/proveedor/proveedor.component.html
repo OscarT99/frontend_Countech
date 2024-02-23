@@ -89,7 +89,7 @@
         <p-dialog [(visible)]="productDialog" [style]="{width: '550px'}" [header]="nuevoProveedor ? 'Nuevo Proveedor' : 'Editar Proveedor'" [modal]="true"
             class="p-fluid">
             <form [formGroup]="formProveedor" (ngSubmit)="addProveedor()">                
-                <div class="formgrid grid mt-3">
+                <div class="formgrid grid">
                     <div class="field col "> 
                         <select pInputText formControlName="tipoProveedor" >  
                             <option value="" disabled selected>Selecciona un tipo de cliente</option>
@@ -115,8 +115,8 @@
                     </div>
                 </div>
 
-                <div class="formgrid grid mt-2">
-                    <div class="field col mt-2">
+                <div class="formgrid grid">
+                    <div class="field col">
                         <span class="p-float-label">
                             <input pInputText formControlName="numeroIdentificacion" [maxlength]="12" [minlength]="6" (input)="validarNumeroIdentificacion()">
                             <label for="numeroIdentificacion">N° Identificación</label>
@@ -138,7 +138,7 @@
                             Solo se permiten numeros
                         </small>  
                     </div>
-                    <div class="field col mt-2">
+                    <div class="field col">
                         <span class="p-float-label">
                             <input formControlName="nombreComercial" id="nombreComercial" [maxlength]="50" type="text" pInputText (input)="validarCampo('nombreComercial')">
                             <label for="nombreComercial">{{ isNIT ? 'Nombre Comercial' : 'Apellidos' }}</label>
@@ -156,8 +156,8 @@
                     
                 </div>
 
-                <div class="formgrid grid mt-2">
-                    <div class="field col mt-2">
+                <div class="formgrid grid">
+                    <div class="field col">
                         <span class="p-float-label">                            
                             <input formControlName="razonSocial" [maxlength]="50" type="text" pInputText (input)="validarCampo('razonSocial')">
                             <label for="razonSocial">{{ isNIT ? 'Razon Social' : 'Nombres' }}</label>
@@ -173,8 +173,8 @@
                     </div>
                 </div>
 
-                <div class="formgrid grid mt-2">                    
-                    <div class="field col mt-2">
+                <div class="formgrid grid">                    
+                    <div class="field col">
                         <span class="p-float-label">
                             <input formControlName="ciudad" id="ciudad" type="text" pInputText (input)="validarCiudad()">
                             <label for="ciudad">Ciudad</label>
@@ -192,7 +192,7 @@
                             La ciudad debe tener al menos 4 caracteres
                         </small>
                     </div>
-                    <div class="field col mt-2">
+                    <div class="field col">
                         <span class="p-float-label">
                             <input formControlName="direccion" id="direccion" type="text" pInputText>
                             <label for="direccion">Dirección</label>
@@ -200,8 +200,8 @@
                     </div>
                 </div>
 
-                <div class="formgrid grid mt-2">                    
-                    <div class="field col mt-2">
+                <div class="formgrid grid">                    
+                    <div class="field col">
                         <span class="p-float-label">
                             <input formControlName="contacto" id="contacto" type="text" pInputText (input)="validarContacto()">
                             <label for="contacto">Contacto</label>
@@ -213,14 +213,14 @@
                     </div>
                 </div>
 
-                <div class="formgrid grid mt-2">
-                    <div class="field col mt-2">
+                <div class="formgrid grid">
+                    <div class="field col">
                         <span class="p-float-label">
                             <p-inputMask mask="(999) 999-9999" formControlName="telefono"></p-inputMask>
                             <label for="telefono">Télefono</label>
                         </span>
                     </div>
-                    <div class="field col mt-2">
+                    <div class="field col">
                         <span class="p-float-label">
                             <input formControlName="correo" id="correo" type="text" (input)="validarCorreo()" pInputText>
                             <label for="correo">Email</label>

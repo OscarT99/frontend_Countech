@@ -1,11 +1,11 @@
 <div class="grid">
   <div class="col-12">
-    <div class="card px-6 py-6">
+    <div class="card">
       <p-toast></p-toast>
       <p-toolbar styleClass="mb-4">
           <ng-template pTemplate="left">
-              <div class="my-2">
-                <button pButton pRipple label="Nuevo empleado" icon="pi pi-plus" class="p-button-success mr-2" (click)="showCreateDialog()"></button>                        
+              <div>
+                <p-button label="Registrar empleado" icon="pi pi-plus" (click)="showCreateDialog()"></p-button>                        
               </div>
           </ng-template>
 
@@ -13,7 +13,7 @@
           </ng-template>
       </p-toolbar>
 
-      <p-table #dt [value]="listEmpleados" dataKey="id" [tableStyle]="{'min-width': '60rem'}" responsiveLayout="scroll" [rows]="10" [globalFilterFields]="['nombre']" [paginator]="true" [rowsPerPageOptions]="[5,10,15]" [showCurrentPageReport]="true" currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries" [rowHover]="true">
+      <p-table #dt [value]="listEmpleados" dataKey="id" [tableStyle]="{'min-width': '60rem'}" responsiveLayout="scroll" [rows]="10" [globalFilterFields]="['nombre']" [paginator]="true" [rowsPerPageOptions]="[5,10,15]" [showCurrentPageReport]="true" currentPageReportTemplate="Mostrando {first} de {last} de {totalRecords} vistas" [rowHover]="true">
         <ng-template pTemplate="caption">
           <div class="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
               <h5 class="m-0">Lista de empleados</h5>
@@ -30,7 +30,7 @@
             <th>Tipo de identificación</th>
             <th>Número de identificación</th>
             <th pSortableColumn="nombre">Nombre<p-sortIcon field="nombre"></p-sortIcon></th>
-            <th>Estado</th>
+            <!-- <th>Estado</th> -->
             <th>Estado producción</th>
             <th colspan="2">Acciones</th>
           </tr>
@@ -43,18 +43,19 @@
             <td>{{ empleado.tipoIdentidad }}</td>
             <td>{{ empleado.numIdentidad }}</td>
             <td>{{ empleado.nombre }} {{ empleado.apellido }}</td>
-            <td>
+            <!-- <td>
               <p-tag [value]="changeEstado(empleado.estado)" [severity]="getEstado(empleado.estado)"></p-tag>
-            </td>
+            </td> -->
             <td><p-tag [value]="changeEstadoProd(empleado.estadoOcupado)" [severity]="getEstadoProd(empleado.estadoOcupado)"></p-tag></td>
             <td>
-              <div class="flex gap-2 justify-content-center">
-                <p-button label="Info" icon="pi pi-info-circle" severity="info" size="small" (click)="showInfoDialog(empleado.id)"></p-button>
-                <p-button label="Editar" icon="pi pi-user-edit" severity="warning" size="small" (click)="showEditDialog(empleado.id)"></p-button>
+              <div class="flex gap-3 justify-content-center">
+                <p-inputSwitch class="mt-3" [(ngModel)]="empleado.estado" (click)="cambiarEstado(empleado)" pTooltip="Cambiar estado"></p-inputSwitch>
+                <p-button icon="pi pi-file" [rounded]="true" severity="secondary" (click)="showInfoDialog(empleado.id)" pTooltip="Ver detalle"></p-button>
+                <p-button icon="pi pi-pencil" [rounded]="true" severity="warning" (click)="showEditDialog(empleado.id)" pTooltip="Editar"></p-button>
               </div>
             </td>
             <td>
-              <p-inputSwitch [(ngModel)]="empleado.estado" (click)="cambiarEstado(empleado)"></p-inputSwitch>
+              
             </td>
           </tr>
         </ng-template>
@@ -62,59 +63,70 @@
         <ng-template pTemplate="rowexpansion" let-empleado>
           <tr>
               <td colspan="10">
-                  <div class="p-3">
                       <p-table [value]="empleado.asignarProcesoEmpleados" dataKey="id">
                           <ng-template pTemplate="header">
                               <tr>
-                                  <th>Pedido</th>
+                                  <th>Proceso</th>
                                   <th>Cantidad asignada</th>
                                   <th>Cantidad restante</th>
+                                  <th>Cantidad hecha*</th>
                                   <th>Estado</th>
-                                  <th></th>
-                                  <th></th>
                               </tr>
                           </ng-template>
                           <ng-template pTemplate="body" let-proceso>
                               <tr>
-                                <td>{{ proceso.pedidoprocesoId }}</td>
+                                <td>{{ proceso.procesoNom }}</td>
                                 <td>{{ proceso.cantidadAsignada }}</td>
                                 <td>{{ proceso.cantRestante }}</td>
                                 <td *ngIf="proceso.estadoProcAsig === false">
                                   <form [formGroup]="formAvance" (ngSubmit)="crearAvance(proceso.id)">
-                                      <div class="formgrid col grid mt-2 justify-content-end" style="display: flex; flex-direction: row;">
-                                          <div style="flex: 1;">
-                                              <span class="p-float-label">
-                                                  <input type="number" pInputText formControlName="cantidadHecha"/>
-                                                  <label for="cantidadHecha">Cantidad hecha</label>
-                                              </span>
-                                          </div>
-                                          <div style="margin-left: 8px;">
-                                              <p-button type="submit" icon="pi pi-save" [rounded]="true" [text]="true" severity="success" pTooltip="Guardar"></p-button>        
-                                          </div>
-                                      </div>
-                                  </form>
+                                    <div class="formgrid col grid mt-2 justify-content-end" style="display: flex; flex-direction: row;">
+                                        <div style="flex: 1;">
+                                            <span class="p-float-label">
+                                                <input type="number" pInputText formControlName="cantidadHecha" (input)="validateCantHecha(proceso.cantRestante)"/>
+                                                <label for="cantidadHecha">Cantidad hecha*</label>
+                                            </span>
+                                            <small>
+                                                <span *ngIf="formAvance.get('cantidadHecha')?.hasError('required') && formAvance.get('cantidadHecha')?.touched" style="color: red;">
+                                                    La cantidad es <strong>requerida.</strong>
+                                                </span>
+                                                <span *ngIf="formAvance.get('cantidadHecha')?.hasError('min') && formAvance.get('cantidadHecha')?.touched" style="color: red;">
+                                                    La cantidad asignada debe ser mayor a 0.
+                                                </span>
+                                                <span *ngIf="formAvance.get('cantidadHecha')?.hasError('cantError') && formAvance.get('cantidadHecha')?.touched" style="color: red;">
+                                                    La cantidad hecha no puede ser mayor a la cantidad restante.
+                                                </span>
+                                            </small>
+                                        </div>
+                                        <div style="margin-left: 4px;">
+                                            <p-button type="submit" icon="pi pi-save" [disabled]="formAvance.invalid"  [rounded]="true" [text]="true" severity="success" pTooltip="Guardar"></p-button>        
+                                        </div>
+                                    </div>
+                                </form>
                               </td>
                                 <!-- <td>{{ proceso.estadoProcAsig }}</td> -->
                                 <td><p-tag [value]="changeEstadoProc(proceso.estadoProcAsig)" severity="warning"></p-tag></td>
                                 <!-- <td>
                                     <p-tag [value]="order.status" [severity]="getStatusSeverity(order.status)"></p-tag>
                                 </td> -->
-                                <td>
-                                  <p-button icon="pi pi-info" [rounded]="true" pTooltip="Procesos asignados"></p-button>
-                                </td>
                             </tr>
                               
                           </ng-template>
                           <ng-template pTemplate="emptymessage">
                               <tr>
-                                  <td colspan="6">No tiene procesos asignados pendientes</td>
+                                  <td colspan="6" class="text-center">No tiene procesos asignados pendientes</td>
                               </tr>
                           </ng-template>
                       </p-table>
-                  </div>
+                  
               </td>
           </tr>
       </ng-template>
+      <ng-template pTemplate="emptymessage">
+        <tr>
+            <td colspan="6" class="text-center">No se encontraron empleados</td>
+        </tr>
+    </ng-template>
       </p-table>
 
   </div>
@@ -126,7 +138,7 @@
   <form [formGroup]="form">
 
     <div class="formgrid grid">
-        
+      
         <div class="field col">
           <label for="tipoIdentidad">Tipo de identificación</label>
           <input [readOnly]="true" type="text" [ngStyle]="{'pointer-events': 'none', 'background-color': '#f4f4f4', 'caret-color': 'transparent'}" pInputText formControlName="tipoIdentidad">
@@ -190,7 +202,7 @@
 
     </div>
 
-    <div class="formgrid grid">
+    <!-- <div class="formgrid grid">
 
       <div class="field col">
         <label for="estado">Estado</label>
@@ -202,7 +214,7 @@
         <input [readOnly]="true" type="text" [ngStyle]="{'pointer-events': 'none', 'background-color': '#f4f4f4', 'caret-color': 'transparent'}" pInputText formControlName="estadoOcupado">
       </div>
 
-    </div>
+    </div> -->
 
   </form>
 
@@ -215,34 +227,61 @@
 
 <p-dialog header="Editar empleado" [(visible)]="editDialog" [style]="{width: '450px'}" [modal]="true" class="p-fluid">
   <form [formGroup]="form" (ngSubmit)="addEmpleado()">
-    
-    <div class="formgrid grid">
-        
+
+    <!-- <div class="field">
+      <span class="p-float-label">
+        <p-dropdown inputId="tipoIdentidad" [autoDisplayFirst]="false" [options]="listTipoIdentidad" formControlName="tipoIdentidad" placeholder="Seleccionar un tipo de identificación*"></p-dropdown>
+        <label for="tipoIdentidad">Seleccionar un tipo de identificación*</label>
+      </span> 
+      <small *ngIf="form.get('tipoIdentidad')?.value == null && form.get('tipoIdentidad')?.touched" style="color: red;">
+        El tipo de identificación es requerido</small>
+    </div> -->
+
+      <div class="formgrid grid">
+
       <div class="field col">
         <span class="p-float-label">
-          <input [readOnly]="true" type="text" [ngStyle]="{'pointer-events': 'none', 'background-color': '#ffffff', 'caret-color': 'transparent'}" pInputText formControlName="tipoIdentidad">
-          <label for="tipoIdentidad">Tipo de identificación</label>
+          <input [readOnly]="true" type="text" pInputText formControlName="tipoIdentidad">
+          <label for="numIdentidad">Tipo de identidad</label>
         </span>
       </div>
 
       <div class="field col">
         <span class="p-float-label">
-          <input [readOnly]="true" type="text" [ngStyle]="{'pointer-events': 'none', 'background-color': '#ffffff', 'caret-color': 'transparent'}" pInputText formControlName="numIdentidad">
+          <input [readOnly]="true" type="text" pInputText formControlName="numIdentidad">
           <label for="numIdentidad">Número de identificación</label>
-        </span>
+      </span>
+      </div>
+        <!-- <small *ngIf="form.get('numIdentidad')?.touched && form.get('numIdentidad')?.hasError('required') || form.get('numIdentidad')?.hasError('required') && form.get('numIdentidad')?.dirty" style="color: red;">
+          El número de identificación es requerido</small>
+      <small *ngIf="form.get('numIdentidad')?.hasError('minlength') && form.get('numIdentidad')?.touched" style="color: red;">
+          El número de identificación debe ser mínimo de 6 dígitos
+      </small>
+      <small *ngIf="form.get('numIdentidad')?.hasError('numeroExistente') && form.get('numIdentidad')?.touched" style="color: red;">
+          El número de identificación está en uso</small>
+      <small *ngIf="form.get('numIdentidad')?.dirty && form.get('numIdentidad')?.hasError('maxlength')" style="color: red;">
+          Solo se permiten máximo 10 dígitos</small> -->
       </div>
 
-  </div>
+
+
 
   <div class="field">
     <span class="p-float-label">
       <input id="nombre" type="text" pInputText formControlName="nombre"/>
       <label for="nombre">Nombres*</label>
     </span>
-    <small *ngIf="form.get('nombre')?.hasError('required') && form.get('nombre')?.dirty || form.get('nombre')?.hasError('required') && form.get('nombre')?.touched">
+    <!-- <small *ngIf="form.get('tipoIdentidad')?.value == null && form.get('tipoIdentidad')?.touched" style="color: red;">
+      El tipo de identificación es requerido</small> -->
+
+    <small *ngIf="form.get('nombre')?.hasError('required') && form.get('nombre')?.dirty || form.get('nombre')?.hasError('required') && form.get('nombre')?.touched" style="color: red;">
       El nombre es requerido</small>
-    <small *ngIf="form.get('nombre')?.value !== '' && form.get('nombre')?.dirty && form.get('nombre')?.hasError('customTextRegExp')">
+  <small *ngIf="form.get('nombre')?.value !== '' && form.get('nombre')?.dirty && form.get('nombre')?.hasError('customTextRegExp')" style="color: red;">
       El nombre no es válido</small>
+  <small *ngIf="form.get('nombre')?.touched && form.get('nombre')?.hasError('customLengthRegExp') && form.get('nombre')?.dirty && form.get('nombre')?.value !== ''" style="color: red;">
+      El nombre no es válido</small>
+  <small *ngIf="form.get('nombre')?.dirty && form.get('nombre')?.hasError('maxlength')" style="color: red;">
+      El Nombre no puede tener más de 30 caracteres</small>
 </div>
 
 <div class="field">
@@ -250,10 +289,14 @@
     <input id="apellido" type="text" pInputText formControlName="apellido"/>
     <label for="apellido">Apellidos*</label>
   </span>
-  <small *ngIf="form.get('apellido')?.hasError('required') && form.get('apellido')?.dirty || form.get('apellido')?.hasError('required') && form.get('apellido')?.touched">
+  <small *ngIf="form.get('apellido')?.hasError('required') && form.get('apellido')?.dirty || form.get('apellido')?.hasError('required') && form.get('apellido')?.touched" style="color: red;">
     El apellido es requerido</small>
-  <small *ngIf="form.get('apellido')?.value !== '' && form.get('apellido')?.dirty && form.get('apellido')?.hasError('customTextRegExp')">
+<small *ngIf="form.get('apellido')?.value !== '' && form.get('apellido')?.dirty && form.get('apellido')?.hasError('customTextRegExp')" style="color: red;">
     El apellido no es válido</small>
+<small *ngIf="form.get('apellido')?.touched && form.get('apellido')?.hasError('customLengthRegExp') && form.get('apellido')?.dirty && form.get('apellido')?.value !== ''" style="color: red;">
+    El nombre no es válido</small>
+<small *ngIf="form.get('apellido')?.dirty && form.get('apellido')?.hasError('maxlength')" style="color: red;">
+    El nombre no puede tener más de 30 caracteres</small>
 </div>
 
 <div class="field">
@@ -261,12 +304,13 @@
       <input id="correo" type="text" pInputText formControlName="correo"/>
       <label for="correo">Correo electrónico*</label>
     </span> 
-    <small *ngIf="form.get('nombre')?.hasError('email') && form.get('correo')?.dirty || form.get('correo')?.hasError('required') && form.get('correo')?.touched">
-        El correo es requerido</small>
-    <small *ngIf="form.get('correo')?.value !== '' && form.get('correo')?.dirty && form.get('correo')?.hasError('customEmailRegExp')">
-        El correo no es válido</small>
+    <small *ngIf="form.get('nombre')?.hasError('email') && form.get('correo')?.dirty || form.get('correo')?.hasError('required') && form.get('correo')?.touched" style="color: red;">
+      El correo es requerido</small>
+  <small *ngIf="form.get('correo')?.value !== '' && form.get('correo')?.dirty && form.get('correo')?.hasError('customEmailRegExp')" style="color: red;">
+      El correo no es válido</small>
+  <small *ngIf="form.get('correo')?.dirty && form.get('correo')?.hasError('maxlength')" style="color: red;">
+      El correo no puede tener más de 45 caracteres</small>
     </div> 
-
 
 <div class="formgrid grid">
 <div class="field col">
@@ -274,10 +318,11 @@
       <input type="text" id="telefono" pKeyFilter="int" pInputText formControlName="telefono"/>
       <label for="telefono">Teléfono*</label>
     </span>
-    <small *ngIf="form.get('telefono')?.hasError('required') && form.get('telefono')?.touched || form.get('telefono')?.hasError('required') && form.get('telefono')?.dirty" >
-        El teléfono es requerido</small>
-    <small *ngIf="form.get('telefono')?.value !== '' && form.get('telefono')?.dirty && form.get('telefono')?.hasError('customNumberRegExp')">
-        El teléfono no es válido</small>
+    <small *ngIf="form.get('telefono')?.hasError('required') && form.get('telefono')?.touched || form.get('telefono')?.hasError('required') && form.get('telefono')?.dirty" style="color: red;">
+      El teléfono es requerido</small>
+  <small *ngIf="form.get('telefono')?.value !== '' && form.get('telefono')?.dirty && form.get('telefono')?.hasError('customNumberRegExp')" style="color: red;">
+      El teléfono no es válido</small>
+  
 </div>
 
 <div class="field col">
@@ -285,10 +330,14 @@
       <input type="text" id="ciudad" pInputText formControlName="ciudad"/>
       <label for="ciudad">Ciudad*</label>
     </span>
-    <small *ngIf="form.get('ciudad')?.hasError('required') && form.get('ciudad')?.dirty || form.get('ciudad')?.hasError('required') && form.get('ciudad')?.touched">
-        La ciudad es requerida</small>
-      <small *ngIf="form.get('ciudad')?.value !== '' && form.get('ciudad')?.dirty && form.get('ciudad')?.hasError('customTextRegExp')">
-        La ciudad no es válida</small>
+    <small *ngIf="form.get('ciudad')?.hasError('required') && form.get('ciudad')?.dirty || form.get('ciudad')?.hasError('required') && form.get('ciudad')?.touched" style="color: red;">
+      La ciudad es requerida</small>
+  <small *ngIf="form.get('ciudad')?.value !== '' && form.get('ciudad')?.dirty && form.get('ciudad')?.hasError('customTextRegExp')" style="color: red;">
+      La ciudad no es válida</small>
+  <small *ngIf="form.get('ciudad')?.touched && form.get('ciudad')?.hasError('customLengthRegExp') && form.get('ciudad')?.dirty && form.get('ciudad')?.value !== ''" style="color: red;">
+      La ciudad no es válida</small>
+  <small *ngIf="form.get('ciudad')?.dirty && form.get('ciudad')?.hasError('maxlength')" style="color: red;">
+      El ciudad no puede tener más de 30 caracteres</small>
 </div>
 </div>
 
@@ -297,25 +346,26 @@
       <input type="text" id="direccion" pInputText formControlName="direccion"/>
       <label for="direccion">Dirección*</label>
     </span> 
-    <small *ngIf="form.get('direccion')?.hasError('required') && form.get('direccion')?.dirty || form.get('direccion')?.hasError('required') && form.get('direccion')?.touched">
-        La dirección es requerida</small>
+    <small *ngIf="form.get('direccion')?.hasError('required') && form.get('direccion')?.dirty || form.get('direccion')?.hasError('required') && form.get('direccion')?.touched" style="color: red;">
+      La dirección es requerida</small>
+  <small *ngIf="form.get('direccion')?.dirty && form.get('direccion')?.hasError('maxlength')" style="color: red;">
+      La dirección no puede tener más de 40 caracteres</small>
 </div>
-  
-    <div style="display: flex; justify-content: center; align-items: center;">
-      <div class="field">
-      </div>  
-      <div class="field" style="margin-left: 8px;"> <!-- Agrega un margen entre los botones -->
-      </div>
+
+<div class="field">
+  <span class="p-float-label">
+      <p-calendar formControlName="fechaIngreso" [showIcon]="true" inputId="fechaIngreso" dateFormat="yy-mm-dd" [maxDate]="maxDate" [ngModel]="form.get('fechaIngreso')?.value"></p-calendar>
+      <label for="fechaIngreso">Fecha de ingreso*</label>
+  </span>
+  <small *ngIf="form.get('fechaIngreso')?.hasError('required') && form.get('fechaIngreso')?.dirty || form.get('fechaIngreso')?.hasError('required') && form.get('fechaIngreso')?.touched" style="color: red;">
+      La fecha de ingreso es requerida</small>
+</div>
+
+  <div class="formgrid col grid mt-2 justify-content-end">
+    <p-button label="Cancelar" icon="pi pi-times" [text]="true" (click)="hideDialog()"></p-button>
+    <p-button type="submit" label="Editar" icon="pi pi-check"></p-button>
   </div>
 
-  <div style="display: flex; justify-content: center; align-items: center;">
-    <div class="field">
-      <button type="submit" pButton pRipple label="Editar" icon="pi pi-check" class="p-button-text"></button>
-    </div>
-    <div class="field" style="margin-left: 8px;"> <!-- Agrega un margen entre los botones -->
-      <button type="button" pButton pRipple label="Cancelar" icon="pi pi-times" class="p-button-text" (click)="hideDialog()"></button>
-    </div>
-  </div>
   </form>
 
 </p-dialog>
@@ -328,115 +378,132 @@
 
     <div class="field">
       <span class="p-float-label">
-          <p-dropdown inputId="tipoIdentidad" [autoDisplayFirst]="false" [options]="listTipoIdentidad" formControlName="tipoIdentidad" optionLabel="label" placeholder="Seleccionar un tipo de identificación*"></p-dropdown>
+          <p-dropdown formControlName="tipoIdentidad" [options]="listTipoIdentidad" optionValue="value" placeholder="Seleccionar un tipo de identificación*"></p-dropdown>
           <label for="tipoIdentidad">Seleccionar un tipo de identificación*</label>
       </span> 
-      <small *ngIf="form.get('tipoIdentidad')?.value == null && form.get('tipoIdentidad')?.touched">
+      <small *ngIf="form.get('tipoIdentidad')?.value == null && form.get('tipoIdentidad')?.touched" style="color: red;">
           El tipo de identificación es requerido</small>
     </div>
-  
 
-      <div class="field">
-        <span class="p-float-label">
+  <div class="field">
+      <span class="p-float-label">
           <input id="numIdentidad" type="text" pInputText pKeyFilter="int" formControlName="numIdentidad" (input)="validateNumIdentidad()"/>
           <label for="numIdentidad">Número de identificación*</label>
-        </span>
-        <small *ngIf="form.get('numIdentidad')?.touched && form.get('numIdentidad')?.hasError('required') || form.get('numIdentidad')?.hasError('required') && form.get('numIdentidad')?.dirty"  >
-            El número de identificación es requerido</small>
-        <small *ngIf="form.get('numIdentidad')?.hasError('minlength') && form.get('numIdentidad')?.touched">
-            El número de identificación debe ser mínimo de 6 dígitos
-        </small>
-        <small *ngIf="form.get('numIdentidad')?.hasError('numeroExistente') && form.get('numIdentidad')?.touched">
-            El número de identificación está en uso</small>
-      </div> 
-
-
-    <div class="field">
-        <span class="p-float-label">
+      </span>
+      <small *ngIf="form.get('numIdentidad')?.touched && form.get('numIdentidad')?.hasError('required') || form.get('numIdentidad')?.hasError('required') && form.get('numIdentidad')?.dirty" style="color: red;">
+          El número de identificación es requerido</small>
+      <small *ngIf="form.get('numIdentidad')?.hasError('minlength') && form.get('numIdentidad')?.touched" style="color: red;">
+          El número de identificación debe ser mínimo de 6 dígitos
+      </small>
+      <small *ngIf="form.get('numIdentidad')?.hasError('numeroExistente') && form.get('numIdentidad')?.touched" style="color: red;">
+          El número de identificación está en uso</small>
+      <small *ngIf="form.get('numIdentidad')?.dirty && form.get('numIdentidad')?.hasError('maxlength')" style="color: red;">
+          Solo se permiten máximo 10 dígitos</small>
+  </div> 
+  
+  <div class="field">
+      <span class="p-float-label">
           <input id="nombre" type="text" pInputText formControlName="nombre"/>
           <label for="nombre">Nombres*</label>
-        </span>
-        <small *ngIf="form.get('nombre')?.hasError('required') && form.get('nombre')?.dirty || form.get('nombre')?.hasError('required') && form.get('nombre')?.touched">
-          El nombre es requerido</small>
-        <small *ngIf="form.get('nombre')?.value !== '' && form.get('nombre')?.dirty && form.get('nombre')?.hasError('customTextRegExp')">
-          El nombre no es válido</small>
-    </div>
-
-    <div class="field">
-      <span class="p-float-label">
-        <input id="apellido" type="text" pInputText formControlName="apellido"/>
-        <label for="apellido">Apellidos*</label>
       </span>
-      <small *ngIf="form.get('apellido')?.hasError('required') && form.get('apellido')?.dirty || form.get('apellido')?.hasError('required') && form.get('apellido')?.touched">
-        El apellido es requerido</small>
-      <small *ngIf="form.get('apellido')?.value !== '' && form.get('apellido')?.dirty && form.get('apellido')?.hasError('customTextRegExp')">
-        El apellido no es válido</small>
-    </div>
-
-    <div class="field">
-        <span class="p-float-label">
+      <small *ngIf="form.get('nombre')?.hasError('required') && form.get('nombre')?.dirty || form.get('nombre')?.hasError('required') && form.get('nombre')?.touched" style="color: red;">
+          El nombre es requerido</small>
+      <small *ngIf="form.get('nombre')?.value !== '' && form.get('nombre')?.dirty && form.get('nombre')?.hasError('customTextRegExp')" style="color: red;">
+          El nombre no es válido</small>
+      <small *ngIf="form.get('nombre')?.touched && form.get('nombre')?.hasError('customLengthRegExp') && form.get('nombre')?.dirty && form.get('nombre')?.value !== ''" style="color: red;">
+          El nombre no es válido</small>
+      <small *ngIf="form.get('nombre')?.dirty && form.get('nombre')?.hasError('maxlength')" style="color: red;">
+          El nombre no puede tener más de 30 caracteres</small>
+  </div>
+  
+  <div class="field">
+      <span class="p-float-label">
+          <input id="apellido" type="text" pInputText formControlName="apellido"/>
+          <label for="apellido">Apellidos*</label>
+      </span>
+      <small *ngIf="form.get('apellido')?.hasError('required') && form.get('apellido')?.dirty || form.get('apellido')?.hasError('required') && form.get('apellido')?.touched" style="color: red;">
+          El apellido es requerido</small>
+      <small *ngIf="form.get('apellido')?.value !== '' && form.get('apellido')?.dirty && form.get('apellido')?.hasError('customTextRegExp')" style="color: red;">
+          El apellido no es válido</small>
+      <small *ngIf="form.get('apellido')?.touched && form.get('apellido')?.hasError('customLengthRegExp') && form.get('apellido')?.dirty && form.get('apellido')?.value !== ''" style="color: red;">
+          El apellido no es válido</small>
+      <small *ngIf="form.get('apellido')?.dirty && form.get('apellido')?.hasError('maxlength')" style="color: red;">
+          El apellido no puede tener más de 30 caracteres</small>
+  </div>
+  
+  <div class="field">
+      <span class="p-float-label">
           <input id="correo" type="text" pInputText formControlName="correo"/>
           <label for="correo">Correo electrónico*</label>
-        </span> 
-        <small *ngIf="form.get('nombre')?.hasError('email') && form.get('correo')?.dirty || form.get('correo')?.hasError('required') && form.get('correo')?.touched">
-            El correo es requerido</small>
-        <small *ngIf="form.get('correo')?.value !== '' && form.get('correo')?.dirty && form.get('correo')?.hasError('customEmailRegExp')">
-            El correo no es válido</small>
-        </div> 
+      </span> 
+      <small *ngIf="form.get('correo')?.hasError('email') && form.get('correo')?.dirty || form.get('correo')?.hasError('required') && form.get('correo')?.touched" style="color: red;">
+          El correo es requerido</small>
+      <small *ngIf="form.get('correo')?.value !== '' && form.get('correo')?.dirty && form.get('correo')?.hasError('customEmailRegExp')" style="color: red;">
+          El formato del correo no es válido</small>
+      <small *ngIf="form.get('correo')?.dirty && form.get('correo')?.hasError('maxlength')" style="color: red;">
+          El correo no puede tener más de 40 caracteres</small>
+  </div> 
   
-
-    <div class="formgrid grid">
-    <div class="field col">
-        <span class="p-float-label">
+  <div class="formgrid grid">
+  <div class="field col">
+      <span class="p-float-label">
           <input type="text" id="telefono" pKeyFilter="int" pInputText formControlName="telefono"/>
           <label for="telefono">Teléfono*</label>
-        </span>
-        <small *ngIf="form.get('telefono')?.hasError('required') && form.get('telefono')?.touched || form.get('telefono')?.hasError('required') && form.get('telefono')?.dirty" >
-            El teléfono es requerido</small>
-        <small *ngIf="form.get('telefono')?.value !== '' && form.get('telefono')?.dirty && form.get('telefono')?.hasError('customNumberRegExp')">
-            El teléfono no es válido</small>
-    </div>
-
-    <div class="field col">
-        <span class="p-float-label">
+      </span>
+      <small *ngIf="form.get('telefono')?.hasError('required') && form.get('telefono')?.touched || form.get('telefono')?.hasError('required') && form.get('telefono')?.dirty" style="color: red;">
+          El teléfono es requerido</small>
+      <small *ngIf="form.get('telefono')?.value !== '' && form.get('telefono')?.dirty && form.get('telefono')?.hasError('customNumberRegExp')" style="color: red;">
+          El teléfono solo permite 10 dígitos</small>
+      
+  </div>
+  
+  <div class="field col">
+      <span class="p-float-label">
           <input type="text" id="ciudad" pInputText formControlName="ciudad"/>
           <label for="ciudad">Ciudad*</label>
-        </span>
-        <small *ngIf="form.get('ciudad')?.hasError('required') && form.get('ciudad')?.dirty || form.get('ciudad')?.hasError('required') && form.get('ciudad')?.touched">
-            La ciudad es requerida</small>
-          <small *ngIf="form.get('ciudad')?.value !== '' && form.get('ciudad')?.dirty && form.get('ciudad')?.hasError('customTextRegExp')">
-            La ciudad no es válida</small>
-    </div>
-    </div>
-
-    <div class="field">
-        <span class="p-float-label">
+      </span>
+      <small *ngIf="form.get('ciudad')?.hasError('required') && form.get('ciudad')?.dirty || form.get('ciudad')?.hasError('required') && form.get('ciudad')?.touched" style="color: red;">
+          La ciudad es requerida</small>
+      <small *ngIf="form.get('ciudad')?.value !== '' && form.get('ciudad')?.dirty && form.get('ciudad')?.hasError('customTextRegExp')" style="color: red;">
+          La ciudad no es válida</small>
+      <small *ngIf="form.get('ciudad')?.touched && form.get('ciudad')?.hasError('customLengthRegExp') && form.get('ciudad')?.dirty && form.get('ciudad')?.value !== ''" style="color: red;">
+          La ciudad no es válida</small>
+      <small *ngIf="form.get('ciudad')?.dirty && form.get('ciudad')?.hasError('maxlength')" style="color: red;">
+          El ciudad no puede tener más de 30 caracteres</small>
+  </div>
+  </div>
+  
+  <div class="field">
+      <span class="p-float-label">
           <input type="text" id="direccion" pInputText formControlName="direccion"/>
           <label for="direccion">Dirección*</label>
-        </span> 
-        <small *ngIf="form.get('direccion')?.hasError('required') && form.get('direccion')?.dirty || form.get('direccion')?.hasError('required') && form.get('direccion')?.touched">
-            La dirección es requerida</small>
-    </div>
-
-    <div class="field">
+      </span> 
+      <small *ngIf="form.get('direccion')?.hasError('required') && form.get('direccion')?.dirty || form.get('direccion')?.hasError('required') && form.get('direccion')?.touched" style="color: red;">
+          La dirección es requerida</small>
+      <small *ngIf="form.get('direccion')?.dirty && form.get('direccion')?.hasError('maxlength')" style="color: red;">
+          La dirección no puede tener más de 40 caracteres</small>
+  </div>
+  
+  <div class="field">
       <span class="p-float-label">
-        <input type="text" id="fechaIngreso" pInputText formControlName="fechaIngreso" onfocus="(this.type='date')" onblur="if(!this.value) this.type='text'">
-        <label for="fechaIngreso">Fecha de ingreso*</label>
+          <p-calendar class="inputs-pedido" formControlName="fechaIngreso" [showIcon]="true" inputId="fechaOrdenTrabajo" dateFormat="yy-mm-dd" [maxDate]="maxDate" ></p-calendar>
+          <!-- <input (input)="fechaIngresoValidator()" type="text" id="fechaIngreso" pInputText formControlName="fechaIngreso" onfocus="(this.type='date')" onblur="if(!this.value) this.type='text' "> -->
+          <label for="fechaIngreso">Fecha de ingreso*</label>
       </span>
-      <small *ngIf="form.get('fechaIngreso')?.hasError('required') && form.get('fechaIngreso')?.dirty || form.get('fechaIngreso')?.hasError('required') && form.get('fechaIngreso')?.touched">
-        La fecha de ingreso es requerida</small>
-    </div>
+      <small *ngIf="form.get('fechaIngreso')?.hasError('required') && form.get('fechaIngreso')?.dirty || form.get('fechaIngreso')?.hasError('required') && form.get('fechaIngreso')?.touched" style="color: red;">
+          La fecha de ingreso es requerida</small>
+  </div>
 
     <div class="formgrid col grid mt-2 justify-content-end">
       <p-button label="Cancelar" icon="pi pi-times" [text]="true" (click)="hideDialog()"></p-button>
-      <p-button type="submit" label="Guadar" [disabled]="form.invalid" icon="pi pi-check"></p-button>
+      <p-button type="submit" label="Guadar" icon="pi pi-check"></p-button>
     </div>
   
   </form>
 
 </p-dialog>
 
-<p-dialog [(visible)]="changeStateDialog" header="Confirmar" [modal]="true" [style]="{width:'450px'}">
+<p-dialog [(visible)]="changeStateDialog" header="Confirmar" [modal]="true" [closable]="false" [style]="{width:'450px'}">
   <div class="flex align-items-center justify-content-center">
       <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem"></i>
       <span *ngIf="empleado">¿Quieres cambiar el estado del empleado?</span>

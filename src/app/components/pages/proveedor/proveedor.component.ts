@@ -253,7 +253,7 @@ export class ProveedorComponent implements OnInit {
           }
         },
         reject: () => {
-          // Puedes manejar el rechazo aquí si es necesario
+          this.getListProveedores()
         }
       });
     }

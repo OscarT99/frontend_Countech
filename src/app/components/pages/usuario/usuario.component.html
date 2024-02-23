@@ -1,11 +1,9 @@
 <div class="grid">
     <div class="col-12">
-        <div class="card px-6 py-6">  
-            
-            
+        <div class="card ">                      
             <p-toolbar styleClass="mb-4">
                 <ng-template pTemplate="left">
-                    <div class="my-2">
+                    <div >
                         <button pButton pRipple label="Registrar Usuario" icon="pi pi-plus"
                         (click)="openNew()"></button>
                     </div>
@@ -63,6 +61,11 @@
                         </td>
                         
 
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="emptymessage">
+                    <tr>
+                        <td colspan="6" class="text-center">No se encontraron usuarios</td>
                     </tr>
                 </ng-template>
             </p-table>            

@@ -6,7 +6,7 @@
         <ng-template pTemplate="left">
             <div class="my-2">
               <!-- <button pButton pRipple label="Nuevo empleado" icon="pi pi-plus" class="p-button-success mr-2" (click)="showCreateDialog()"></button>                         -->
-              <h5 class="m-0">Pedidos activos en producción</h5>
+              <h5 class="m-0">Registro de pedidos de producción</h5>
             </div>
         </ng-template>
         <ng-template pTemplate="right">
@@ -16,18 +16,8 @@
             </span>        
         </ng-template>
     </p-toolbar>
-    <ng-template pTemplate="caption">
-        <div class="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
-            
-            <span class="block mt-2 md:mt-0 p-input-icon-left">
-                <i class="pi pi-search"></i>
-                <input pInputText type="text" placeholder="Buscar..."  class="w-full sm:w-auto"/>
-            </span>
-        </div>
-    </ng-template>
     <p-accordion [multiple]="false">        
         <p-accordionTab *ngFor="let pedido of listSearchPedido" class="line-height-3 m-2">
-            
             <!-- HEADER ACCORDIONTAB -->
             <ng-template pTemplate="header">
                 <div class="flex align-items-center">
@@ -123,7 +113,7 @@
                                         <i *ngIf="proceso.id !== undefined && !validarRegistroProceso2(proceso.id)" class="pi pi-times ml-2" style="color: red"></i>                     -->
                                     </ng-template>
 
-                                    <p-table [value]="[proceso]" selectionMode="single">
+                                    <p-table [value]="[proceso]">
                                         <ng-template pTemplate="header">
                                             <tr>                                            
                                                 <th>Proceso</th>                                                            
@@ -142,25 +132,23 @@
                                                   <td>{{proceso.cantidadAsignada || 0}}</td>
                                                   <td>{{proceso.cantidadPendiente || 0}}</td>
                                                   <td>{{proceso.cantidadHecha || 0}}</td>
-                                                  
-                                                    <ng-container *ngIf="proceso.estado === false && proceso.cantidadAsignada === 0">
-                                                        <td>
-                                                            <p-tag value="Pendiente" [severity]="changeSeverityProceso('Pendiente')"></p-tag>
-                                                        </td>
+                                                  <ng-container *ngIf="proceso.estado === false && proceso.cantidadAsignada === 0">
+                                                    <td>
+                                                        <p-tag value="Pendiente" [severity]="changeSeverityProceso('Pendiente')"></p-tag>
+                                                    </td>
                                                     </ng-container>
                                                     <ng-container *ngIf="proceso.estado === false && proceso.cantidadAsignada > 0">
-                                                        <td>
-                                                            <p-tag value="En proceso" [severity]="changeSeverityProceso('En proceso')"></p-tag>
-                                                        </td>
+                                                    <td>
+                                                        <p-tag value="En proceso" [severity]="changeSeverityProceso('En proceso')"></p-tag>
+                                                    </td>
                                                     </ng-container>
                                                     <ng-container *ngIf="proceso.estado === true">
-                                                        <td>
-                                                            <p-tag value="Terminado" [severity]="changeSeverityProceso('Terminado')"></p-tag>
-                                                        </td>
-                                                    </ng-container>
-                                                  
-                                 
-                                                  <td>
+                                                    <td>
+                                                        <p-tag value="Terminado" [severity]="changeSeverityProceso('Terminado')"></p-tag>
+                                                    </td>
+                                                </ng-container>
+
+                                                <td>
                                                     <div class="flex gap-2 justify-content-center">
                                                       <p-button *ngIf="proceso.estado === false && proceso.cantidadPendiente > 0" icon="pi pi-plus" [rounded]="true" pTooltip="Asignar proceso" (click)="showAsignarProcesoDialog(proceso)"></p-button>
                                                       <p-button icon="pi pi-info" [rounded]="true" pTooltip="Procesos asignados" (click)="showDetalleProcAsigDialog(proceso)"></p-button>
@@ -171,7 +159,7 @@
                                           
                                     </p-table>
                                     <!--  -->
-                                    <p-table [value]="proceso.ColorEnProcesoEnReferenciaEnPedidos ?? []" styleClass="p-datatable-striped">
+                                    <p-table [value]="proceso.ColorEnProcesoEnReferenciaEnPedidos ?? []">
                                         <ng-template pTemplate="header">
                                             <tr>                                            
                                                 <th>Color</th>                                                            
@@ -229,7 +217,7 @@
                       </p-autoComplete>                              
                     </div>
                     
-                    <small *ngIf="formAsignarProcesoEmpleado.get('empleadoId')?.hasError('required') && formAsignarProcesoEmpleado.get('empleadoId')?.touched" style="color: red;">
+                    <small *ngIf="formAsignarProcesoEmpleado.get('empleado')?.hasError('required') && formAsignarProcesoEmpleado.get('empleado')?.touched" style="color: red;">
                         El empleado es <strong>requerido</strong>
                     </small>
                 </div>
@@ -244,7 +232,7 @@
                     <div class="field col">
                         <span class="p-float-label">
                             <input id="cantidadAsignada" pKeyFilter="int" type="number" pInputText formControlName="cantidadAsignada" (input)="validateCantAsignada()"/>
-                            <label for="cantidadAsignada">Cantidad por asignar*</label>
+                            <label for="cantidadAsignada">Cantidad por asignar</label>
                         </span>
                         <small>
                             <span *ngIf="formAsignarProcesoEmpleado.get('cantidadAsignada')?.hasError('required') && formAsignarProcesoEmpleado.get('cantidadAsignada')?.touched" style="color: red;">
@@ -261,7 +249,7 @@
                 </div>
                 <div class="formgrid col grid mt-2 justify-content-end">
                     <p-button label="Cancelar" icon="pi pi-times" [text]="true" (click)="hideDialog()"></p-button>
-                    <p-button type="submit" label="Asignar" icon="pi pi-check"></p-button>
+                    <p-button type="submit" label="Asignar" [disabled]="formAsignarProcesoEmpleado.invalid" icon="pi pi-check"></p-button>
                 </div>
                   
         </form>
@@ -272,6 +260,12 @@
 
     <p-dialog [(visible)]="detalleProcAsigDialog" header="Procesos asignados" [style]="{width:'80vw'}" [draggable]="false" [resizable]="false" [modal]="true" class="p-fluid">
         <!-- <div class="card"> -->
+            <!-- <ng-container *ngFor="let proceso of listAsignarProcesoEmpleado">
+
+            </ng-container> -->
+            <ng-container>
+                
+            </ng-container>
             <p-table [value]="filteredProcesosAsignados" dataKey="id">
                 <!-- <ng-template pTemplate="caption">
                     Procesos asignados
@@ -315,23 +309,12 @@
                                     <div class="formgrid col grid mt-2 justify-content-end" style="display: flex; flex-direction: row;">
                                         <div style="flex: 1;">
                                             <span class="p-float-label">
-                                                <input type="number" pInputText formControlName="cantidadHecha" (input)="validateCantHecha(proceso.cantRestante)"/>
-                                                <label for="cantidadHecha">Cantidad hecha*</label>
+                                                <input type="number" pInputText formControlName="cantidadHecha"/>
+                                                <label for="cantidadHecha">Cantidad hecha</label>
                                             </span>
-                                            <small>
-                                                <span *ngIf="formAvance.get('cantidadHecha')?.hasError('required') && formAvance.get('cantidadHecha')?.touched" style="color: red;">
-                                                    La cantidad es <strong>requerida.</strong>
-                                                </span>
-                                                <span *ngIf="formAvance.get('cantidadHecha')?.hasError('min') && formAvance.get('cantidadHecha')?.touched" style="color: red;">
-                                                    La cantidad asignada debe ser mayor a 0.
-                                                </span>
-                                                <span *ngIf="formAvance.get('cantidadHecha')?.hasError('cantError') && formAvance.get('cantidadHecha')?.touched" style="color: red;">
-                                                    La cantidad hecha no puede ser mayor a la cantidad restante.
-                                                </span>
-                                            </small>
                                         </div>
                                         <div style="margin-left: 8px;">
-                                            <p-button type="submit" icon="pi pi-save" [disabled]="formAvance.invalid"  [rounded]="true" [text]="true" severity="success" pTooltip="Guardar"></p-button>        
+                                            <p-button type="submit" icon="pi pi-save" [rounded]="true" [text]="true" severity="success" pTooltip="Guardar"></p-button>        
                                         </div>
                                     </div>
                                 </form>
@@ -384,10 +367,9 @@
             </p-table>
             <p-confirmDialog></p-confirmDialog>
 
-            <div class="formgrid col grid mt-2 justify-content-end">
+            <ng-template pTemplate="footer">
                 <p-button label="Cerrar" icon="pi pi-times" [text]="true" (click)="hideDialog()"></p-button>
-            </div>
-
+            </ng-template>
 
     </p-dialog>
 
