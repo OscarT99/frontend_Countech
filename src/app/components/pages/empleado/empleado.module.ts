@@ -8,7 +8,9 @@ import { TagModule } from 'primeng/tag';
 import { FileUploadModule } from 'primeng/fileupload';
 import { ButtonModule } from 'primeng/button';
 import { RippleModule } from 'primeng/ripple';
+import { TooltipModule } from 'primeng/tooltip';
 import { ToastModule } from 'primeng/toast';
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ToolbarModule } from 'primeng/toolbar';
 import { RatingModule } from 'primeng/rating';
 import { InputTextModule } from 'primeng/inputtext';
@@ -20,8 +22,7 @@ import { DialogModule } from 'primeng/dialog';
 import { InputSwitchModule } from 'primeng/inputswitch';
 import { KeyFilterModule } from 'primeng/keyfilter';
 import { CalendarModule } from 'primeng/calendar';
-import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core'
-
+import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 
 
 @NgModule({
@@ -29,7 +30,9 @@ import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core'
         CalendarModule,
         CommonModule,
         EmpleadoRoutingModule,
+        ConfirmDialogModule,
         TableModule,
+        TooltipModule,
         TagModule,
         FileUploadModule,
         FormsModule,

@@ -1,5 +1,4 @@
 import { Component, OnInit } from '@angular/core';
-import { MessageService } from 'primeng/api';
 import { EmpleadoService } from 'src/app/services/empleado/empleado.service';
 import { Table } from 'primeng/table';
 import { Empleado } from 'src/app/interfaces/empleado/empleado.interface';
@@ -12,6 +11,8 @@ import { ActivatedRoute } from '@angular/router';
 import { AvanceProcesoEmpleado } from 'src/app/interfaces/produccion/avanceProcesoEmpleado.interface';
 import { AvanceProcesoEmpleadoService } from 'src/app/services/produccion/avanceProcesoEmpleado.service';
 import { Observable } from 'rxjs';
+import { ConfirmationService, MessageService, ConfirmEventType } from 'primeng/api';
+
 
 interface OptionTipoIdentidad {
   label: string;
@@ -20,7 +21,7 @@ interface OptionTipoIdentidad {
 
 @Component({
   templateUrl: './empleado.component.html',
-  providers: [MessageService]
+  providers: [MessageService, ConfirmationService],
 })
 export class EmpleadoComponent implements OnInit {
 
@@ -50,17 +51,16 @@ export class EmpleadoComponent implements OnInit {
 
   cols: any[] = [];
 
-
   listTipoIdentidad: OptionTipoIdentidad[] | undefined;
 
   maxDate: Date = new Date();
 
-  // selectedTipo: tipoIdentidad | undefined;
 
 
   constructor(private fb: FormBuilder,
-      private _empleadoService: EmpleadoService,
-      private _pedidoService: PedidoService,
+    private _empleadoService: EmpleadoService,
+    private _pedidoService: PedidoService,
+    private confirmationService: ConfirmationService,
       private _avanceProcesoService: AvanceProcesoEmpleadoService,
       private toastr: ToastrService,      
       private aRouter:ActivatedRoute,
@@ -336,8 +336,35 @@ export class EmpleadoComponent implements OnInit {
   cambiarEstado(empleado: Empleado) {
     this.changeStateDialog = true;
     this.empleadoSeleccionado =  empleado;
-    // console.log(this.empleadoSeleccionado);
-    // this.getEmpleadoProceso();
+  }
+
+  confirm(empleado: Empleado) {
+    this.empleadoSeleccionado = empleado;
+
+    this.confirmationService.confirm({
+      header: 'Confirmación',
+
+      acceptIcon: 'pi pi-check mr-2',
+      rejectIcon: 'pi pi-times mr-2',
+      rejectButtonStyleClass: 'p-button-sm',
+      acceptButtonStyleClass: 'p-button-outlined p-button-sm',
+      accept: () => {
+        if (this.empleadoSeleccionado != null && this.empleadoSeleccionado.id != null) {
+          this._empleadoService.putEmpleado(this.empleadoSeleccionado.id, this.empleadoSeleccionado)
+            .subscribe(() => {
+              if(this.empleadoSeleccionado?.estado === true){
+                this.toastr.success('¡El empleado ha sido <strong>activado</strong> exitosamente!', 'Éxito');
+              }else{
+                this.toastr.warning('¡El empleado ha sido <strong>desactivado</strong> exitosamente!', 'Éxito');
+              }
+            } );
+        }
+
+      },
+      reject: () => {
+        this.getEmpleadoProceso();
+      }
+    });
   }
 
   confirmChangeState(confirmacion: boolean) {
