@@ -1,0 +1,159 @@
+body{
+    background-color: #f4f1f1;
+}
+.container{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+}
+
+.login{
+    width: 800px;
+    min-height: 470px;
+    overflow: hidden;
+    border-radius: 5px;
+    background: #222;
+    display: flex;
+    box-shadow: 15px 5px 30px rgba(0,0,0,0.3);
+}
+
+.content{
+    flex-basis: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    background: #00b894;
+}   
+
+.content img{
+    width: 100%;
+    height: 100%;
+}
+
+.loginform {
+    flex-basis: 50%;
+    background: #eceaea;
+    font-family: roboto;
+    padding: 20px;
+    box-sizing: border-box; /* Agrega esta línea para incluir el padding en el ancho total */
+}
+.loginform h1{
+    text-align: center;
+    margin-top: 0px;
+    font-size: 2.5em;
+    color:#000000
+}
+
+
+
+::placeholder{
+    color:#777
+}
+
+.btnn {
+    width: 30%; /* Cambia el ancho al 100% para que ocupe todo el contenedor */
+    border: 0;
+    border-radius: 5px;
+    background: #00b894;
+    color: #fff;
+    padding: 6px;
+    font-size: 15px;
+    margin-top: 20px;
+
+}
+
+.contenedor-botones {
+    text-align: center; /* O la alineación que prefieras */
+    margin-top: 3em;   /* Ajusta el margen según tus necesidades */
+  }
+
+
+.recuperar {
+    text-align: center;
+    margin-top: 3em;
+  }
+  
+  .enlace-recuperar {
+    color: blue; /* Puedes ajustar el color según tu preferencia */
+    text-decoration: underline; /* Puedes agregar subrayado si lo deseas */
+    cursor: pointer; /* Cambia el cursor al pasar sobre el enlace */
+  }
+
+@media(max-width: 768px){
+    .login{
+        flex-direction: column;
+        margin: 0 15px;
+    }
+}
+
+.input-container {
+    position: relative;
+    margin-bottom:-10px;
+}
+
+.invalid-feedback {
+    margin-top: 5px; /* Ajusta el valor según tus necesidades */
+  }
+
+.input-label {
+    position: absolute;
+    top: 50%;
+    left: 10px;
+    pointer-events: none;
+    transform: translateY(-50%);
+    transition: 0.2s;
+    color: #333;
+}
+
+input {
+    padding: 10px;
+    width: 100%;
+    border: 1px solid #ccc; /* Agrega un borde en lugar de un borde inferior */
+    border-radius: 5px; /* Añade bordes redondeados para un aspecto más uniforme */
+    outline: none;
+    font-size: 16px; /* Ajusta el tamaño de fuente según tus preferencias */
+}
+
+input::placeholder {
+    color: transparent; /* Oculta el texto del placeholder por defecto */
+}
+
+input:focus + .input-label, input:not(:placeholder-shown) + .input-label {
+    top: -20px;
+    font-size: 14px;
+    color: #333;
+}
+
+.invalid-feedback {
+    margin-top: 5px;
+}
+
+.field .p-dropdown {
+    width: 100%; /* Puedes ajustar este valor según tus necesidades */
+} 
+
+.error-messages {
+    position: absolute;
+    color: red;
+    bottom: 0;
+}
+
+.check{
+    width: 15%;
+    height: 15%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 18%;
+}
+
+.checkk{
+    width: 15%;
+    height: 15%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 11%;
+}

@@ -105,13 +105,9 @@
                         </div>
                     </div>
                         
-                    <div style="display: flex; justify-content: center; align-items: center;">
-                        <div class="field">
-                          <button type="button" pButton pRipple label="Cancelar" class="p-button-rounded p-button-danger" (click)="hideDialog()"></button>
-                        </div>
-                        <div class="field" style="margin-left: 8px;"> 
-                          <button type="submit" pButton pRipple label="Guardar" class="p-button-rounded p-button-success"></button>
-                        </div>
+                    <div class="formgrid col grid mt-2 justify-content-end">
+                        <p-button label="Cancelar" icon="pi pi-times" [text]="true" (click)="hideDialog()"></p-button>
+                        <p-button type="submit" label="Guadar" icon="pi pi-check"></p-button>
                     </div>
                       
                 </form>                 
