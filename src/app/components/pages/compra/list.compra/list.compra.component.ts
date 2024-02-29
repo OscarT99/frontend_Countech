@@ -14,6 +14,7 @@ import { AbonoCompraService } from 'src/app/services/abonoCompra/abonoCompra.ser
 import { ConfirmationService, MessageService } from 'primeng/api';
 import * as XLSX from 'xlsx';
 import { TotalNetoService } from '../compra.servive';
+import { DetalleCompraInstance } from 'src/app/interfaces/compra/detalleCompra.interface';
 
 @Component({
     templateUrl: './list.compra.component.html',
@@ -39,6 +40,8 @@ export class ListCompraComponent implements OnInit {
     mostrarModalDetalle: boolean = false;
     compraIdSeleccionado!: number;
     detalleCompra: any; // Puedes ajustar esto según la estructura de tu pedido
+    detallesInsumo: DetalleCompraInstance[] = [];
+
     @ViewChild('detalleCompraModal') detallePedidoCompra!: Dialog;
 
     rowsPerPageOptions = [5, 10, 15];
@@ -54,7 +57,7 @@ export class ListCompraComponent implements OnInit {
         private fb: FormBuilder,
         private confirmationService: ConfirmationService,
         private messageService: MessageService,
-        private totalNetoService: TotalNetoService
+        private totalNetoService: TotalNetoService,
     ) {
         this.formAbonoCompra = this.fb.group({
             id: ['', Validators.required],
@@ -71,7 +74,7 @@ export class ListCompraComponent implements OnInit {
 
     ngOnInit(): void {
         this.getListCompras();
-        this.totalNeto = this.totalNetoService.totalNeto; // Obtener el total neto del servicio
+        //this.totalNeto = this.totalNetoService.totalNeto; // Obtener el total neto del servicio
         console.log('Total Neto desde add.compra:', this.totalNeto);
         this.formAbonoCompra.get('valorRestante')?.setValue(this.getValorRestante());
     }
@@ -309,6 +312,24 @@ export class ListCompraComponent implements OnInit {
     }
 
 
+    
+  calcularTotales(): void {
+    let totalBruto = 0;
+    let ivaTotal = 0;
+    let totalNeto = 0;
+  
+    this.detallesInsumo.forEach(detalle => {
+      totalBruto += detalle.cantidad! * detalle.valorUnitario!;
+      ivaTotal += detalle.cantidad! * detalle.impuestoIva!;
+    });
+  
+    totalNeto = totalBruto + ivaTotal;
+    
+  }
+
+
+
+/*
     getValorRestante(): number {
         if (
             this.totalNeto !== undefined &&
@@ -336,7 +357,38 @@ export class ListCompraComponent implements OnInit {
     
         // Si no hay abonos relacionados o si falta información, devuelve el total neto del servicio o 0 si no está definido
         return this.totalNeto !== undefined ? parseFloat(this.totalNeto.toString()) : 0;
-    }
+    }*/
+
+
+    getValorRestante(): number {
+       
+          const abonosRelacionados = this.listAbonoCompras.filter(abono => abono.compra === this.id);
+          console.log("Abonos relacionados", abonosRelacionados)
+      
+          let totalAbonos = 0;
+      
+            abonosRelacionados.forEach(abono => {
+              if (abono.valorAbono !== undefined) {
+                const valorAbono = parseFloat(abono.valorAbono.toString());
+                if (!isNaN(valorAbono)) {
+                  totalAbonos += valorAbono;
+                }
+              }
+            });
+      
+            const valorTotal = parseFloat(this.totalNeto.toString());
+            console.log("Neto", this.totalNeto)
+            const valorRestante = valorTotal - totalAbonos;
+            console.log(valorRestante)
+            return valorRestante;
+          
+        
+      
+        // Si no hay abonos relacionados o si falta información, devuelve el valor total de la venta o 0 si no está definido
+        //return this.compra && this.totalNeto !== undefined ? parseFloat(this.totalNeto.toString()) : 0;
+      }
+    
+    
     
 
 

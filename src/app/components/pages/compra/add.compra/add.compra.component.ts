@@ -79,7 +79,8 @@ export class AddCompraComponent implements OnInit {
 
   ngOnInit(): void {
     this.obtenerListaInsumos()    
-    this.obtenerListaProveedores()    
+    this.obtenerListaProveedores();
+       
   }
       
 

@@ -172,9 +172,9 @@
             </p-dialog>
 
 
-            <p-dialog header="Detalle de Venta" [(visible)]="mostrarModalDetalle" [modal]="true" [responsive]="true" [style]="{width: '900px', height: '500px' }">
+            <p-dialog header="Detalle de Venta" [(visible)]="mostrarModalDetalle" [modal]="true" [responsive]="true" [style]="{width: '900px', height: '510spx' }">
                 <div *ngIf="detallePedido">
-                    <div class="grid mt-1">
+                    <div class="grid mt-1" style="justify-content: center"> 
                         <div class="col-4">
                             <span style="font-weight: bold;">Cliente:</span>
                             <div>
@@ -282,14 +282,22 @@
                         <div class="col-4">
                             <span style="font-weight: bold;">Estado Pago:</span>
                             <div>
-                                <span>{{ detallePedido.estadoPago | number: '1.2-2' }}</span>
+                                <span>{{ detallePedido.estadoPago }}</span>
                             </div>
                         </div>
 
                     </div>
-                    <div *ngIf="detallePedido && detallePedido.formaPago === 'Crédito'">
-                        <div class="card m-5" style="width: 500px; margin: 0 auto;">
-                            <h5 style="text-align: center;">Abonos De La Venta final {{ id }}</h5>
+
+                   <!--TABLA ABONOS-->
+                   <!-- Botón para ver los abonos si la forma de pago es "Crédito" -->
+                   <div *ngIf="detallePedido && venta.formaPago === 'Crédito'" style="margin-left: 10px; margin-top: 10px;">
+                    <button pButton type="button" [label]="mostrarTablaAbonos ? 'Ocultar Abonos' : 'Ver Abonos'" (click)="mostrarTablaAbonos = !mostrarTablaAbonos"></button>
+                    </div>
+                
+                    <!-- Tabla de abonos si se muestra -->
+                    <div *ngIf="mostrarTablaAbonos" style="margin: 0 auto; margin-left: 10px;">
+                        <div class="card m-5" [style]="{width: '500px'}">
+                            <h5>Abonos De La Venta {{ id }}</h5>
                             <p-table #dt [value]="listAbonoVentas" responsiveLayout="scroll" [rows]="10" dataKey="id">
                                 <ng-template pTemplate="header">
                                     <tr>
@@ -308,236 +316,30 @@
                                             {{ abonoVenta.fechaAbono }}
                                         </td>
                                         <td style="width:14%; min-width:8rem;">
-                                            <span class= "p-column-title">Valor Abonado</span>
-                                            {{ abonoVenta.valorAbono  }}
+                                            <span class="p-column-title">Valor Abonado</span>
+                                            {{ abonoVenta.valorAbono }}
                                         </td>
                                     </tr>
                                 </ng-template>
                             </p-table>
                         </div>
-                        
-                    
                     </div>
-
 
                 </div> 
-                
-                
-                
-                
-                
-                <div *ngIf="detallePedido">
-                    <div class="grid mt-1" style="justify-content: center"> 
-                        <div class="col-4">
-                            <span style="font-weight: bold;">Id Venta:</span>
-                            <span> {{ venta.id }}</span>
-                        </div>                       
-                        <div class="col-4">
-                            <span style="font-weight: bold;">Cliente:</span>
-                            <span> {{ detallePedido.Cliente.razonSocial }}</span>
-                        </div>
-                        <div class="col-4">
-                            <span style="font-weight: bold;">Fecha Venta:</span>
-                            <span> {{ venta.fechaVenta }} 2023-12-12</span>
-                        </div>
-                        <div class="col-4">
-                            <span style="font-weight: bold;">Orden de Trabajo:</span>
-                            <span> {{ detallePedido.ordenTrabajo }}</span>
-                        </div>
-                    
-                        <div class="col-4">
-                            <span style="font-weight: bold;">Fecha Orden:</span>
-                            <span> {{ detallePedido.fechaOrdenTrabajo }}</span>
-                        </div>
-                        <div class="col-4">
-                            <span style="font-weight: bold;">Fecha Entrega:</span>
-                            <span> {{ detallePedido.fechaEntregaOrden }}</span>
-                        </div>
-
-                        <div class="col-12">
-                            <p-table [value]="detallePedido.ReferenciaEnPedidos" styleClass="p-datatable-sm">
-                                <ng-template pTemplate="header">
-                                    <tr>                                            
-                                        <th>Referencia</th>
-                                        <th>Descripción</th>
-                                        <th>Valor Unitario</th>
-                                        <th>Cantidad</th>
-                                        <th>Valor Total</th>
-                                    </tr>
-                                </ng-template>
-                                <ng-template pTemplate="body" let-referencia>
-                                    <tr>
-                                        <td>{{referencia.referencia}}</td>
-                                        <td>{{referencia.descripcion}}</td>
-                                        <td>{{referencia.valorUnitario | currency:'USD':'symbol':'1.2-2'}}</td>
-                                        <td>{{referencia.cantidadTotal}}</td>
-                                        <td>{{referencia.valorTotalReferencia | currency:'USD':'symbol':'1.2-2'}}</td>
-                                    </tr>
-                                    <tr>
-                                        <td colspan="3">
-                                            <ng-container >
-                                                <p-table [value]="referencia.ProcesoEnReferenciaEnPedidos[0]?.ColorEnProcesoEnReferenciaEnPedidos">
-                                                    <ng-template pTemplate="header">
-                                                        <tr>                                            
-                                                            <th>Color/Talla</th>
-                                                            <th>S</th>
-                                                            <th>M</th>
-                                                            <th>L</th>
-                                                            <th>XL</th>
-                                                            <th>Cantidad Total</th>
-                                                        </tr>
-                                                    </ng-template>
-                                                    <ng-template pTemplate="body"  let-color>
-                                                        <tr>
-                                                            <td>{{color.color}}</td>
-                                                            <td>{{color.TallaEnColorEnProcesoEnReferenciaEnPedidos[0].cantidad}}</td>
-                                                            <td>{{color.TallaEnColorEnProcesoEnReferenciaEnPedidos[1].cantidad}}</td>
-                                                            <td>{{color.TallaEnColorEnProcesoEnReferenciaEnPedidos[2].cantidad}}</td>
-                                                            <td>{{color.TallaEnColorEnProcesoEnReferenciaEnPedidos[3].cantidad}}</td>
-                                                            <td>{{color.cantidad}}</td>
-                                                        </tr>
-                                                    </ng-template>
-                                                </p-table>
-                                            </ng-container>
-                                        </td>
-                                        <td colspan="2">
-                                            <ng-container >
-                                                <p-table [value]="referencia.ProcesoEnReferenciaEnPedidos">
-                                                    <ng-template pTemplate="header">
-                                                        <tr>                                            
-                                                            <th>Proceso</th>
-                                                            <th>Tipo Maquina</th>                                                                
-                                                        </tr>
-                                                    </ng-template>
-                                                    <ng-template pTemplate="body"  let-proceso>
-                                                        <tr>
-                                                            <td>{{proceso.proceso}}</td>
-                                                            <td>{{proceso.tipoDeMaquina}}</td>                                                                
-                                                        </tr>
-                                                    </ng-template>
-                                                </p-table>
-                                            </ng-container>
-                                        </td>                                                                                        
-                                    </tr>
-                                </ng-template>
-                            </p-table>
-                        </div>
-
-                        <div class="col-4">
-                            <span style="font-weight: bold;">Forma Pago:</span>
-                            <span> {{ detallePedido.formaPago }}</span>
-                        </div>
-                        <div class="col-4">
-                            <span style="font-weight: bold;">Estado de Pago:</span>
-                            <span> {{ venta.estadoPago }}</span>
-                        </div>
-                        <div class="col-4">
-                            <span style="font-weight: bold;">Valor Total:</span>
-                            <span> {{ detallePedido.valorTotal | currency:'USD':'symbol':'1.2-2' }}</span>
-                        </div>
-
-
-
-
-
-                        <div *ngIf="detallePedido && detallePedido.formaPago === 'Crédito'">
-                            <div class="card m-5" [style]="{width: '500px', textAlign: 'center'}">
-                                    <h5>Abonos De La Venta {{ id }}</h5>
-                                    <p-table #dt [value]="listAbonoVentas" responsiveLayout="scroll" [rows]="10" dataKey="id">
-                                        <ng-template pTemplate="header">
-                                            <tr>
-                                                <th pSortableColumn="idAbono">Id Abono</th>
-                                                <th pSortableColumn="fechaAbono">Fecha</th>
-                                                <th pSortableColumn="valorAbono">Valor Abonado</th>
-                                            </tr>
-                                        </ng-template>
-                                        <ng-template pTemplate="body" let-abonoVenta>
-                                            <tr>
-                                                <td style="width:14%; min-width:5rem;"><span class="p-column-title">Id Abono</span>
-                                                    {{ abonoVenta.id }}
-                                                </td>
-                                                <td style="width:14%; min-width:10rem;">
-                                                    <span class="p-column-title">Fecha</span>
-                                                    {{ abonoVenta.fechaAbono }}
-                                                </td>
-                                                <td style="width:14%; min-width:8rem;">
-                                                    <span class= "p-column-title">Valor Abonado</span>
-                                                    {{ abonoVenta.valorAbono  }}
-                                                </td>
-                                            </tr>
-                                        </ng-template>
-                                    </p-table>
-                            </div>
-                            
-                            
-                        
-                        </div>
-
-
-
-
-
-                        
-                        <!-- Botón para ver los abonos si la forma de pago es "Crédito" -->
-                        <div *ngIf="mostrarTablaAbonos">
-                            <button pButton type="button" label="Ver Abonos" (click)="mostrarTablaAbonos = !mostrarTablaAbonos"></button>
-                        </div>
-
-                        <!-- Tabla de abonos si se muestra -->
-                        <div *ngIf="mostrarTablaAbonos">
-                            <div class="card m-5" [style]="{width: '500px'}">
-                                <h5>Abonos De La Venta {{ id }}</h5>
-                                <p-table #dt [value]="listAbonoVentas" responsiveLayout="scroll" [rows]="10" dataKey="id">
-                                    <ng-template pTemplate="header">
-                                        <tr>
-                                            <th pSortableColumn="idAbono">Id Abono</th>
-                                            <th pSortableColumn="fechaAbono">Fecha</th>
-                                            <th pSortableColumn="valorAbono">Valor Abonado</th>
-                                        </tr>
-                                    </ng-template>
-                                    <ng-template pTemplate="body" let-abonoVenta>
-                                        <tr>
-                                            <td style="width:14%; min-width:5rem;"><span class="p-column-title">Id Abono</span>
-                                                {{ abonoVenta.id }}
-                                            </td>
-                                            <td style="width:14%; min-width:10rem;">
-                                                <span class="p-column-title">Fecha</span>
-                                                {{ abonoVenta.fechaAbono }}
-                                            </td>
-                                            <td style="width:14%; min-width:8rem;">
-                                                <span class="p-column-title">Valor Abonado</span>
-                                                {{ abonoVenta.valorAbono }}
-                                            </td>
-                                        </tr>
-                                    </ng-template>
-                                </p-table>
-                            </div>
-                        </div>
-                        
-                    </div>
-
-                </div>
-                
-                <!-- <button pButton type="button" label="Cerrar" class="p-button-secondary" (click)="cerrarModalDetallePedido()"></button> -->
             </p-dialog>
 
 
 
             <p-dialog header="Comprobante de Venta" [(visible)]="mostrarComprobante" [modal]="true" [responsive]="true" [style]="{ width: '600px', height: 'auto' }">
                 <div #comprobanteVenta>
-                  
-                
-
-
-
-                <p-panel header="Información de la Empresa">
+                <p-panel header="">
                     <h2>Cuatro Soles</h2>
                     <p>Dirección: Bello Antioquia</p>
                     <p>Teléfono: 210292837</p>
                     <p>Email: cuatrosoles@empresa.com</p>
                   </p-panel>
                   
-                  <p-panel header="Detalles del Cliente">
+                  <p-panel header="">
                     <div class="cliente-info">
                       <h3>Cliente</h3>
                       <p><strong>Nombre:</strong> {{ detallePedido?.Cliente?.razonSocial }}</p>
@@ -545,7 +347,7 @@
                     </div>
                   </p-panel>
                   
-                  <p-panel header="Detalles de la Venta">
+                  <p-panel header="">
                     <div class="cliente-info">
                       <h3>Datos de la Venta</h3>
                       <p><strong>Id Venta:</strong> {{ venta.id }}</p>
@@ -554,43 +356,18 @@
                       <!-- Otras detalles de la venta como forma de pago, estado de pago, etc. -->
                     </div>
                   
-                    <div class="productos-vendidos">
-                      <h3>Productos Vendidos</h3>
-                      <table class="productos-table">
-                        <thead>
-                          <tr>
-                            <th>Referencia</th>
-                            <th>Descripción</th>
-                            <th>Valor Unitario</th>
-                            <th>Cantidad</th>
-                            <th>Valor Total</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          <!-- Aquí puedes iterar sobre los productos vendidos y mostrarlos en filas de la tabla -->
-                          <tr *ngFor="let producto of detallePedido?.ReferenciaEnPedidos">
-                            <td>{{ producto?.referencia }}</td>
-                            <td>{{ producto?.descripcion }}</td>
-                            <td>{{ producto?.valorUnitario | currency }}</td>
-                            <td>{{ producto?.cantidadTotal }}</td>
-                            <td>{{ producto?.valorTotalReferencia | currency }}</td>
-                          </tr>
-                        </tbody>
-                      </table>
-                    </div>
-                  
                     <div class="resumen-venta">
-                      <h3>Resumen de la Venta</h3>
+                      <h4>______________________________________________________</h4>
                       <p><strong>Forma de Pago:</strong> {{ detallePedido?.formaPago }}</p>
-                      <p><strong>Estado de Pago:</strong> {{ venta.estadoPago }}</p>
+                      <p><strong>Estado de Pago:</strong> {{ detallePedido?.estadoPago }}</p>
                       <p><strong>Valor Total:</strong> {{ detallePedido?.valorTotal | currency }}</p>
                     </div>
                   </p-panel>
                 </div>
                   
                 <div style="text-align: center; margin-top: 20px; margin-bottom: 20px;">
-                    <button pButton class="p-button-danger" label="PDF" icon="pi pi-file-pdf" pTooltip="Descargar" 
-                            (click)="generarPDF()" style="width: 80px; height: 40px; font-size: 20px;"></button>
+                    <button pButton class="p-button-danger" label="Descargar" icon="pi pi-file-pdf" pTooltip="Descargar" 
+                            (click)="generarPDF()" style="width: 130px; height: 40px; font-size: 20px;"></button>
                 </div>
                 
                 
