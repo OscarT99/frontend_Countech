@@ -25,7 +25,8 @@
             </span>
         </div>
     </ng-template>
-    <p-accordion [multiple]="false">        
+
+    <p-accordion [multiple]="false" *ngIf="listSearchPedido.length > 0; else noPedido">
         <p-accordionTab *ngFor="let pedido of listSearchPedido" class="line-height-3 m-2">
             
             <!-- HEADER ACCORDIONTAB -->
@@ -207,6 +208,11 @@
             </p-tabView>
         </p-accordionTab>
     </p-accordion>
+    <ng-template #noPedido>
+        <div class="text-center">
+            <p>No se encontraron pedidos</p>
+        </div>
+    </ng-template>
 
     <!-- Dialog para registrar el proceso asignado a un empleado -->
     <p-dialog [(visible)]="asignarProcDialog" [style]="{width: '450px'}" [modal]="true" header="Asignar proceso" class="p-fluid">

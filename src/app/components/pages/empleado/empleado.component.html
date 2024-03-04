@@ -32,7 +32,7 @@
             <th pSortableColumn="nombre">Nombre<p-sortIcon field="nombre"></p-sortIcon></th>
             <!-- <th>Estado</th> -->
             <th>Estado producción</th>
-            <th colspan="2">Acciones</th>
+            <th></th>
           </tr>
         </ng-template>
         <ng-template pTemplate="body" let-empleado let-expanded="expanded">
@@ -54,10 +54,7 @@
                 <p-button icon="pi pi-pencil" [rounded]="true" severity="warning" (click)="showEditDialog(empleado.id)" pTooltip="Editar"></p-button>
               </div>
             </td>
-            <td>
-              
-            </td>
-          </tr>
+                    </tr>
         </ng-template>
 
         <ng-template pTemplate="rowexpansion" let-empleado>
@@ -320,8 +317,8 @@
     </span>
     <small *ngIf="form.get('telefono')?.hasError('required') && form.get('telefono')?.touched || form.get('telefono')?.hasError('required') && form.get('telefono')?.dirty" style="color: red;">
       El teléfono es requerido</small>
-  <small *ngIf="form.get('telefono')?.value !== '' && form.get('telefono')?.dirty && form.get('telefono')?.hasError('customNumberRegExp')" style="color: red;">
-      El teléfono no es válido</small>
+      <small *ngIf="form.get('telefono')?.value !== '' && form.get('telefono')?.dirty && form.get('telefono')?.hasError('customNumberRegExp')" style="color: red;">
+        El teléfono solo permite 10 dígitos</small>
   
 </div>
 
@@ -503,6 +500,18 @@
 
 </p-dialog>
 
+<p-toast></p-toast>
+        <p-confirmDialog>
+            <ng-template pTemplate="message">
+                <div class="flex flex-column align-items-center w-full gap-3 border-bottom-1 surface-border">
+                    <i class="pi pi-exclamation-circle text-6xl text-primary-500"></i>
+                    <p>
+                        ¿Está seguro de que desea
+                        <span style="font-weight: bold">{{ empleadoSeleccionado?.estado ? 'ACTIVAR' : 'DESACTIVAR' }}</span> el empleado?
+                      </p>
+                </div>
+            </ng-template>
+        </p-confirmDialog>
 <p-toast></p-toast>
 <p-confirmDialog>
     <ng-template pTemplate="message">

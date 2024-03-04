@@ -8,7 +8,9 @@ import { TagModule } from 'primeng/tag';
 import { FileUploadModule } from 'primeng/fileupload';
 import { ButtonModule } from 'primeng/button';
 import { RippleModule } from 'primeng/ripple';
+import { TooltipModule } from 'primeng/tooltip';
 import { ToastModule } from 'primeng/toast';
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ToolbarModule } from 'primeng/toolbar';
 import { RatingModule } from 'primeng/rating';
 import { InputTextModule } from 'primeng/inputtext';
@@ -32,7 +34,9 @@ import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core'
         CalendarModule,
         CommonModule,
         EmpleadoRoutingModule,
+        ConfirmDialogModule,
         TableModule,
+        TooltipModule,
         TagModule,
         FileUploadModule,
         FormsModule,

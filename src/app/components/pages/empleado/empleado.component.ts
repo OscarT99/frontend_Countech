@@ -1,5 +1,4 @@
 import { Component, OnInit } from '@angular/core';
-import { MessageService } from 'primeng/api';
 import { EmpleadoService } from 'src/app/services/empleado/empleado.service';
 import { Table } from 'primeng/table';
 import { Empleado } from 'src/app/interfaces/empleado/empleado.interface';
@@ -12,7 +11,8 @@ import { ActivatedRoute } from '@angular/router';
 import { AvanceProcesoEmpleado } from 'src/app/interfaces/produccion/avanceProcesoEmpleado.interface';
 import { AvanceProcesoEmpleadoService } from 'src/app/services/produccion/avanceProcesoEmpleado.service';
 import { Observable } from 'rxjs';
-import { ConfirmationService } from 'primeng/api';
+import { ConfirmationService, MessageService, ConfirmEventType } from 'primeng/api';
+
 
 interface OptionTipoIdentidad {
   label: string;
@@ -21,7 +21,7 @@ interface OptionTipoIdentidad {
 
 @Component({
   templateUrl: './empleado.component.html',
-  providers: [MessageService]
+  providers: [MessageService, ConfirmationService],
 })
 export class EmpleadoComponent implements OnInit {
 
@@ -51,17 +51,16 @@ export class EmpleadoComponent implements OnInit {
 
   cols: any[] = [];
 
-
   listTipoIdentidad: OptionTipoIdentidad[] | undefined;
 
   maxDate: Date = new Date();
 
-  // selectedTipo: tipoIdentidad | undefined;
 
 
   constructor(private fb: FormBuilder,
-      private _empleadoService: EmpleadoService,
-      private _pedidoService: PedidoService,
+    private _empleadoService: EmpleadoService,
+    private _pedidoService: PedidoService,
+    private confirmationService: ConfirmationService,
       private _avanceProcesoService: AvanceProcesoEmpleadoService,
       private confirmationService: ConfirmationService,
       private toastr: ToastrService,      
@@ -335,6 +334,11 @@ export class EmpleadoComponent implements OnInit {
     }
   }
 
+  cambiarEstado(empleado: Empleado) {
+    this.changeStateDialog = true;
+    this.empleadoSeleccionado =  empleado;
+  }
+
   confirm(empleado: Empleado) {
     this.empleadoSeleccionado = empleado;
 
@@ -345,8 +349,6 @@ export class EmpleadoComponent implements OnInit {
       rejectIcon: 'pi pi-times mr-2',
       rejectButtonStyleClass: 'p-button-sm',
       acceptButtonStyleClass: 'p-button-outlined p-button-sm',
-      acceptLabel: 'Sí',  
-      rejectLabel: 'No',
       accept: () => {
         if (this.empleadoSeleccionado != null && this.empleadoSeleccionado.id != null) {
           this._empleadoService.putEmpleado(this.empleadoSeleccionado.id, this.empleadoSeleccionado)
@@ -362,6 +364,24 @@ export class EmpleadoComponent implements OnInit {
       },
       reject: () => {
         this.getEmpleadoProceso();
+      }
+    });
+  }
+
+  confirmChangeState(confirmacion: boolean) {
+    // this.empleadoInfoDialog = false;
+    if (confirmacion && this.empleadoSeleccionado && this.empleadoSeleccionado.estadoOcupado === false) {
+      if (this.empleadoSeleccionado.id){
+        this._empleadoService.putEmpleado(this.empleadoSeleccionado.id, this.empleadoSeleccionado).subscribe(() => {
+          this.empleado.estado = !this.empleado.estado;
+          if (this.empleado.estado == false) {
+            this.toastr.success('Empleado activo', 'Éxito');
+          } else{
+            this.toastr.error('Empleado inactivo', 'Éxito');
+          }
+          this.getEmpleadoProceso();
+        });
+      
       }
     });
   }

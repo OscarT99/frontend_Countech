@@ -73,6 +73,7 @@ export class ProduccionComponent implements OnInit {
 
     activeAccordionTabIndex: number = 0;
 
+
   constructor(
     private confirmationService: ConfirmationService,
     // private messageService: MessageService,
@@ -187,6 +188,8 @@ export class ProduccionComponent implements OnInit {
       this.listSearchPedido = this.filteredPedidos.filter(pedido =>
       pedido?.ordenTrabajo?.toLowerCase().includes(ordenTrabajo.toLowerCase()) 
     );
+
+    console.log(this.listSearchPedido.length);
   }
   
 
