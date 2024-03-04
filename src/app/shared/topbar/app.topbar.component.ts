@@ -2,13 +2,12 @@ import { Component, ElementRef, ViewChild } from '@angular/core';
 import { MenuItem } from 'primeng/api';
 import { LayoutService } from '../app.layout.service';
 import { AuthService } from 'src/app/services/login/login.service';
-import { ConfirmationService, Confirmation } from 'primeng/api';
+import { ConfirmationService, Confirmation, MessageService } from 'primeng/api';
 
 @Component({
     selector: 'app-topbar',
     templateUrl: './app.topbar.component.html',
-    providers: [ConfirmationService]
-
+    styleUrls: ['./app.topbar.component.css'] 
 })
 export class AppTopBarComponent {
 
@@ -25,21 +24,18 @@ export class AppTopBarComponent {
         private confirmationService: ConfirmationService,
     ) { }
 
-    logout() {
-        this.authService.logout();
-    }
-
-    private confirmLogout() {
+    logout(event: Event) {
         this.confirmationService.confirm({
-            key: 'logoutConfirmation',
-            message: '¿Está seguro de cerrar sesión?',
-            icon: 'pi pi-exclamation-triangle',
-            acceptLabel: 'Sí',
-            rejectLabel: 'No',
-            accept: () => {
-                this.authService.logout();
-            }
+          key: 'confirmCerrarSesion',
+          message: '¿Está seguro de cerrar sesión?',
+          icon: 'pi pi-exclamation-triangle',
+          acceptLabel: 'Sí',
+          accept: () => {
+            this.authService.logout();
+          }
         });
     }
 
+
+    
 }

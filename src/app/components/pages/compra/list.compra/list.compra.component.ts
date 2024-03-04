@@ -1,7 +1,7 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { Table } from 'primeng/table';
-import { CompraService } from 'src/app/services/compra/compra.service'; 
-import { CompraInstance } from 'src/app/interfaces/compra/compra.interface'; 
+import { CompraService } from 'src/app/services/compra/compra.service';
+import { CompraInstance } from 'src/app/interfaces/compra/compra.interface';
 import { InsumoService } from 'src/app/services/insumo/insumo.service';
 import { ToastrService } from 'ngx-toastr';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -13,13 +13,14 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { AbonoCompra } from 'src/app/interfaces/abonoCompra/abonoCompra.interface';
 import { AbonoCompraService } from 'src/app/services/abonoCompra/abonoCompra.service';
 import { ConfirmationService, MessageService } from 'primeng/api';
-
+import { TotalNetoService } from '../compra.servive';
+import { DetalleCompraInstance } from 'src/app/interfaces/compra/detalleCompra.interface';
 
 @Component({
     templateUrl: './list.compra.component.html',
     providers: [ConfirmationService, MessageService]
 
-    
+
 })
 export class ListCompraComponent implements OnInit {
 
@@ -29,52 +30,61 @@ export class ListCompraComponent implements OnInit {
     showConfirmationDialogCompra: boolean = false;
     compraSeleccionada: CompraInstance | null = null;
 
-    listAbonoCompras: AbonoCompra [] = []
+    listAbonoCompras: AbonoCompra[] = []
     abonoCompra: AbonoCompra = {}
     formAbonoCompra: FormGroup;
 
     listCompras: CompraInstance[] = []
     compra: CompraInstance = {}
-    id:number=0;
+    id: number = 0;
+    totalNeto: number = 0;
 
     mostrarModalDetalle: boolean = false;
     detalleCompra: any; // Puedes ajustar esto según la estructura de tu pedido
-   
+    detallesInsumo: DetalleCompraInstance[] = [];
+
+    @ViewChild('detalleCompraModal') detallePedidoCompra!: Dialog;
+
     rowsPerPageOptions = [5, 10, 15];
 
 
     constructor(
-      private _compraService:CompraService,
-      private _abonoCompraService: AbonoCompraService,
-      private _insumoService:InsumoService,
-      private toastr: ToastrService,      
-      private aRouter:ActivatedRoute,
-      private router : Router,
-      private fb: FormBuilder,
-      private confirmationService: ConfirmationService,
-      private messageService: MessageService,
-      ){    
+        private _compraService: CompraService,
+        private _abonoCompraService: AbonoCompraService,
+        private _insumoService: InsumoService,
+        private toastr: ToastrService,
+        private aRouter: ActivatedRoute,
+        private router: Router,
+        private fb: FormBuilder,
+        private confirmationService: ConfirmationService,
+        private messageService: MessageService,
+        private totalNetoService: TotalNetoService,
+    ) {
         this.formAbonoCompra = this.fb.group({
             id: ['', Validators.required],
-            proveedor:['',Validators.required],
-            totalNeto:['',Validators.required],
+            proveedor: ['', Validators.required],
+            totalNeto: ['', Validators.required],
             estadoPago: ['', Validators.required],
             valorRestante: [{ value: 0, disabled: true }],
         })
         this.aRouter.params.subscribe(params => {
             this.id = +params['id'];
         });
-          
+
     }
 
-    ngOnInit():void {        
-        this.getListCompras()                                
+    ngOnInit(): void {
+        this.getListCompras();
+        //this.totalNeto = this.totalNetoService.totalNeto; // Obtener el total neto del servicio
+        console.log('Total Neto desde add.compra:', this.totalNeto);
+        this.formAbonoCompra.get('valorRestante')?.setValue(this.getValorRestante());
     }
 
-    getListCompras(){     
-        this._compraService.getListCompras().subscribe((data:any) =>{                
-          this.listCompras = data.listaCompras;          
-        })        
+
+    getListCompras() {
+        this._compraService.getListCompras().subscribe((data: any) => {
+            this.listCompras = data.listaCompras;
+        })
     }
 
     async mostrarDetalleCompra(id: number) {
@@ -97,7 +107,7 @@ export class ListCompraComponent implements OnInit {
                 this.toastr.warning('Ingrese un motivo de anulación.', 'Motivo Requerido');
                 return;
             }
-    
+
             const id = this.compraSeleccionada.id ?? 0;
     
             // Llamar al servicio de anulación de compra
@@ -136,13 +146,13 @@ export class ListCompraComponent implements OnInit {
                 }
             );
         }
-    
+
         this.showConfirmationDialogCompra = false;
         this.compraSeleccionada = null;
         this.motivoAnulacion = ''; // Restablecer el motivo de anulación
     }
-    
-    
+
+
     //Abono Compras
     value8: any;
     value9: any;
@@ -150,148 +160,149 @@ export class ListCompraComponent implements OnInit {
 
 
 
-    
-
-    getCompra(id:number){
-        this._compraService.getCompra(id).subscribe((data:CompraInstance) => {        
-          console.log(data)
-          this.formAbonoCompra=this.fb.group({
-            id: ['', Validators.required],
-            proveedor:['',Validators.required],
-            numeroFactura:['',Validators.required],
-            fechaCompra:['',Validators.required],
-            formaPago:['',Validators.required],
-            totalBruto:['',Validators.required],
-            ivaTotal:['',Validators.required],
-            totalNeto:['',Validators.required],
-            estadoPago: ['', Validators.required],
-            valorRestante: [{ value: 0, disabled: true }],
 
 
-        })
+    getCompra(id: number) {
+        this._compraService.getCompra(id).subscribe((data: CompraInstance) => {
+            console.log(data)
+            this.formAbonoCompra = this.fb.group({
+                id: ['', Validators.required],
+                proveedor: ['', Validators.required],
+                numeroFactura: ['', Validators.required],
+                fechaCompra: ['', Validators.required],
+                formaPago: ['', Validators.required],
+                totalBruto: ['', Validators.required],
+                ivaTotal: ['', Validators.required],
+                totalNeto: ['', Validators.required],
+                estadoPago: ['', Validators.required],
+                valorRestante: [{ value: 0, disabled: true }],
 
-          this.formAbonoCompra.patchValue({
-            id: data.id,
-            proveedor:data.proveedor,
-            numeroFactura:data.numeroFactura,
-            fechaCompra:data.fechaCompra,
-            formaPago:data.formaPago,
-            totalBruto:data.totalBruto,
-            ivaTotal:data.iva,
-            totalNeto:data.totalNeto, 
-            estadoPago: data.estadoPago,       
-          })
-    
-           
+
+            })
+
+            this.formAbonoCompra.patchValue({
+                id: data.id,
+                proveedor: data.proveedor,
+                numeroFactura: data.numeroFactura,
+                fechaCompra: data.fechaCompra,
+                formaPago: data.formaPago,
+                totalBruto: data.totalBruto,
+                ivaTotal: data.iva,
+                totalNeto: data.totalNeto,
+                estadoPago: data.estadoPago,
+            })
+
+
         })
     }
 
 
 
-  
+
 
     newAbonoCompra(id: number) {
         this.id = id;
         this.productDialogAbono = true;
         this.getCompra(id);
-        
+
         // Filtra los abonos por la compra seleccionada
         this.filtrarAbonosPorCompra(id);
         this.getListAbonoCompras();
     }
 
 
-    
+
 
 
     openNew() {
-        this.id = 0;                
+        this.id = 0;
         this.formAbonoCompra.reset()
         this.productDialogAbono = true;
     }
 
 
 
-    
 
-    
-    
+
+
+
     confirm2(event: Event) {
         this.confirmationService.confirm({
-        key: 'confirm2',
-        target: event.target || new EventTarget,
-        message: '¿Está seguro de realizar el abono?',
-        icon: 'pi pi-exclamation-triangle',
-        acceptLabel: 'Sí', 
-        accept: () => {
-            this.agregarAbonoCompra(this.value9);
-            console.log(this.getValorRestante());
-            const valorRestante = this.getValorRestante();
-            this.value9 = undefined; 
-            this.formAbonoCompra.get('valorRestante')?.setValue(valorRestante);
-    
-    
-            
-        },
-        reject: () => {
-            this.messageService.add({
-            severity: 'error',
-            summary: 'Cancelado',
-            detail: 'El abono no fue agregado a la compra'
-            });
-        }
+            key: 'confirm2',
+            target: event.target || new EventTarget,
+            message: '¿Está seguro de realizar el abono?',
+            icon: 'pi pi-exclamation-triangle',
+            acceptLabel: 'Sí',
+            accept: () => {
+                this.agregarAbonoCompra(this.value9);
+                console.log(this.getValorRestante());
+                const valorRestante = this.getValorRestante();
+                this.value9 = undefined;
+                this.formAbonoCompra.get('valorRestante')?.setValue(valorRestante);
+
+
+
+            },
+            reject: () => {
+                this.messageService.add({
+                    severity: 'error',
+                    summary: 'Cancelado',
+                    detail: 'El abono no fue agregado a la compra'
+                });
+            }
         });
     }
 
 
     agregarAbonoCompra(valorAbono: number) {
         const nuevoAbono: AbonoCompra = {
-        valorAbono: valorAbono,
-        fechaAbono: new Date(),
-        compra: this.id
-            };
+            valorAbono: valorAbono,
+            fechaAbono: new Date(),
+            compra: this.id
+        };
+
         // Verificar si el valor restante es 0 antes de agregar un nuevo abono
         const valorRestante = this.getValorRestante();
-    
+
         if (valorRestante > 0) {
-        // Verificar si el valorAbono es mayor al valorRestante
-        if (valorAbono > valorRestante) {
-            this.messageService.add({
-            severity: 'error',
-            summary: 'Error',
-            detail: 'El valor del abono no puede ser mayor al valor restante'
-            });
-        } else {
-            this._abonoCompraService.postAbonoCompra(nuevoAbono).subscribe(
-            () => {
+            // Verificar si el valorAbono es mayor al valorRestante
+            if (valorAbono > valorRestante) {
                 this.messageService.add({
-                severity: 'success',
-                summary: 'Agregado',
-                detail: 'El abono se agregó exitosamente a la compra'
+                    severity: 'error',
+                    summary: 'Error',
+                    detail: 'El valor del abono no puede ser mayor al valor restante'
                 });
-                this.getListAbonoCompras(); // Actualiza la lista de abonos de compra después de agregar uno nuevo
-                //this.hideDialog(); // Cierra el diálogo después de agregar el abono de compra
-            },
-            (error) => {
-                console.error('Error al agregar abono de compra:', error);
-                this.messageService.add({
-                severity: 'error',
-                summary: 'Error',
-                detail: 'Hubo un error al agregar el abono a la compra'
-                });
+            } else {
+                this._abonoCompraService.postAbonoCompra(nuevoAbono).subscribe(
+                    () => {
+                        this.messageService.add({
+                            severity: 'success',
+                            summary: 'Agregado',
+                            detail: 'El abono se agregó exitosamente a la compra'
+                        });
+                        this.getListAbonoCompras(); // Actualiza la lista de abonos de compra después de agregar uno nuevo
+                        //this.hideDialog(); // Cierra el diálogo después de agregar el abono de compra
+                    },
+                    (error) => {
+                        console.error('Error al agregar abono de compra:', error);
+                        this.messageService.add({
+                            severity: 'error',
+                            summary: 'Error',
+                            detail: 'Hubo un error al agregar el abono a la compra'
+                        });
+                    }
+                );
             }
-            );
-        }
         } else {
-        // Mostrar un mensaje o deshabilitar el botón de agregar abono si el valor restante es 0
-        this.messageService.add({
-            severity: 'info',
-            summary: 'Información',
-            detail: 'No se pueden agregar más abonos, el valor restante es 0'
-        });
+            // Mostrar un mensaje o deshabilitar el botón de agregar abono si el valor restante es 0
+            this.messageService.add({
+                severity: 'info',
+                summary: 'Información',
+                detail: 'No se pueden agregar más abonos, el valor restante es 0'
+            });
         }
     }
-  
+
 
     //filtrar abonos de la compra seleccionada
     filtrarAbonosPorCompra(compraId: number) {
@@ -302,28 +313,67 @@ export class ListCompraComponent implements OnInit {
     //Listar Abonos
     getListAbonoCompras() {
         if (this.id !== 0) {
-        this._abonoCompraService.getListAbonoCompras().subscribe((data: any) => {
-            this.listAbonoCompras = data.listAbonoCompras.filter((abono: AbonoCompra) => abono.compra === this.id);
-        });
+            this._abonoCompraService.getListAbonoCompras().subscribe((data: any) => {
+                this.listAbonoCompras = data.listAbonoCompras.filter((abono: AbonoCompra) => abono.compra === this.id);
+            });
         }
     }
+
+
+    
+  calcularTotales(): void {
+    let totalBruto = 0;
+    let ivaTotal = 0;
+    let totalNeto = 0;
   
-
-
-
+    this.detallesInsumo.forEach(detalle => {
+      totalBruto += detalle.cantidad! * detalle.valorUnitario!;
+      ivaTotal += detalle.cantidad! * detalle.impuestoIva!;
+    });
+  
+    totalNeto = totalBruto + ivaTotal;
     
-    
+  }
+
+
+
+/*
     getValorRestante(): number {
         if (
-          this.compra &&
-          this.compra.totalNeto !== undefined &&
-          this.listAbonoCompras &&
-          this.listAbonoCompras.length > 0
+            this.totalNeto !== undefined &&
+            this.listAbonoCompras &&
+            this.listAbonoCompras.length > 0
         ) {
+            const abonosRelacionados = this.listAbonoCompras.filter(abono => abono.compra === this.id);
+    
+            if (abonosRelacionados.length > 0 && !isNaN(parseFloat(this.totalNeto.toString()))) {
+                let totalAbonos = 0;
+    
+                abonosRelacionados.forEach(abono => {
+                    if (abono.valorAbono !== undefined) {
+                        const valorAbono = parseFloat(abono.valorAbono.toString());
+                        if (!isNaN(valorAbono)) {
+                            totalAbonos += valorAbono;
+                        }
+                    }
+                });
+    
+                const valorRestante = this.totalNeto - totalAbonos;
+                return valorRestante;
+            }
+        }
+    
+        // Si no hay abonos relacionados o si falta información, devuelve el total neto del servicio o 0 si no está definido
+        return this.totalNeto !== undefined ? parseFloat(this.totalNeto.toString()) : 0;
+    }*/
+
+
+    getValorRestante(): number {
+       
           const abonosRelacionados = this.listAbonoCompras.filter(abono => abono.compra === this.id);
+          console.log("Abonos relacionados", abonosRelacionados)
       
-          if (abonosRelacionados.length > 0 && !isNaN(parseFloat(this.compra.totalNeto.toString()))) {
-            let totalAbonos = 0;
+          let totalAbonos = 0;
       
             abonosRelacionados.forEach(abono => {
               if (abono.valorAbono !== undefined) {
@@ -334,34 +384,32 @@ export class ListCompraComponent implements OnInit {
               }
             });
       
-            const totalNeto = parseFloat(this.compra.totalNeto.toString());
-            const valorRestante = totalNeto - totalAbonos;
+            const valorTotal = parseFloat(this.totalNeto.toString());
+            console.log("Neto", this.totalNeto)
+            const valorRestante = valorTotal - totalAbonos;
+            console.log(valorRestante)
             return valorRestante;
-          }
-        }
+          
+        
       
-        // Si no hay abonos relacionados o si falta información, devuelve el total neto de la compra o 0 si no está definido
-        return this.compra && this.compra.totalNeto !== undefined ? parseFloat(this.compra.totalNeto.toString()) : 0;
-    }
+        // Si no hay abonos relacionados o si falta información, devuelve el valor total de la venta o 0 si no está definido
+        //return this.compra && this.totalNeto !== undefined ? parseFloat(this.totalNeto.toString()) : 0;
+      }
     
     
- 
+    
 
 
-
-
-
-  
     alternarVistaEstadoCompra() {
         this.mostrarComprasActivas = !this.mostrarComprasActivas;
-      }
-      
-      ffiltroEstadoCompra(compra: any, filtros: { [s: string]: any }): boolean {
-          return (this.mostrarComprasActivas && compra.estadoCompra === true && (!filtros['estadoCompra'] || filtros['estadoCompra'].value === 'true')) ||
-                 (!this.mostrarComprasActivas && compra.estadoCompra === false && (!filtros['estadoCompra'] || filtros['estadoCompra'].value === 'false'));
-      }
+    }
 
-      exportToExcel(){
+    ffiltroEstadoCompra(compra: any, filtros: { [s: string]: any }): boolean {
+        return (this.mostrarComprasActivas && compra.estadoCompra === true && (!filtros['estadoCompra'] || filtros['estadoCompra'].value === 'true')) ||
+            (!this.mostrarComprasActivas && compra.estadoCompra === false && (!filtros['estadoCompra'] || filtros['estadoCompra'].value === 'false'));
+    }
+
+    exportToExcel() {
         const data: any[] = [];
 
         const headers = [
@@ -376,38 +424,38 @@ export class ListCompraComponent implements OnInit {
 
         data.push(headers);
 
-        
+
         this.listCompras.forEach(compra => {
-            if(compra.estadoCompra == true){
+            if (compra.estadoCompra == true) {
                 const row = [
                     compra.proveedor,
                     compra.numeroFactura,
                     compra.fechaCompra,
                     compra.formaPago,
-                    {t:'n',v: compra.totalBruto},
-                    {t:'n',v: compra.iva},
-                    {t:'n',v: compra.totalNeto}
+                    { t: 'n', v: compra.totalBruto },
+                    { t: 'n', v: compra.iva },
+                    { t: 'n', v: compra.totalNeto }
                 ];
 
                 data.push(row);
-            };                                    
+            };
         });
 
         const ws: XLSX.WorkSheet = XLSX.utils.aoa_to_sheet(data);
         const wb: XLSX.WorkBook = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(wb,ws,'Compras');
+        XLSX.utils.book_append_sheet(wb, ws, 'Compras');
 
-        XLSX.writeFile(wb,'compras.xlsx')
-      }
+        XLSX.writeFile(wb, 'compras.xlsx')
+    }
 
-      onGlobalFilter(table: Table, event: Event) {
+    onGlobalFilter(table: Table, event: Event) {
         table.filterGlobal((event.target as HTMLInputElement).value, 'contains');
-      }
+    }
 
-      getEstadoLabel(estadoCompra: boolean): string {
+    getEstadoLabel(estadoCompra: boolean): string {
         return estadoCompra ? 'Activa' : 'Anulada';
     }
-    
+
     getSeverityCompra(estadoCompra: boolean): string {
         return estadoCompra ? 'success' : 'danger';
     }

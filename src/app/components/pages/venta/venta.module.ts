@@ -20,6 +20,9 @@ import { AutoCompleteModule } from "primeng/autocomplete";
 import { InputSwitchModule } from 'primeng/inputswitch';
 import { ConfirmPopupModule } from 'primeng/confirmpopup';
 import { PanelModule } from 'primeng/panel';
+import { TooltipModule } from 'primeng/tooltip';
+import { TagModule } from 'primeng/tag';
+
 
 @NgModule({
     imports: [
@@ -43,8 +46,11 @@ import { PanelModule } from 'primeng/panel';
         ReactiveFormsModule,
         InputSwitchModule,    
         ConfirmPopupModule,
-        PanelModule,         
+        PanelModule,      
+        TooltipModule,   
+        TagModule,
     ],
+
     declarations: [VentaComponent]
 })
 export class VentaModule { }

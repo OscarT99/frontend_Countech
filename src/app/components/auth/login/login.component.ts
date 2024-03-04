@@ -56,12 +56,14 @@ export class LoginComponent {
     }
 }
 */
-
-import { Component } from '@angular/core';
+import { NgForm } from '@angular/forms';
+import { Component, HostListener, OnInit, inject } from '@angular/core';
 import { AuthService } from '../../../services/login/login.service'; // Importa tu servicio de autenticación
 import { Router } from '@angular/router';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-
+import { BsModalRef, BsModalService } from 'ngx-bootstrap/modal';
+import { RecuperarComponent } from '../recuperar/recuperar.component';
+import { ToastrService } from 'ngx-toastr';
 @Component({
     selector: 'app-login',
     templateUrl: './login.component.html',
@@ -72,13 +74,34 @@ export class LoginComponent {
     constructor(
         private authService: AuthService,
         private router: Router,
-        private fb: FormBuilder
+        private fb: FormBuilder,
+        private modalService: BsModalService,
+        public bsModalRef: BsModalRef,
+        private toastr : ToastrService,
+
+
     ) {
         this.formLogin = this.fb.group({
             email: ['', Validators.required],
             contrasena: ['', Validators.required] 
         });
     }
+
+   
+  
+    user:any={
+      email:'',
+      contrsena:'',
+   
+    }
+  
+    errorMessages={
+      email:'',
+      contrasena:'',
+      credenciales:'',
+      recuperar:''
+    }
+  
 
     login(): void {
         const { email, contrasena } = this.formLogin.value;
@@ -108,7 +131,77 @@ export class LoginComponent {
             );
     }
 
-    olvidoContrasena(): void {
-        this.router.navigateByUrl('../olvido-contrasena');
+    //RECUPERAR CONTRASEÑA
+    validarContrasena(){
+        const validacion = /^(?=.*[A-Z])(?=.*[\W_]).{8,}$/;
+        const contrasena = (document.getElementById('contrasena') as HTMLInputElement).value;
+   
+        if(!contrasena){
+         this.errorMessages.contrasena=''
+        }
+        else if(!validacion.test(contrasena)){
+         this.errorMessages.contrasena='Minimo 8 caracteres, 1 mayuscula y un simbolo.';
+        }
+        else{
+         this.errorMessages.contrasena=''
+        }
     }
+    
+
+
+    
+  forgotPassword(form: NgForm) {
+    // Obtener el valor del campo de correo del formulario
+    const correo = form.value.correo;
+    console.log(correo)
+
+    // Llamar al servicio para solicitar el restablecimiento de contraseña
+    this.authService.forgotPassword({ correo }).subscribe(
+      (response) => {
+        console.log('Respuesta del servidor para recuperar contraseña:', response);
+        if (response.message) {
+          // Asignar el mensaje de éxito a una propiedad en tu componente
+          this.errorMessages.recuperar = response.message;
+  
+          // Establecer un temporizador para borrar el mensaje después de 2 segundos
+          setTimeout(() => {
+            this.errorMessages.recuperar = '';
+            
+            // Cerrar el modal después de 2 segundos
+            setTimeout(() => {
+              this.cerrarModal();
+            }, 2000);
+          }, 2000);
+        }
+
+      },
+      (error) => {
+        console.error('Error en la solicitud para recuperar contraseña:', error);
+        if (error.error && error.error.error) {
+            this.errorMessages.recuperar = error.error.error;
+            setTimeout(() => {
+              this.errorMessages.recuperar = '';
+            }, 2000);
+          }
+        }
+    );
+  }
+
+
+
+
+  cerrarModal(): void {
+    this.bsModalRef.hide();  // Cierra el modal
+    this.router.navigate(['/login']);
+}
+
+
+
+   abrirRecuperar() {
+    this.bsModalRef= this.modalService.show(RecuperarComponent,{ 
+      backdrop:'static',
+      keyboard:false
+     });
+   }
+
 }

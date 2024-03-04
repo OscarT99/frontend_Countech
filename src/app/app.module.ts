@@ -23,12 +23,18 @@ import { AbonoVentaService } from './services/abonoVenta/abonoVenta.service';
 import { CompraService } from './services/compra/compra.service';
 import { AbonoCompraService } from './services/abonoCompra/abonoCompra.service';
 
-
+import { ModalModule } from 'ngx-bootstrap/modal';
+import { CambiarContrasenaComponent } from './components/auth/cambiar-contrasena/cambiar-contrasena.component';
+import { RecuperarComponent } from './components/auth/recuperar/recuperar.component';
+import { FormsModule } from '@angular/forms';
+import { CommonModule } from '@angular/common';
 
 
 @NgModule({
   declarations: [
     AppComponent,
+    CambiarContrasenaComponent,
+    RecuperarComponent
   ],
   imports: [
     BrowserModule,
@@ -40,7 +46,10 @@ import { AbonoCompraService } from './services/abonoCompra/abonoCompra.service';
     ToastrModule.forRoot({
       timeOut: 10000,
       positionClass: 'toast-bottom-right'
-    }),        
+    }),      
+    ModalModule.forRoot(), 
+    FormsModule,
+    CommonModule
   ],
   providers: [
     { provide: LocationStrategy, useClass: HashLocationStrategy },

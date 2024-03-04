@@ -14,12 +14,15 @@
 
     <div #topbarmenu class="layout-topbar-menu">
         
-        <button type="button" class="p-link layout-topbar-button" (click)="logout()" 
-        pTooltip="Cerrar sesión" tooltipPosition="bottom">
-        <i class="pi pi-sign-out"></i>
-        <span>Logout</span>
-</button>
+        <div class="logout-container">
+            <button type="button" class="p-link layout-topbar-button" (click)="logout($event)" 
+                pTooltip="Cerrar sesión" tooltipPosition="bottom">
+                <i class="pi pi-sign-out"></i>
+                <span>Logout</span>
+            </button>
 
-    
+            <!-- Confirmación de cerrar sesión -->
+            <p-confirmPopup key="confirmCerrarSesion"></p-confirmPopup>
+        </div>
     </div>
 </div>

@@ -43,9 +43,9 @@ export class AppRoutingModule { }
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { AppLayoutComponent } from './shared/app.layout.component';
-import { OlvidoContrasenaComponent } from './components/auth/olvido-contrasena/olvido-contrasena.component'; 
 import { LoginComponent } from './components/auth/login/login.component';
 import { AuthGuard } from './guards/auth.guard';
+import { CambiarContrasenaComponent } from './components/auth/cambiar-contrasena/cambiar-contrasena.component';
 
 const routes: Routes = [
   {
@@ -66,9 +66,9 @@ const routes: Routes = [
     path: 'auth', 
     loadChildren: () => import('./components/auth/auth.module').then(m => m.AuthModule) 
   },
-  { 
-    path: 'olvidoContrasena', 
-    component: OlvidoContrasenaComponent 
+  {
+    path: 'cambiar-contrasena/:token',
+    component: CambiarContrasenaComponent,
   }
 ];
 

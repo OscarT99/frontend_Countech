@@ -37,7 +37,7 @@
                 </ng-template>
                 <ng-template pTemplate="body" let-venta>
                     <tr>                        
-                        <td style="width:14%; min-width:5rem;"><span class="p-column-title">Cliente</span>
+                        <td style="width:22%; min-width:5rem;"><span class="p-column-title">Cliente</span>
                             {{ getNombreCliente(venta.cliente) }}
                         </td>
                         <td style="width:14%; min-width:10rem;">
@@ -52,22 +52,28 @@
                             <span class="p-column-title">Valor Total</span>
                             {{ venta.valorTotal | currency:'USD':'symbol':'1.2-2'  }}
                         </td>  
-                        <td style="width:14%; min-width:10rem;">
-                            <span class="p-column-title">Estado de Pago</span>
-                            {{ venta.estadoPago }}
+                        <td style="width: 14%; min-width: 10rem;" class="text-center">
+                            <span class="p-column-title">Estado</span>
+                            <p-tag class="p-element" [severity]="venta.estadoPago === 'Pendiente' ? 'danger' : 'success'">
+                                <span class="p-tag-value">{{ venta.estadoPago }}</span>
+                            </p-tag>
                         </td>
+                        
+
                         <td>
                             <div class="flex"> 
-                                <button pButton pRipple icon="pi pi-file" class="p-button-rounded p-button-warning mr-2" (click)="mostrarDetallePedido(venta.id)"></button>
+                                <p-button icon="pi pi-file" [rounded]="true" severity="secondary" class="p-button-rounded p-button-warning mr-2"
+                                (click)="mostrarDetallePedido(venta.id)" pTooltip="Ver detalle">
+                                </p-button>
 
-                                <!-- Verificar si la forma de pago es "Crédito" y el estado de pago es "Pendiente" -->
                                 <button *ngIf="venta.formaPago === 'Crédito' && venta.estadoPago === 'Pendiente'"
                                 pButton pRipple icon="pi pi-dollar" class="p-button-rounded p-button-success mr-2" 
-                                (click)="newAbonoVenta(venta.id)">
+                                (click)="newAbonoVenta(venta.id)" pTooltip="Abonar">
                                 </button>
+
                                 <button *ngIf="venta.estadoPago === 'Pago'"
-                                pButton pRipple icon="pi pi-book" class="p-button-rounded p-button-primary mr-2" 
-                                (click)="comprobanteVenta1(venta.id)">
+                                pButton pRipple icon="pi pi-book" class="p-button-rounded p-button-primary mr-2"
+                                (click)="comprobanteVenta1(venta.id)" pTooltip="Comprobante">
                                 </button>
                             </div>
                             
@@ -173,9 +179,9 @@
             </p-dialog>
 
 
-            <p-dialog header="Detalle de Venta" [(visible)]="mostrarModalDetalle" [modal]="true" [responsive]="true" [style]="{width: '900px', height: '500px' }">
+            <p-dialog header="Detalle de Venta" [(visible)]="mostrarModalDetalle" [modal]="true" [responsive]="true" [style]="{width: '900px', height: '510spx' }">
                 <div *ngIf="detallePedido">
-                    <div class="grid mt-1">
+                    <div class="grid mt-1" style="justify-content: center"> 
                         <div class="col-4">
                             <span style="font-weight: bold;">Cliente:</span>
                             <div>
@@ -283,67 +289,64 @@
                         <div class="col-4">
                             <span style="font-weight: bold;">Estado Pago:</span>
                             <div>
-                                <span>{{ detallePedido.estadoPago | number: '1.2-2' }}</span>
+                                <span>{{ detallePedido.estadoPago }}</span>
                             </div>
                         </div>
 
                     </div>
-                    <div *ngIf="detallePedido && detallePedido.formaPago === 'Crédito'">
-                        <div class="card m-5" [style]="{width: '500px', textAlign: 'center'}">
-                                <h5>Abonos De La Venta {{ id }}</h5>
-                                <p-table #dt [value]="listAbonoVentas" responsiveLayout="scroll" [rows]="10" dataKey="id">
-                                    <ng-template pTemplate="header">
-                                        <tr>
-                                            <th pSortableColumn="idAbono">Id Abono</th>
-                                            <th pSortableColumn="fechaAbono">Fecha</th>
-                                            <th pSortableColumn="valorAbono">Valor Abonado</th>
-                                        </tr>
-                                    </ng-template>
-                                    <ng-template pTemplate="body" let-abonoVenta>
-                                        <tr>
-                                            <td style="width:14%; min-width:5rem;"><span class="p-column-title">Id Abono</span>
-                                                {{ abonoVenta.id }}
-                                            </td>
-                                            <td style="width:14%; min-width:10rem;">
-                                                <span class="p-column-title">Fecha</span>
-                                                {{ abonoVenta.fechaAbono }}
-                                            </td>
-                                            <td style="width:14%; min-width:8rem;">
-                                                <span class= "p-column-title">Valor Abonado</span>
-                                                {{ abonoVenta.valorAbono  }}
-                                            </td>
-                                        </tr>
-                                    </ng-template>
-                                </p-table>
+
+                   <!--TABLA ABONOS-->
+                   <!-- Botón para ver los abonos si la forma de pago es "Crédito" -->
+                   <div *ngIf="detallePedido && venta.formaPago === 'Crédito'" style="margin-left: 10px; margin-top: 10px;">
+                    <button pButton type="button" [label]="mostrarTablaAbonos ? 'Ocultar Abonos' : 'Ver Abonos'" (click)="mostrarTablaAbonos = !mostrarTablaAbonos"></button>
+                    </div>
+                
+                    <!-- Tabla de abonos si se muestra -->
+                    <div *ngIf="mostrarTablaAbonos" style="margin: 0 auto; margin-left: 10px;">
+                        <div class="card m-5" [style]="{width: '500px'}">
+                            <h5>Abonos De La Venta {{ id }}</h5>
+                            <p-table #dt [value]="listAbonoVentas" responsiveLayout="scroll" [rows]="10" dataKey="id">
+                                <ng-template pTemplate="header">
+                                    <tr>
+                                        <th pSortableColumn="idAbono">Id Abono</th>
+                                        <th pSortableColumn="fechaAbono">Fecha</th>
+                                        <th pSortableColumn="valorAbono">Valor Abonado</th>
+                                    </tr>
+                                </ng-template>
+                                <ng-template pTemplate="body" let-abonoVenta>
+                                    <tr>
+                                        <td style="width:14%; min-width:5rem;"><span class="p-column-title">Id Abono</span>
+                                            {{ abonoVenta.id }}
+                                        </td>
+                                        <td style="width:14%; min-width:10rem;">
+                                            <span class="p-column-title">Fecha</span>
+                                            {{ abonoVenta.fechaAbono }}
+                                        </td>
+                                        <td style="width:14%; min-width:8rem;">
+                                            <span class="p-column-title">Valor Abonado</span>
+                                            {{ abonoVenta.valorAbono }}
+                                        </td>
+                                    </tr>
+                                </ng-template>
+                            </p-table>
                         </div>
-                        
-                        
-                    
                     </div>
 
-
                 </div> 
-                                
-                <!-- <button pButton type="button" label="Cerrar" class="p-button-secondary" (click)="cerrarModalDetallePedido()"></button> -->
             </p-dialog>
 
 
 
             <p-dialog header="Comprobante de Venta" [(visible)]="mostrarComprobante" [modal]="true" [responsive]="true" [style]="{ width: '600px', height: 'auto' }">
                 <div #comprobanteVenta>
-                  
-                
-
-
-
-                <p-panel header="Información de la Empresa">
+                <p-panel header="">
                     <h2>Cuatro Soles</h2>
                     <p>Dirección: Bello Antioquia</p>
                     <p>Teléfono: 210292837</p>
                     <p>Email: cuatrosoles@empresa.com</p>
                   </p-panel>
                   
-                  <p-panel header="Detalles del Cliente">
+                  <p-panel header="">
                     <div class="cliente-info">
                       <h3>Cliente</h3>
                       <p><strong>Nombre:</strong> {{ detallePedido?.Cliente?.razonSocial }}</p>
@@ -351,7 +354,7 @@
                     </div>
                   </p-panel>
                   
-                  <p-panel header="Detalles de la Venta">
+                  <p-panel header="">
                     <div class="cliente-info">
                       <h3>Datos de la Venta</h3>
                       <p><strong>Id Venta:</strong> {{ venta.id }}</p>
@@ -360,43 +363,18 @@
                       <!-- Otras detalles de la venta como forma de pago, estado de pago, etc. -->
                     </div>
                   
-                    <div class="productos-vendidos">
-                      <h3>Productos Vendidos</h3>
-                      <table class="productos-table">
-                        <thead>
-                          <tr>
-                            <th>Referencia</th>
-                            <th>Descripción</th>
-                            <th>Valor Unitario</th>
-                            <th>Cantidad</th>
-                            <th>Valor Total</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          <!-- Aquí puedes iterar sobre los productos vendidos y mostrarlos en filas de la tabla -->
-                          <tr *ngFor="let producto of detallePedido?.ReferenciaEnPedidos">
-                            <td>{{ producto?.referencia }}</td>
-                            <td>{{ producto?.descripcion }}</td>
-                            <td>{{ producto?.valorUnitario | currency }}</td>
-                            <td>{{ producto?.cantidadTotal }}</td>
-                            <td>{{ producto?.valorTotalReferencia | currency }}</td>
-                          </tr>
-                        </tbody>
-                      </table>
-                    </div>
-                  
                     <div class="resumen-venta">
-                      <h3>Resumen de la Venta</h3>
+                      <h4>______________________________________________________</h4>
                       <p><strong>Forma de Pago:</strong> {{ detallePedido?.formaPago }}</p>
-                      <p><strong>Estado de Pago:</strong> {{ venta.estadoPago }}</p>
+                      <p><strong>Estado de Pago:</strong> {{ detallePedido?.estadoPago }}</p>
                       <p><strong>Valor Total:</strong> {{ detallePedido?.valorTotal | currency }}</p>
                     </div>
                   </p-panel>
                 </div>
                   
                 <div style="text-align: center; margin-top: 20px; margin-bottom: 20px;">
-                    <button pButton class="p-button-danger" label="PDF" icon="pi pi-file-pdf" pTooltip="Descargar" 
-                            (click)="generarPDF()" style="width: 80px; height: 40px; font-size: 20px;"></button>
+                    <button pButton class="p-button-danger" label="Descargar" icon="pi pi-file-pdf" pTooltip="Descargar" 
+                            (click)="generarPDF()" style="width: 130px; height: 40px; font-size: 20px;"></button>
                 </div>
                 
                 

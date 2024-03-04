@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { tap } from 'rxjs/operators';
 import { environment } from 'src/enviroments/environment';
@@ -71,4 +71,27 @@ export class AuthService {
   isLoggedIn(): boolean {
     return this.getToken() !== null;
   }
+
+
+
+
+  //Recuperar contraseña
+  public verificarCorreoExistente(email: string, token?:string): Observable<any> {
+    const headers = token ? new HttpHeaders().set('x-token', token) : undefined;
+    const verificarCorreo = `${this.myApiUrl}-email?email=${email}`;
+    return this.http.get<any>(verificarCorreo, { headers });
+  }
+
+  
+  public changePassword(token: string, newPassword: string): Observable<any> {
+    const createUrl = `http://localhost:8083/api/auth/cambiar-contrasena/${token}`  //'cambiar-contrasena/:token';
+    const user = { newPassword };  // Puedes ajustar la estructura del objeto según sea necesario
+    return this.http.post(createUrl, user);
+  }
+
+  public forgotPassword(email: any): Observable<any> {
+    const createUrl= 'http://localhost:8083/api/auth/recuperar'; 
+  return this.http.post(createUrl, email);
+  }
+
 }

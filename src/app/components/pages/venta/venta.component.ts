@@ -305,11 +305,7 @@ confirm2(event: Event) {
       
     },
     reject: () => {
-      this.messageService.add({
-        severity: 'error',
-        summary: 'Cancelado',
-        detail: 'El abono no fue agregado a la venta'
-      });
+      this.toastr.error('El abono no fue agregado a la venta', 'Cancelado');
     }
   });
 }
@@ -496,19 +492,11 @@ agregarAbonoVenta(valorAbono: number) {
   if (valorRestante > 0) {
     // Verificar si el valorAbono es mayor al valorRestante
     if (valorAbono > valorRestante) {
-      this.messageService.add({
-        severity: 'error',
-        summary: 'Error',
-        detail: 'El valor del abono no puede ser mayor al valor restante'
-      });
+      this.toastr.error('El valor del abono no puede ser mayor al valor restante', 'Error');
     } else {
       this._abonoVentaService.postAbonoVenta(nuevoAbono).subscribe(
         () => {
-          this.messageService.add({
-            severity: 'success',
-            summary: 'Agregado',
-            detail: 'El abono se agregó exitosamente a la venta'
-          });
+          this.toastr.success('El abono se agregó exitosamente a la venta', 'Agregado');
           this.getListAbonoVentas(); // Actualiza la lista de abonos de venta después de agregar uno nuevo
           //this.hideDialog(); // Cierra el diálogo después de agregar el abono de venta
           
@@ -521,21 +509,13 @@ agregarAbonoVenta(valorAbono: number) {
         },
         (error) => {
           console.error('Error al agregar abono de venta:', error);
-          this.messageService.add({
-            severity: 'error',
-            summary: 'Error',
-            detail: 'Hubo un error al agregar el abono a la venta'
-          });
+          this.toastr.error('Hubo un error al agregar el abono a la venta', 'Error');
         }
       );
     }
   } else {
     // Mostrar un mensaje o deshabilitar el botón de agregar abono si el valor restante es 0
-    this.messageService.add({
-      severity: 'info',
-      summary: 'Información',
-      detail: 'No se pueden agregar más abonos, el valor restante es 0'
-    });
+    this.toastr.info('No se pueden agregar más abonos, el valor restante es 0', 'Información');
   }
 }
 
