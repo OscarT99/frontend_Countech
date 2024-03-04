@@ -1,8 +1,8 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { AutoCompleteModule } from 'primeng/autocomplete';
-import { ProduccionRoutingModule } from './produccion-routing.module';
-import { ProduccionComponent } from './produccion.component';
+import { RegProduccionRoutingModule } from './regProduccion-routing.module';
+import { RegProduccionComponent } from './regProduccion.component';
 import { ToolbarModule } from 'primeng/toolbar';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
@@ -29,7 +29,7 @@ import { MessagesModule } from 'primeng/messages';
         InputNumberModule,
         CommonModule,
         ToolbarModule,
-        ProduccionRoutingModule,
+        RegProduccionRoutingModule,
         TimelineModule,
         AccordionModule,
         TabMenuModule,
@@ -44,7 +44,8 @@ import { MessagesModule } from 'primeng/messages';
         DropdownModule,
         InputSwitchModule,
         MessagesModule
+
     ],
-    declarations: [ProduccionComponent],
+    declarations: [RegProduccionComponent],
 })
-export class ProduccionModule { }
+export class RegProduccionModule { }

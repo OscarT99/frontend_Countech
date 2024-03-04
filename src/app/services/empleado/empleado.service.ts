@@ -16,6 +16,7 @@ export class EmpleadoService {
     this.myApiUrl = 'api/empleado/';
   }
 
+  // getEmpleadoProcesos sirve para obtener los empleados junto con sus procesos
   getEmpleadoProcesos(): Observable<Empleado> {
     return this.http.get<Empleado>(`http://localhost:8083/api/empleado/proceso`)
   }
@@ -40,5 +41,10 @@ export class EmpleadoService {
   putEmpleado(id: number, empleado: Empleado): Observable<void> {
     return this.http.put<void>(`${this.myAppUrl}${this.myApiUrl}${id}`, empleado);
   }
+
+  putEstadoEmpleado(id: number, empleado: Empleado): Observable<void> {
+    return this.http.put<void>(`${this.myAppUrl}${this.myApiUrl}/estado/${id}`, empleado);
+  }
+
 
 }

@@ -6,13 +6,13 @@ import { InsumoService } from 'src/app/services/insumo/insumo.service';
 import { ToastrService } from 'ngx-toastr';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Dialog } from 'primeng/dialog';
+import * as XLSX from 'xlsx';
 
 
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { AbonoCompra } from 'src/app/interfaces/abonoCompra/abonoCompra.interface';
 import { AbonoCompraService } from 'src/app/services/abonoCompra/abonoCompra.service';
 import { ConfirmationService, MessageService } from 'primeng/api';
-import * as XLSX from 'xlsx';
 import { TotalNetoService } from '../compra.servive';
 import { DetalleCompraInstance } from 'src/app/interfaces/compra/detalleCompra.interface';
 
@@ -23,7 +23,9 @@ import { DetalleCompraInstance } from 'src/app/interfaces/compra/detalleCompra.i
 
 })
 export class ListCompraComponent implements OnInit {
-    mostrarComprasActivas: boolean = true;
+
+    mostrarComprasActivas : boolean = true;
+
     motivoAnulacion: string = '';
     showConfirmationDialogCompra: boolean = false;
     compraSeleccionada: CompraInstance | null = null;
@@ -38,7 +40,6 @@ export class ListCompraComponent implements OnInit {
     totalNeto: number = 0;
 
     mostrarModalDetalle: boolean = false;
-    compraIdSeleccionado!: number;
     detalleCompra: any; // Puedes ajustar esto según la estructura de tu pedido
     detallesInsumo: DetalleCompraInstance[] = [];
 
@@ -96,29 +97,9 @@ export class ListCompraComponent implements OnInit {
     }
 
     anularCompra(compra: CompraInstance): void {
-        // Mostrar el cuadro de diálogo de confirmación
         this.compraSeleccionada = compra;
         this.showConfirmationDialogCompra = true;
     }
-
-    // confirmActionCompra(confirm: boolean): void {
-    //     if (confirm && this.compraSeleccionada) {
-    //         // Realizar la anulación de compra
-    //         const id = this.compraSeleccionada.id ?? 0; // Si compraSeleccionada.id es undefined, asigna 0
-    //         this._compraService.anularCompra(id, false).subscribe(
-    //             (response) => {
-    //                 this.toastr.success('La compra se anuló correctamente.', 'Compra Anulada');
-    //                 this.getListCompras();
-    //             },
-    //             (error) => {
-    //                 console.error('Error al anular la compra:', error);
-    //             }
-    //         );
-    //     }
-
-    //     this.showConfirmationDialogCompra = false;
-    //     this.compraSeleccionada = null;
-    // }
 
     confirmActionCompra(confirm: boolean): void {
         if (confirm && this.compraSeleccionada) {
@@ -128,13 +109,40 @@ export class ListCompraComponent implements OnInit {
             }
 
             const id = this.compraSeleccionada.id ?? 0;
+    
+            // Llamar al servicio de anulación de compra
             this._compraService.anularCompra(id, false, this.motivoAnulacion).subscribe(
-                (response) => {
+                (anularResponse) => {
                     this.toastr.success('La compra se anuló correctamente.', 'Compra Anulada');
                     this.getListCompras();
+                       
+                    if (this.compraSeleccionada!.DetalleEnCompras) {
+                        // Obtener la cantidad de cada detalle
+                        const cantidades = this.compraSeleccionada!.DetalleEnCompras.map(detalle => detalle?.cantidad);
+    
+                        // Llamar al servicio para restar cantidad de insumo para cada detalle
+                        for (const cantidad of cantidades) {
+                            if (cantidad !== undefined) {
+                                this._insumoService.restarCantidadInsumoCompra(id, cantidad).subscribe(
+                                    (restarCantidadResponse) => {
+                                        // Manejar la respuesta del servicio para restar cantidad de insumo
+                                        // Puedes realizar alguna lógica adicional si es necesario
+                                    },
+                                    (restarCantidadError) => {
+                                        console.error('Error al restar la cantidad del insumo:', restarCantidadError);
+                                        // Puedes manejar el error aquí si es necesario
+                                    }
+                                );
+                            }
+                        }
+                    }
+    
+                    this.toastr.success('La compra se anuló correctamente y se restó la cantidad de insumo.', 'Compra Anulada');
+                    this.getListCompras();
                 },
-                (error) => {
-                    console.error('Error al anular la compra:', error);
+                (anularError) => {
+                    console.error('Error al anular la compra:', anularError);
+                    // Puedes manejar el error aquí si es necesario
                 }
             );
         }

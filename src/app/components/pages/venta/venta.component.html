@@ -1,13 +1,9 @@
 <div class="grid">
     <div class="col-12">
-        <div class="card px-6 py-6"> 
+        <div class="card"> 
             <p-toolbar styleClass="mb-4">
-                <ng-template pTemplate="left">
-                    <div class="my-2">
-
-                    </div>
+                <ng-template pTemplate="left">                    
                 </ng-template>
-
                 <ng-template pTemplate="right">
                     <button pButton class="p-button-success" label="Excel" icon="pi pi-file-excel" pTooltip="Descargar"
                         (click)="exportToExcel()"></button>
@@ -41,7 +37,7 @@
                 </ng-template>
                 <ng-template pTemplate="body" let-venta>
                     <tr>                        
-                        <td style="width:14%; min-width:5rem;"><span class="p-column-title">Cliente</span>
+                        <td style="width:22%; min-width:5rem;"><span class="p-column-title">Cliente</span>
                             {{ getNombreCliente(venta.cliente) }}
                         </td>
                         <td style="width:14%; min-width:10rem;">
@@ -56,26 +52,37 @@
                             <span class="p-column-title">Valor Total</span>
                             {{ venta.valorTotal | currency:'USD':'symbol':'1.2-2'  }}
                         </td>  
-                        <td style="width:14%; min-width:10rem;">
-                            <span class="p-column-title">Estado de Pago</span>
-                            {{ venta.estadoPago }}
+                        <td style="width: 14%; min-width: 10rem;" class="text-center">
+                            <span class="p-column-title">Estado</span>
+                            <p-tag class="p-element" [severity]="venta.estadoPago === 'Pendiente' ? 'danger' : 'success'">
+                                <span class="p-tag-value">{{ venta.estadoPago }}</span>
+                            </p-tag>
                         </td>
+                        
+
                         <td>
                             <div class="flex"> 
-                                <button pButton pRipple icon="pi pi-file" class="p-button-rounded p-button-warning mr-2" (click)="mostrarDetallePedido(venta.id)"></button>
+                                <p-button icon="pi pi-file" [rounded]="true" severity="secondary" class="p-button-rounded p-button-warning mr-2"
+                                (click)="mostrarDetallePedido(venta.id)" pTooltip="Ver detalle">
+                                </p-button>
 
-                                <!-- Verificar si la forma de pago es "Crédito" y el estado de pago es "Pendiente" -->
                                 <button *ngIf="venta.formaPago === 'Crédito' && venta.estadoPago === 'Pendiente'"
                                 pButton pRipple icon="pi pi-dollar" class="p-button-rounded p-button-success mr-2" 
-                                (click)="newAbonoVenta(venta.id)">
+                                (click)="newAbonoVenta(venta.id)" pTooltip="Abonar">
                                 </button>
+
                                 <button *ngIf="venta.estadoPago === 'Pago'"
-                                pButton pRipple icon="pi pi-book" class="p-button-rounded p-button-primary mr-2" 
-                                (click)="comprobanteVenta1(venta.id)">
+                                pButton pRipple icon="pi pi-book" class="p-button-rounded p-button-primary mr-2"
+                                (click)="comprobanteVenta1(venta.id)" pTooltip="Comprobante">
                                 </button>
                             </div>
                             
                         </td>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="emptymessage">
+                    <tr>
+                        <td colspan="6" class="text-center">No se encontraron ventas</td>
                     </tr>
                 </ng-template>
             </p-table>            

@@ -305,11 +305,7 @@ confirm2(event: Event) {
       
     },
     reject: () => {
-      this.messageService.add({
-        severity: 'error',
-        summary: 'Cancelado',
-        detail: 'El abono no fue agregado a la venta'
-      });
+      this.toastr.error('El abono no fue agregado a la venta', 'Cancelado');
     }
   });
 }

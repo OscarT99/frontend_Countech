@@ -2659,7 +2659,7 @@ p-treeselect.p-treeselect-clearable .p-treeselect-clear-icon {
   border-color: transparent;
 }
 .p-splitbutton.p-button-help.p-button-text > .p-button:enabled:hover, .p-splitbutton.p-button-help.p-button-text > .p-button:not(button):not(a):not(.p-disabled):hover {
-  background: rgba(206, 147, 216, 0.04);
+  background: rgba(206, 147, 21 6, 0.04);
   border-color: transparent;
   color: #CE93D8;
 }

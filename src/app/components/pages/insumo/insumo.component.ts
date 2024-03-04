@@ -7,6 +7,7 @@ import { ToastrService } from 'ngx-toastr';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import * as XLSX from 'xlsx';
+import { ConfirmationService } from 'primeng/api';
 import { SalidaInsumoInstance } from 'src/app/interfaces/insumo/salidaInsumo.interface';
 import { SalidaInsumoService } from 'src/app/services/insumo/salidaInsumo.service';
 
@@ -33,20 +34,20 @@ export class InsumoComponent implements OnInit {
     showConfirmationDialogInsumo: boolean = false;
     insumoSeleccionado: InsumoInstance | null = null;
 
-    showConfirmationDialogCategoria: boolean = false;
-
-
+    valSwitch: boolean = false;
+    
     idInsumo:number=0;      
     formInsumo:FormGroup;
     formSalidaInsumo:FormGroup;
 
-    insumos: InsumoInstance[] = []
+    listInsumos: InsumoInstance[] = []
 
     modalCrearInsumo:  boolean = false;
     modalSalidaInsumo: boolean = false;
 
     constructor(private fb:FormBuilder,
       private _insumoService:InsumoService,
+      private confirmationService: ConfirmationService,
       private toastr: ToastrService,      
       private _salidaInsumoService:SalidaInsumoService
       ){
@@ -56,7 +57,7 @@ export class InsumoComponent implements OnInit {
       }),
       this.formSalidaInsumo=this.fb.group({
         insumo:['',Validators.required],
-        insumoNombre:['',Validators.required],
+        insumoNombre:[''],
         cantidad:[0,Validators.required],
         tipoDeMaquina:['',Validators.required]
       })
@@ -69,7 +70,7 @@ export class InsumoComponent implements OnInit {
 
     getListInsumos(){
         this._insumoService.getListInsumos().subscribe((data:any) => {
-            this.insumos = data.listInsumos
+            this.listInsumos = data.listInsumos
         })
     }
 
@@ -139,25 +140,29 @@ export class InsumoComponent implements OnInit {
       });
     }
 
-    confirmarCambioEstadoInsumo(insumo: InsumoInstance): void {
+    confirm(insumo: InsumoInstance) {
       this.insumoSeleccionado = insumo;
-      this.showConfirmationDialogInsumo = true;
-    }
     
-    confirmActionInsumo(aceptar: boolean): void {
-      if (aceptar && this.insumoSeleccionado && this.insumoSeleccionado.id !== undefined && this.insumoSeleccionado.estado !== undefined) {
-        this.insumoSeleccionado.estado = !this.insumoSeleccionado.estado;
-        this.toastr.success(
-          `El estado del insumo ${this.insumoSeleccionado.nombre} ha sido cambiado con éxito.`,
-          'Estado Cambiado'
-        );
-      
-        this._insumoService.actualizarEstadoInsumo(this.insumoSeleccionado.id, this.insumoSeleccionado.estado)
-          .subscribe();
-      }
-      
-      this.showConfirmationDialogInsumo = false;
-      this.insumoSeleccionado = null;
+      this.confirmationService.confirm({
+        header: 'Confirmación',
+        acceptIcon: 'pi pi-check mr-2',
+        rejectIcon: 'pi pi-times mr-2',
+        rejectButtonStyleClass: 'p-button-sm',
+        acceptButtonStyleClass: 'p-button-outlined p-button-sm',
+        accept: () => {
+          if (this.insumoSeleccionado != null && this.insumoSeleccionado.id != null) {
+            this._insumoService.putInsumo(this.insumoSeleccionado.id, this.insumoSeleccionado)
+              .subscribe(() => {
+                if (this.insumoSeleccionado!.estado !== undefined) {
+                  this.valSwitch = this.insumoSeleccionado!.estado;
+                }
+              });
+          }
+        },
+        reject: () => {
+          // Puedes manejar el rechazo aquí si es necesario
+        }
+      });
     }
    
     obtenerListaInsumos(): void {
@@ -285,7 +290,7 @@ export class InsumoComponent implements OnInit {
 
       data.push(headers)
 
-      this.insumos.forEach(insumo => {
+      this.listInsumos.forEach(insumo => {
         const row = [
           insumo.nombre,
           {t:'n', v: insumo.cantidad},
@@ -310,5 +315,41 @@ export class InsumoComponent implements OnInit {
     cerrarModalSalidaInsumo(){      
       this.modalSalidaInsumo = false;
       this.listInsumosGastados = [];
+    }
+
+
+    // Verificar la existencia en la base de datos
+
+    validarNombreInsumo() {
+      console.log('Entrando a validarNombreInsumo');
+
+      const insumoControl = this.formInsumo.get('nombre');
+      const insumoValue = insumoControl?.value;
+    
+      // Verificar si es requerido
+      if (insumoControl?.hasError('required')) {
+          return;
+      }
+    
+      // Verificar solo letras y longitud mínima
+      const soloLetrasRegex = /^[a-zA-ZáéíóúüÁÉÍÓÚÜÑñ\s]*$/;
+      const minCaracteres = 4;
+    
+      if (!soloLetrasRegex.test(insumoValue)) {
+          insumoControl?.setErrors({ soloLetras: true });
+      } else if (insumoValue && insumoValue.length < minCaracteres) {
+          insumoControl?.setErrors({ minlength: true });
+      } else {
+          insumoControl?.setErrors(null);
+      }
+
+      // Verificar la existencia en la base de datos
+      const insumoExistente = this.listInsumos.some(insumo => insumo.nombre === insumoValue);
+
+      if (insumoExistente) {
+          insumoControl?.setErrors({ insumoExistente: true });
+      } else {
+        insumoControl?.setErrors(null);
+      }
     }
 }      

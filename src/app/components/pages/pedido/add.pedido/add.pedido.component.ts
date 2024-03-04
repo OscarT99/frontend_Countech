@@ -21,6 +21,8 @@
     templateUrl: './add.pedido.component.html',
   })
   export class AddPedidoComponent implements OnInit {
+    
+    listPedidos: PedidoInstance[] = []
 
     id: number = 0;
     mostrarID:boolean=false;
@@ -71,7 +73,7 @@
     ) { 
       this.formPedido = this.fb.group({        
         cliente:['',Validators.required],
-        razonSocial:[],
+        razonSocial:['',Validators.required],
         contacto: [{ value: '', disabled: true }],
         ordenTrabajo:['',Validators.required],
         fechaOrdenTrabajo:['',Validators.required],
@@ -96,17 +98,27 @@
     ngOnInit(): void {
       this.aRouter.params.subscribe(params => {
         this.id = +params['id'];
+      
+        this.getListPedidos()  
+        this.obtenerListaClientes();
+
+        this.formPedido.get('cliente')?.valueChanges.subscribe(() => {
+          this.validarOrdenTrabajo();
+        });
 
         if (this.id !== 0) {
-          this.obtenerListaClientes();
-          this.getPedido(this.id)          
-        } else {
-          this.obtenerListaClientes();
-        }
+          this.getPedido(this.id) 
+        } 
+        
       });
     }
 
-
+    getListPedidos(){     
+      this._pedidoService.getListPedidos().subscribe((data:any) =>{              
+        this.listPedidos = data.listaPedidos; 
+        console.log(this.listPedidos);
+      })        
+  }
     
     getPedido(id: number) {
       this._pedidoService.getPedido(id).subscribe((data: PedidoInstance) => {
@@ -201,6 +213,9 @@
       if (clienteSeleccionado) {
         this.formPedido.get('contacto')!.setValue(clienteSeleccionado.contacto || '');
       }        
+
+        // Actualizar la validación al cambiar el cliente
+      this.validarOrdenTrabajo();
     }
 
     realizarBusquedaEnTiempoReal(event: any): void {
@@ -222,7 +237,7 @@
     
       if (idTemporalProceso) {
         // Actualizar el proceso existente
-        const procesoExistente = this.procesosReferencia.find(p => p.id === idTemporalProceso);
+        const procesoExistente = this.procesosReferencia.find(p => p.idTemporal === idTemporalProceso);
         
         if (procesoExistente) {
           procesoExistente.proceso = proceso;
@@ -231,7 +246,7 @@
       } else {
         // Agregar un nuevo proceso
         const nuevoProceso: ProcesoReferenciaPedidoInstance = {    
-          id:uuidv4(),  
+          idTemporal:uuidv4(),  
           proceso: proceso,
           tipoDeMaquina: tipoDeMaquina,
           ColorEnProcesoEnReferenciaEnPedidos: [], 
@@ -262,7 +277,7 @@
       this.formPedido.patchValue({
         proceso:proceso.proceso,
         tipoDeMaquina:proceso.tipoDeMaquina,
-        idTemporalProceso:proceso.id
+        idTemporalProceso:proceso.idTemporal
       })
 
       setTimeout(() => {
@@ -303,7 +318,7 @@
     
       if (idTemporal !== null) {
         // Editar color existente
-        const colorExistente = this.coloresEnProceso.find(c => c.id === idTemporal);
+        const colorExistente = this.coloresEnProceso.find(c => c.idTemporal === idTemporal);
         if (colorExistente) {
           colorExistente.color = color;
           colorExistente.tallaS = tallaS;
@@ -315,7 +330,7 @@
       } else {
         // Agregar nuevo color
         const nuevoColor: ColorProcesoReferenciaPedidoInstance = {
-          id: uuidv4(),
+          idTemporal: uuidv4(),
           color: color,
           tallaS: tallaS,
           tallaM: tallaM,
@@ -358,7 +373,7 @@
         tallaM:color.tallaM,
         tallaL:color.tallaL,
         tallaXL:color.tallaXL,
-        idTemporalColor:color.id
+        idTemporalColor:color.idTemporal
       })
 
       setTimeout(() => {
@@ -466,5 +481,27 @@
           // El usuario ha cancelado la acción, no hacer nada
         }
       });
+    }
+
+
+
+    validarOrdenTrabajo() {
+      const ordenTrabajoControl = this.formPedido.get('ordenTrabajo');
+      const ordenTrabajoValue = ordenTrabajoControl?.value;
+    
+      // Verificar si es requerido
+      if (ordenTrabajoControl?.hasError('required')) {
+        return;
+      }
+
+      // Verificar la existencia en la lista de pedidos
+      const ordenExistente = this.listPedidos.some(pedido => pedido.cliente === this.formPedido.value.cliente && pedido.ordenTrabajo === ordenTrabajoValue);
+    
+      if (ordenExistente) {
+        ordenTrabajoControl?.setErrors({ 'ordenTrabajoExistente': true });
+      } else {
+        // Si la orden de trabajo no existe, asegúrate de borrar cualquier error anterior.
+        ordenTrabajoControl?.setErrors(null);
+      }
     }
   }

@@ -1,19 +1,19 @@
 <div class="grid">
     <div class="col-12">
-        <div class="card px-6 py-6">
+        <div class="card ">
 
 
             <p-toolbar styleClass="mb-4">
                 <ng-template pTemplate="left">
-                    <div class="my-2">
-                        <button pButton pRipple label="Registrar pedido" icon="pi pi-plus"
-                            [routerLink]="['/pages/pedido/add', 0]"></button>
+                    <div>
+                        <p-button [raised]="true"  label="Registrar pedido" icon="pi pi-plus"
+                            [routerLink]="['/pages/pedido/add', 0]"></p-button>
                     </div>
                 </ng-template>
 
                 <ng-template pTemplate="right">
-                    <button pButton class="p-button-success" label="Excel" icon="pi pi-file-excel" pTooltip="Descargar"
-                        (click)="exportToExcel()"></button>
+                    <p-button [raised]="true" severity="success" label="Excel" icon="pi pi-file-excel" pTooltip="Descargar"
+                        (click)="exportToExcel()"></p-button>
                 </ng-template>
             </p-toolbar>
 
@@ -35,11 +35,11 @@
                 <ng-template pTemplate="header">
                     <tr>
                         <th pSortableColumn="cliente">Cliente<p-sortIcon field="cliente"></p-sortIcon></th>
-                        <th pSortableColumn="ordenTrabajo">Orden Trabajo<p-sortIcon field="ordenTrabajo"></p-sortIcon>
+                        <th pSortableColumn="ordenTrabajo">O.T<p-sortIcon field="ordenTrabajo"></p-sortIcon>
                         </th>
-                        <th pSortableColumn="fechaOrdenTrabajo">Fecha orden<p-sortIcon
+                        <th pSortableColumn="fechaOrdenTrabajo">F. Orden<p-sortIcon
                                 field="fechaOrdenTrabajo"></p-sortIcon></th>
-                        <th pSortableColumn="fechaEntregaOrden">Fecha Engtrega<p-sortIcon
+                        <th pSortableColumn="fechaEntregaOrden">F. Entrega<p-sortIcon
                                 field="fechaEntregaOrden"></p-sortIcon></th>
                         <th pSortableColumn="valorTotal">Valor Total<p-sortIcon field="valorTotal"></p-sortIcon></th>
                         <th pSortableColumn="estado" (click)="alternarVistaEstado()">Estado<p-sortIcon
@@ -58,7 +58,7 @@
                             <span class="p-column-title">Orden Trabajo</span>
                             {{ pedido.ordenTrabajo }}
                         </td>
-                        <td style="min-width:8rem;">
+                        <td style="min-width:7rem;">
                             <span class="p-column-title">Fecha Orden</span>
                             {{ pedido.fechaOrdenTrabajo }}
                         </td>
@@ -75,22 +75,24 @@
                             <p-tag [value]="getDisplayedEstado(pedido.estado, pedido.estadoPedido)"
                                 [severity]="getSeverity(pedido.estado, pedido.estadoPedido)"></p-tag>
                         </td>
-                        <td>
+                        <td  style="min-width:8rem;">
                             <div class="flex flex-wrap gap-3 ">
-
                                 <p-button icon="pi pi-file" [rounded]="true" severity="secondary"
                                     (click)="mostrarDetallePedido(pedido.id)" pTooltip="Ver detalle"></p-button>
-
                                 <p-button icon="pi pi-pencil" [rounded]="true" severity="warning"
                                     (click)="editarPedido(pedido.id)" pTooltip="Editar"
                                     *ngIf="pedido.estado == 'Registrado' && pedido.estadoPedido == true"></p-button>
-
                                 <p-button icon="pi pi-times" [rounded]="true" severity="danger"
                                     (click)="anularPedido(pedido)"
                                     *ngIf="pedido.estado == 'Registrado' && pedido.estadoPedido == true"
                                     pTooltip="Anular"></p-button>
                             </div>
                         </td>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="emptymessage">
+                    <tr>
+                        <td colspan="6" class="text-center">No se encontraron pedidos</td>
                     </tr>
                 </ng-template>
             </p-table>

@@ -33,6 +33,8 @@ import { TagModule } from 'primeng/tag';
         ConfirmPopupModule, 
         InputNumberModule,
         ReactiveFormsModule,
+        TooltipModule,
+        TagModule                            
     ],
     declarations: [ListCompraComponent]
 })

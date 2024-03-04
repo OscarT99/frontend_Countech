@@ -3,6 +3,7 @@ import { Injectable } from '@angular/core';
 import { environment } from 'src/enviroments/environment';
 import { PedidoInstance } from 'src/app/interfaces/pedido/pedido.interface'; 
 import { Observable, catchError } from 'rxjs';
+import { ProcesoReferenciaPedidoInstance } from 'src/app/interfaces/pedido/procesoReferenciaPedido.interface'; 
 
 @Injectable()
   export class PedidoService {
@@ -20,6 +21,20 @@ import { Observable, catchError } from 'rxjs';
     
     getListPedidos(): Observable<PedidoInstance[]>{
       return this.http.get<PedidoInstance[]>(`${this.myAppUrl}${this.myApiUrl}`)    
+    }
+
+    // Métodos para actualizar los registros
+
+    getPedidoInfo(): Observable<PedidoInstance[]>{
+      return this.http.get<PedidoInstance[]>(`${this.myAppUrl}${this.myApiUrl}info`)
+    }
+
+    getPedidoProcesos(): Observable<ProcesoReferenciaPedidoInstance[]>{
+      return this.http.get<ProcesoReferenciaPedidoInstance[]>(`${this.myAppUrl}${this.myApiUrl}proceso`)
+    }
+
+    getPedidoProcesoById(id:number): Observable<ProcesoReferenciaPedidoInstance[]>{
+      return this.http.get<ProcesoReferenciaPedidoInstance[]>(`${this.myAppUrl}${this.myApiUrl}proceso/${id}`)
     }
   
     postPedido(pedido : PedidoInstance):Observable<void>{

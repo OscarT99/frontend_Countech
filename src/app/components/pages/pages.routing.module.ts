@@ -3,6 +3,7 @@ import { RouterModule } from '@angular/router';
 
 @NgModule({
     imports:[RouterModule.forChild([
+        {path:'inicio',loadChildren:()=>import('./inicio/inicio.module').then(m => m.InicioModule)},
         {path:'proveedor',loadChildren:()=>import('./proveedor/proveedor.module').then(m => m.ProveedorModule)},        
         {path:'cliente',loadChildren:()=>import('./cliente/cliente.module').then(m => m.ClienteModule)},   
         {path:'usuario',loadChildren:()=>import('./usuario/usuario.module').then(m => m.UsuarioModule)},      
@@ -10,6 +11,7 @@ import { RouterModule } from '@angular/router';
         {path:'abonoVenta',loadChildren:()=>import('./abonoVenta/abonoVenta.module').then(m => m.AbonoVentaModule)},                     
         {path:'empleado',loadChildren:()=>import('./empleado/empleado.module').then(m => m.EmpleadoModule)},                     
         {path:'produccion',loadChildren:()=>import('./produccion/produccion.module').then(m => m.ProduccionModule)},                             
+        {path:'produccion/registro',loadChildren:()=>import('./produccion/registro/regProduccion.module').then(m => m.RegProduccionModule)},
         {path:'pedido',loadChildren:()=>import('./pedido/list.pedido/list.pedido.module').then(m => m.ListPedidoModule)},
         {path:'pedido',loadChildren:()=>import('./pedido/list.pedido/list.pedido.module').then(m => m.ListPedidoModule)},
         {path:'pedido/add',loadChildren:()=>import('./pedido/add.pedido/add.pedido.module').then(m => m.AddPedidoModule)},

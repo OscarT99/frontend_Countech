@@ -18,6 +18,9 @@ import { AppConfigModule } from './config/config.module';
 import { AppSidebarComponent } from './sidebar/app.sidebar.component';
 import { AppLayoutComponent } from './app.layout.component';
 import { TooltipModule } from 'primeng/tooltip';
+import { ConfirmPopupModule } from 'primeng/confirmpopup';
+import { ConfirmationService } from 'primeng/api';
+
 @NgModule({
     declarations: [
         AppMenuitemComponent,
@@ -40,8 +43,12 @@ import { TooltipModule } from 'primeng/tooltip';
         RippleModule,
         RouterModule,
         AppConfigModule,
-        TooltipModule
+        TooltipModule,
+        ConfirmPopupModule 
     ],
-    exports: [AppLayoutComponent]
+    exports: [AppLayoutComponent],
+    providers: [
+        ConfirmationService
+    ]
 })
 export class AppLayoutModule { }
