@@ -66,7 +66,7 @@
                 </ng-template>
             </p-table>
 
-            <p-dialog header="Nuevo Insumo" class="p-fluid" [(visible)]="modalCrearInsumo" [style]="{width: '450px'}"
+            <p-dialog [header]="nuevoInsumo ? 'Nuevo Insumo' : 'Editar Insumo'" class="p-fluid" [(visible)]="modalCrearInsumo" [style]="{width: '450px'}"
                 [modal]="true">
                 <div style="display: flex; flex-direction: row;">
                     <form [formGroup]="formInsumo" (ngSubmit)="addInsumo()">
@@ -74,7 +74,8 @@
                         class="formgrid grid" >
                             <div class="field col">
                                 <span class="p-float-label">
-                                    <input formControlName="nombre" id="nombre" type="text" pInputText (input)="validarNombreInsumo()">
+                                    <input formControlName="nombre" id="nombre" type="text" pInputText 
+                                    (input)="validarNombreInsumo()" [maxLength]="30 ">
                                     <label for="nombre">Nombre</label>
                                 </span>
                                 <small
@@ -85,14 +86,10 @@
                                 <small *ngIf="formInsumo.get('nombre')?.hasError('insumoExistente') && formInsumo.get('nombre')?.touched"
                                     style="color: red;">
                                     El insumo ya existe en la base de datos
-                                </small>
-                                <small *ngIf="formInsumo.get('nombre')?.hasError('soloLetras') && formInsumo.get('nombre')?.touched"
-                                    style="color: red;">
-                                    Solo se permiten letras
-                                </small>
+                                </small>                                
                                 <small *ngIf="formInsumo.get('nombre')?.hasError('minlength') && formInsumo.get('nombre')?.touched"
                                     style="color: red;">
-                                    La ciudad debe tener al menos 4 caracteres
+                                    El insumo debe tener al menos 3 caracteres
                                 </small>
                             </div>
                             <div class="field col">
@@ -132,10 +129,10 @@
                                 </ng-template>
                             </p-autoComplete>
                                 <small
-                                    *ngIf="formSalidaInsumo.get('insumo')?.hasError('required') && formSalidaInsumo.get('insumo')?.touched"
+                                    *ngIf="formSalidaInsumo.get('insumoNombre')?.hasError('required') && formSalidaInsumo.get('insumoNombre')?.touched"
                                     style="color: red;">
                                     El insumo es <strong>requerido</strong>
-                                </small>
+                                </small>                                
                             </div>
                             <div class="field col">
                                 <span class="p-float-label ">
@@ -147,16 +144,19 @@
                                     style="color: red;">
                                     La cantidad es <strong>requerida</strong>
                                 </small>
+                                <small *ngIf="formSalidaInsumo.get('cantidad')?.hasError('cantidadExcedida')" style="color: red;">
+                                    La cantidad excede la cantidad disponible.
+                                 </small>
                             </div>
                             <div class="field col">
-                                <p-dropdown formControlName="tipoDeMaquina" 
-                                    [autoDisplayFirst]="false" [options]="tipoMaquina"
-                                    placeholder="Selecciona la maquina">
-                                </p-dropdown>
+                                <select  pInputText formControlName="tipoDeMaquina" >  
+                                    <option value="" disabled [selected]>Selecciona un tipo de maquina</option>
+                                    <option *ngFor="let maquina of tipoMaquina" [value]="maquina.value">{{ maquina.label }}</option>                               
+                                </select>
                                 <small
                                     *ngIf="formSalidaInsumo.get('tipoDeMaquina')?.hasError('required') && formSalidaInsumo.get('tipoDeMaquina')?.touched"
                                     style="color: red;">
-                                    El tipo de maquina es<strong>requerido</strong>
+                                    El tipo de maquina es <strong>requerido</strong>
                                 </small>
                             </div>
                             <div class="col-1">
@@ -176,11 +176,11 @@
                             </ng-template>
                             <ng-template pTemplate="body" let-insumoGastado let-i="index">
                                 <tr>
-                                    <td>{{insumoGastado.insumo}}</td>
+                                    <td>{{insumoGastado.insumoNombre}}</td>
                                     <td>{{insumoGastado.cantidad}}</td>
                                     <td>{{insumoGastado.tipoDeMaquina}}</td>
                                     <td><p-button icon="pi pi-trash" [rounded]="true" [text]="true" severity="danger "
-                                            (click)="eliminarInsumoGastado(insumoGastado)"></p-button></td>
+                                            (click)="eliminarInsumoGastado(insumoGastado)" pTooltip="Eliminar"></p-button></td>
                                 </tr>
                             </ng-template>
                         </p-table>
@@ -203,7 +203,7 @@
                     <i class="pi pi-exclamation-circle text-6xl text-primary-500"></i>
                     <p>
                         ¿Está seguro de que desea
-                        <span style="font-weight: bold">{{ insumoSeleccionado?.estado ? 'ACTIVAR' : 'DESACTIVAR' }}</span> el cliente?
+                        <span style="font-weight: bold">{{ insumoSeleccionado?.estado ? 'ACTIVAR' : 'DESACTIVAR' }}</span> el insumo?
                       </p>
                 </div>
             </ng-template>

@@ -17,6 +17,7 @@ import { SalidaInsumoService } from 'src/app/services/insumo/salidaInsumo.servic
 })
 export class InsumoComponent implements OnInit {
 
+    nuevoInsumo: boolean = true;
     mostrarID:boolean=false;
 
     tipoMaquina: any[] = [
@@ -57,7 +58,7 @@ export class InsumoComponent implements OnInit {
       }),
       this.formSalidaInsumo=this.fb.group({
         insumo:['',Validators.required],
-        insumoNombre:[''],
+        insumoNombre:['',Validators.required],
         cantidad:[0,Validators.required],
         tipoDeMaquina:['',Validators.required]
       })
@@ -78,18 +79,23 @@ export class InsumoComponent implements OnInit {
       this.idInsumo = 0;
       this.formInsumo.reset();
       this.modalCrearInsumo = true;
+      this.nuevoInsumo = true;
     }
 
     editInsumo(id: number) {
       this.idInsumo = id;
       this.modalCrearInsumo = true;
       this.getInsumo(id);
+      this.nuevoInsumo = false;
     }
 
     openSalidaInsumo(){
       this.idInsumo = 0;
       this.modalSalidaInsumo = true;
-      this.formSalidaInsumo.reset();
+      // this.formSalidaInsumo.reset();
+      this.listInsumosGastados = [];
+      const primeraOpcion = '';
+      this.formSalidaInsumo.get('tipoDeMaquina')?.setValue(primeraOpcion);
     }
 
     addInsumo() {
@@ -149,6 +155,8 @@ export class InsumoComponent implements OnInit {
         rejectIcon: 'pi pi-times mr-2',
         rejectButtonStyleClass: 'p-button-sm',
         acceptButtonStyleClass: 'p-button-outlined p-button-sm',
+        acceptLabel: 'Sí',
+        rejectLabel: 'No',
         accept: () => {
           if (this.insumoSeleccionado != null && this.insumoSeleccionado.id != null) {
             this._insumoService.putInsumo(this.insumoSeleccionado.id, this.insumoSeleccionado)
@@ -160,7 +168,7 @@ export class InsumoComponent implements OnInit {
           }
         },
         reject: () => {
-          // Puedes manejar el rechazo aquí si es necesario
+          this.getListInsumos();
         }
       });
     }
@@ -204,32 +212,71 @@ export class InsumoComponent implements OnInit {
       this.sugerenciasInsumos = this.filterInsumos(query);
   }
 
-    addInsumoGastado(){
+    addInsumoGastado() {
       this.formSalidaInsumo.markAllAsTouched();
-  
+   
       if (this.formSalidaInsumo.valid) {
-          const salidaInsumo: SalidaInsumoInstance = {
-            insumo:this.formSalidaInsumo.value.insumo,
-            cantidad:this.formSalidaInsumo.value.cantidad,
-            tipoDeMaquina:this.formSalidaInsumo.value.tipoDeMaquina
-          }
-
-          this.listInsumosGastados.push(salidaInsumo)
-
-          this.formSalidaInsumo.reset({
-            ...this.formSalidaInsumo.value,
-            insumo: '',
-            cantidad: 0,
-            tipoDeMaquina: ''
-          });
-      }else{
-        this.toastr.error(
-          'Por favor, complete todos los campos obligatorios.',
-          'Error de validación'
-        );
+         const insumoId = this.formSalidaInsumo.value.insumo;
+         const cantidadIngresada = this.formSalidaInsumo.value.cantidad;
+         const tipoDeMaquina = this.formSalidaInsumo.value.tipoDeMaquina;
+   
+         // Encuentra el insumo seleccionado en la lista completa
+         const insumoSeleccionado = this.listInsumos.find((insumo) => insumo.id === insumoId);
+   
+         if (insumoSeleccionado) {
+            // Verificar si ya existe el insumo en la lista con cualquier tipo de máquina
+            const existeInsumo = this.listInsumosGastados.some(
+               (item) => item.insumo === insumoId && item.tipoDeMaquina === tipoDeMaquina
+            );
+   
+            // Obtener la sumatoria de la cantidad para el mismo insumo con diferentes tipos de máquinas
+            const sumatoriaCantidad = this.listInsumosGastados
+               .filter((item) => item.insumo === insumoId)
+               .reduce((total, item) => total + item.cantidad!, 0);
+   
+            if (
+               !existeInsumo &&
+               sumatoriaCantidad + cantidadIngresada <= insumoSeleccionado.cantidad!
+            ) {
+               const salidaInsumo: SalidaInsumoInstance = {
+                  insumo: insumoId,
+                  insumoNombre: this.formSalidaInsumo.value.insumoNombre,
+                  cantidad: cantidadIngresada,
+                  tipoDeMaquina: tipoDeMaquina,
+               };
+   
+               this.listInsumosGastados.push(salidaInsumo);
+   
+               console.log(salidaInsumo);
+   
+               this.formSalidaInsumo.reset({
+                  ...this.formSalidaInsumo.value,
+                  insumo: '',
+                  cantidad: 0,
+                  tipoDeMaquina: '',
+               });
+            } else if (
+               existeInsumo &&
+               sumatoriaCantidad + cantidadIngresada <= insumoSeleccionado.cantidad!
+            ) {
+               // Mostrar error si la cantidad excede la cantidad disponible
+               this.formSalidaInsumo.get('cantidad')?.setErrors({ cantidadExcedida: true });
+            } else {
+               // Mostrar error si la cantidad excede la cantidad disponible o ya existe en la lista
+               this.formSalidaInsumo.get('cantidad')?.setErrors({ cantidadExcedida: true });
+            }
+         } else {
+            // Mostrar error si no se encuentra el insumo seleccionado
+            this.toastr.error('No se encontró el insumo seleccionado.', 'Error');
+         }
+      } else {
+         this.toastr.error(
+            'Por favor, complete todos los campos obligatorios.',
+            'Error de validación'
+         );
       }
-    }
-
+   }
+   
     eliminarInsumoGastado(insumoGastado: SalidaInsumoInstance): void {
       const index = this.listInsumosGastados.indexOf(insumoGastado);
         
@@ -240,31 +287,40 @@ export class InsumoComponent implements OnInit {
       }
     }
 
+  
     confirmActionSalidaInsumo(aceptar: boolean): void {
       if (aceptar) {
-        for (const salidaInsumo of this.listInsumosGastados) {
-          this._salidaInsumoService.postSalidaInsumo(salidaInsumo).subscribe(() => {
-            this._insumoService.restarCantidadInsumo(salidaInsumo.insumo!, salidaInsumo.cantidad!)
-              .subscribe(() => { 
-                this.getListInsumos();                 
-              }, error => {
-                console.error('Error al restar cantidad del insumo:', error);
-              });
-          }, error => {
-            console.error('Error al crear salida de insumo:', error);
-          });
-        }          
-        this.formSalidaInsumo.reset();
-        this.listInsumosGastados = [];
-        this.showConfirmationSalidaInsumo = false;
-        this.modalSalidaInsumo = false;          
-        this.toastr.success(`La salida de los insumos fue registrada con éxito`, `Salida insumo registrada`);
-          
+        this.postSalidaRecursivo(0); // Llamamos al primer elemento de la lista
       } else {
         this.showConfirmationSalidaInsumo = false;
       }
     }
-      
+    
+    private postSalidaRecursivo(index: number): void {
+      if (index < this.listInsumosGastados.length) {
+        const salidaInsumo = this.listInsumosGastados[index];
+    
+        this._salidaInsumoService.postSalidaInsumo(salidaInsumo).subscribe(() => {
+          this._insumoService.restarCantidadInsumo(salidaInsumo.insumo!, salidaInsumo.cantidad!)
+            .subscribe(() => {
+              this.getListInsumos();
+              this.postSalidaRecursivo(index + 1); // Llamamos al siguiente elemento en la lista
+            }, error => {
+              console.error('Error al restar cantidad del insumo:', error);
+            });
+        }, error => {
+          console.error('Error al crear salida de insumo:', error);
+        });
+      } else {
+        // Cuando hemos procesado todos los elementos, limpiamos y mostramos el mensaje de éxito
+        this.formSalidaInsumo.reset();
+        this.listInsumosGastados = [];
+        this.showConfirmationSalidaInsumo = false;
+        this.modalSalidaInsumo = false;
+        this.toastr.success(`La salida de los insumos fue registrada con éxito`, `Salida insumo registrada`);
+      }
+    }
+    
     confirmarSalidaInsumo(){        
       if(this.listInsumosGastados.length < 1){
         this.formSalidaInsumo.markAllAsTouched();
@@ -321,27 +377,22 @@ export class InsumoComponent implements OnInit {
     // Verificar la existencia en la base de datos
 
     validarNombreInsumo() {
-      console.log('Entrando a validarNombreInsumo');
-
       const insumoControl = this.formInsumo.get('nombre');
       const insumoValue = insumoControl?.value;
-    
+      const minCaracteres = 3;
+
+
       // Verificar si es requerido
       if (insumoControl?.hasError('required')) {
           return;
       }
     
-      // Verificar solo letras y longitud mínima
-      const soloLetrasRegex = /^[a-zA-ZáéíóúüÁÉÍÓÚÜÑñ\s]*$/;
-      const minCaracteres = 4;
-    
-      if (!soloLetrasRegex.test(insumoValue)) {
-          insumoControl?.setErrors({ soloLetras: true });
-      } else if (insumoValue && insumoValue.length < minCaracteres) {
-          insumoControl?.setErrors({ minlength: true });
-      } else {
-          insumoControl?.setErrors(null);
-      }
+          if (insumoValue && insumoValue.length < minCaracteres) {
+            insumoControl?.setErrors({ minlength: true });
+            return
+          } else {
+            insumoControl?.setErrors(null);
+          }
 
       // Verificar la existencia en la base de datos
       const insumoExistente = this.listInsumos.some(insumo => insumo.nombre === insumoValue);

@@ -58,12 +58,12 @@ export class AddCompraComponent implements OnInit {
   ) {
     this.formCompra=this.fb.group({
         proveedor:['',Validators.required],
-        razonSocial:[],
+        razonSocial:['',Validators.required],
         numeroFactura:['',Validators.required],
         fechaCompra:['',Validators.required],
         contacto:[{ value: '', disabled: true}],
         insumo:['',Validators.required],
-        insumoNombre:[],
+        insumoNombre:['',Validators.required],
         cantidad:[0,Validators.required],
         valorUnitario:[0,Validators.required],
         ivaInsumo:['',Validators.required],
@@ -176,6 +176,7 @@ export class AddCompraComponent implements OnInit {
     if(this.formCompra.value.idTemporal == null){
 
       const insumo = this.formCompra.value.insumo;
+      const insumoNombre = this.formCompra.value.insumoNombre;
       const cantidad = this.formCompra.value.cantidad;
       const valorUnitario = this.formCompra.value.valorUnitario;
       const impuestoIva = this.formCompra.value.ivaInsumo.value;
@@ -198,28 +199,27 @@ export class AddCompraComponent implements OnInit {
         const nuevoInsumoInstance: DetalleCompraInstance = {
           id: uuidv4(),
           insumo: insumo,
+          insumoNombre:insumoNombre,
           cantidad: cantidad,
           valorUnitario: valorUnitario,
           impuestoIva: valorIva,
           valorTotal: cantidad * (valorUnitario + valorIva)
         };
         this.detallesInsumo.push(nuevoInsumoInstance);
+     
+        console.log(this.detallesInsumo)
       }
+      
   
       this.calcularTotales();
   
       this.formCompra.patchValue({
-        insumo: '',
+        insumo:null,
+        insumoNombre: null,        
         cantidad: 0,
         valorUnitario: 0,
         ivaInsumo: '',
         idTemporal: null
-      });
-  
-      setTimeout(() => {
-        if (this.insumoInput) {
-          this.insumoInput.nativeElement.focus();
-        }
       });
 
       this.formCompra.get('insumo')!.setErrors(null);
@@ -233,6 +233,7 @@ export class AddCompraComponent implements OnInit {
         const detalleExistente = this.detallesInsumo[index];
   
         detalleExistente.insumo = this.formCompra.value.insumo;
+        detalleExistente.insumoNombre = this.formCompra.value.insumoNombre;
         detalleExistente.cantidad = this.formCompra.value.cantidad;
         detalleExistente.valorUnitario = this.formCompra.value.valorUnitario;
         detalleExistente.impuestoIva = (this.formCompra.value.ivaInsumo.value * this.formCompra.value.valorUnitario);
@@ -243,19 +244,14 @@ export class AddCompraComponent implements OnInit {
         this.calcularTotales();
   
         this.formCompra.patchValue({
-          insumo: '',
+          insumo: null,
+          insumoNombre:null,
           cantidad: 0,
           valorUnitario: 0,
           ivaInsumo: '',
           idTemporal: null  
         });
-  
-        setTimeout(() => {
-          if (this.insumoInput) {
-            this.insumoInput.nativeElement.focus();
-          }
-        });
-
+        
         this.formCompra.get('insumo')!.setErrors(null);
 
       } else {
@@ -267,6 +263,7 @@ export class AddCompraComponent implements OnInit {
   getInsumoModificar(detalleCompra:DetalleCompraInstance){
     this.formCompra.patchValue({      
       insumo:detalleCompra.insumo,
+      insumoNombre:detalleCompra.insumoNombre,
       cantidad:detalleCompra.cantidad,
       valorUnitario:detalleCompra.valorUnitario,
       ivaInsumo:detalleCompra.impuestoIva,

@@ -412,5 +412,8 @@ export class ListCompraComponent implements OnInit {
         return estadoCompra ? 'success' : 'danger';
     }
     
+    getSeverityEstadoPago(estadoPago:string){
+        return estadoPago === 'Pago' ? 'success' : 'warning';
+    }
     
 }

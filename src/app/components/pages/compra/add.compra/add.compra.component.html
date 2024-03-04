@@ -8,9 +8,9 @@
                         <Label>Proveedor</Label>
                         <div>
                             <input *ngIf="mostrarID" type="text" pInputText formControlName="proveedor"/>
-                            <p-autoComplete class="inputs-pedido" formControlName="razonSocial"
+                            <p-autoComplete formControlName="razonSocial"
                                 [suggestions]="sugerenciasProveedores" (completeMethod)="buscarProveedores($event)"
-                                [dropdown]="true" [minLength]="1" [placeholder]="'Buscar Proveedor'"
+                                [dropdown]="true" [placeholder]="'Buscar Proveedor'"
                                 (onSelect)="seleccionarProveedor($event)"
                                 (keyup)="realizarBusquedaEnTiempoReal($event)">
                                 <ng-template let-proveedor pTemplate="item">
@@ -21,7 +21,7 @@
                             </p-autoComplete>
                         </div>
                         <small
-                            *ngIf="formCompra.get('proveedor')?.hasError('required') && formCompra.get('proveedor')?.touched"
+                            *ngIf="formCompra.get('razonSocial')?.hasError('required') && formCompra.get('razonSocial')?.touched"
                             style="color: red;">
                             El Proveedor es <strong>requerido</strong>
                         </small>
@@ -30,7 +30,7 @@
                     <div class="col-4">
                         <Label>Contacto</Label>
                         <div>
-                            <input class="inputs-pedido" type="text" pInputText [disabled]="true"
+                            <input type="text" pInputText [disabled]="true"
                                 [value]="formCompra.get('contacto')!.value" />
                         </div>
                     </div>
@@ -39,7 +39,7 @@
                     <div class="col-4">
                         <label>N° Factura</label>
                         <div>
-                            <input formControlName="numeroFactura" class="inputs-pedido" type="text" pInputText />
+                            <input formControlName="numeroFactura" type="text" pInputText />
                         </div>
                         <small
                             *ngIf="formCompra.get('numeroFactura')?.hasError('required') && formCompra.get('numeroFactura')?.touched"
@@ -53,7 +53,7 @@
                     <div class="col-4">
                         <label>Fecha Compra</label>
                         <div>
-                            <p-calendar formControlName="fechaCompra" class="inputs-pedido" dateFormat="yy-mm-dd"
+                            <p-calendar formControlName="fechaCompra" dateFormat="yy-mm-dd"
                                 [showIcon]="true" [maxDate]="maxDate"></p-calendar>
                         </div>
                         <small
@@ -67,7 +67,7 @@
                 <strong>Detalles de Insumos</strong>
                 <div *ngIf="mostrarID != false">
                     <label>id</label>
-                    <input type="text" class="inputs-pedido" formControlName="idTemporal" />
+                    <input type="text" formControlName="idTemporal" />
                 </div>
 
                 <div class="grid p-fluid mt-1" style="border-top: 1px solid var(--surface-border);">
@@ -75,9 +75,9 @@
                         <label>Insumo</label>
                         <div>
                             <input *ngIf="mostrarID" type="text" pInputText formControlName="insumo"/>
-                            <p-autoComplete class="inputs-pedido" formControlName="insumoNombre"
+                            <p-autoComplete formControlName="insumoNombre"
                                 [suggestions]="sugerenciasInsumos" (completeMethod)="buscarInsumos($event)"
-                                [dropdown]="true" [minLength]="1" [placeholder]="'Buscar Insumo'"
+                                [dropdown]="true" [placeholder]="'Buscar Insumo'"
                                 (onSelect)="seleccionarInsumo($event)" 
                                 (keyup)="realizarBusquedaEnTiempoRealInsumo($event)" #insumoInput>
                                 <ng-template let-insumo pTemplate="item">
@@ -85,7 +85,7 @@
                                 </ng-template>
                             </p-autoComplete>
                         </div>
-                        <small *ngIf="formCompra.get('insumo')?.hasError('required') && formCompra.get('insumo')?.touched 
+                        <small *ngIf="formCompra.get('insumoNombre')?.hasError('required') && formCompra.get('insumoNombre')?.touched 
                                 && detallesInsumo.length === 0" style="color: red;">
                             El insumo es <strong>requerido</strong>
                         </small>
@@ -93,18 +93,18 @@
                     <div class="col-2">
                         <label>Cantidad</label>
                         <div>
-                            <p-inputNumber [min]="0" class="inputs-pedido" formControlName="cantidad"></p-inputNumber>
+                            <p-inputNumber [min]="0" formControlName="cantidad"></p-inputNumber>
                         </div>
                         <small *ngIf="formCompra.get('cantidad')?.touched 
                                 && formCompra.get('cantidad')?.value < 1 && detallesInsumo.length === 0"
                             style="color: red;">
-                            La cantidad del insumo debe ser mayor a <strong>0</strong>
+                            La cantidad debe ser mayor a <strong>0</strong>
                         </small>
                     </div>
                     <div class="col-2">
                         <label>Valor Unitario</label>
                         <div>
-                            <p-inputNumber [min]="0" mode="currency" currency="USD" locale="en-US" class="inputs-pedido"
+                            <p-inputNumber [min]="0" mode="currency" currency="USD" locale="en-US"
                                 formControlName="valorUnitario"></p-inputNumber>
                         </div>
                         <small *ngIf="formCompra.get('valorUnitario')?.touched 
@@ -115,14 +115,17 @@
                     </div>
                     <div class="col-2">
                         <label>Impuesto</label>
-                        <p-dropdown class="inputs-pedido" formControlName="ivaInsumo" [options]="impuestos"
+                        <p-dropdown formControlName="ivaInsumo" [options]="impuestos"
                             optionLabel="label"></p-dropdown>
+                            <!-- <select class="inputs-pedido" formControlName="ivaInsumo" >  
+                                <option *ngFor="let impuesto of impuestos" [value]="impuesto.value">{{ impuesto.label }}</option>                               
+                            </select> -->
                     </div>
                     <div class="mt-5">
-                        <p-button *ngIf="formCompra.get('idTemporal')!.value != null" (click)="agregarInsumo()" icon="pi pi-plus"
+                        <p-button class="mt-4" *ngIf="formCompra.get('idTemporal')!.value != null" (click)="agregarInsumo()" icon="pi pi-plus"
                         label="Editar Insumo"  severity="warning">
                     </p-button>
-                        <p-button *ngIf="formCompra.get('idTemporal')!.value === null" (click)="agregarInsumo()" icon="pi pi-plus"
+                        <p-button class="mt-4" *ngIf="formCompra.get('idTemporal')!.value === null" (click)="agregarInsumo()" icon="pi pi-plus"
                          label="Agregar insumo" 
                         ></p-button>                        
                     </div>
@@ -144,7 +147,7 @@
                             </ng-template>
                             <ng-template pTemplate="body" let-insumo let-i="index">
                                 <tr>
-                                    <td>{{insumo.insumo}}</td>
+                                    <td>{{insumo.insumoNombre}}</td>
                                     <td>{{insumo.cantidad}}</td>
                                     <td>{{insumo.valorUnitario | currency}}</td>
                                     <td>{{insumo.impuestoIva | currency}}</td>
@@ -165,8 +168,10 @@
                     <div class="col-3">
                         <div>
                             <label htmlFor="formaPago"><strong>Formas de Pago</strong></label>
-                            <p-dropdown [autoDisplayFirst]="false" placeholder="Seleccione forma de pago"
-                                formControlName="formaPago" [options]="formaPago"></p-dropdown>
+                            <select  pInputText formControlName="formaPago" >  
+                                <option value="" disabled [selected]>Seleccione forma de pago</option>
+                                <option *ngFor="let forma of formaPago" [value]="forma.value">{{ forma.label }}</option>                               
+                            </select>
                             <small
                                 *ngIf="formCompra.get('formaPago')?.hasError('required') && formCompra.get('formaPago')?.touched"
                                 style="color: red;">
@@ -178,7 +183,7 @@
                         <div>
                             <label>Total bruto</label>
                             <p-inputNumber mode="currency" currency="USD" locale="en-US" formControlName="totalBruto"
-                                class="inputs-pedido col-4" [readonly]="true"></p-inputNumber>
+                                class="transparent-border inputs-pedido col-4 transparent-border" [readonly]="true"></p-inputNumber>
                         </div>
                         <div>
                             <label>Iva</label>

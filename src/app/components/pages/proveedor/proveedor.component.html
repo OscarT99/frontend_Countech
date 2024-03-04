@@ -1,7 +1,6 @@
 <div class="grid">
     <div class="col-12">
         <div class="card">
-
             <p-toolbar styleClass="mb-4">
                 <ng-template pTemplate="left">
                     <div>
@@ -87,17 +86,15 @@
         </div>
 
         <p-dialog [(visible)]="productDialog" [style]="{width: '550px'}" [header]="nuevoProveedor ? 'Nuevo Proveedor' : 'Editar Proveedor'" [modal]="true"
-            class="p-fluid">
-            <form [formGroup]="formProveedor" (ngSubmit)="addProveedor()">                
+            class="p-fluid">            
+            <form [formGroup]="formProveedor" (ngSubmit)="addProveedor()"> 
+                
                 <div class="formgrid grid">
                     <div class="field col "> 
-                        <select pInputText formControlName="tipoProveedor" >  
-                            <option value="" disabled selected>Selecciona un tipo de cliente</option>
-                            <option value="Persona jurídica">Persona jurídica</option>
-                            <option value="Persona natural">Persona natural</option>
+                        <select  pInputText formControlName="tipoProveedor" >  
+                            <option value="" selected disabled>Selecciona un tipo de proveedor</option>
+                            <option *ngFor="let proveedor of tipoProveedores" [value]="proveedor.value">{{ proveedor.label }}</option>
                         </select>                       
-                            <!-- <p-dropdown formControlName="tipoProveedor" [options]="tipoProveedor"
-                            placeholder="Seleccione Tipo Proveedor" [autoDisplayFirst]="false"></p-dropdown>                                                 -->
                         <small
                             *ngIf="formProveedor.get('tipoProveedor')?.hasError('required') && formProveedor.get('tipoProveedor')?.touched"
                             style="color: red;">
@@ -105,8 +102,10 @@
                         </small>
                     </div>
                     <div class="field col">                        
-                            <p-dropdown formControlName="tipoIdentificacion" [options]="tipoIdentificacion"
-                            placeholder="Seleccione Tipo Documento" [autoDisplayFirst]="false"></p-dropdown>                                                
+                        <select  pInputText formControlName="tipoIdentificacion" >  
+                            <option value="" selected disabled>Selecciona un tipo identificación</option>
+                            <option *ngFor="let proveedor of tipoIdentificaciones" [value]="proveedor.value">{{ proveedor.label }}</option>
+                        </select>                                                
                         <small
                             *ngIf="formProveedor.get('tipoIdentificacion')?.hasError('required') && formProveedor.get('tipoIdentificacion')?.touched"
                             style="color: red;">
@@ -141,7 +140,7 @@
                     <div class="field col">
                         <span class="p-float-label">
                             <input formControlName="nombreComercial" id="nombreComercial" [maxlength]="50" type="text" pInputText (input)="validarCampo('nombreComercial')">
-                            <label for="nombreComercial">{{ isNIT ? 'Nombre Comercial' : 'Apellidos' }}</label>
+                            <label for="nombreComercial">{{ isNIT || isNull? 'Nombre Comercial' : 'Apellidos' }}</label>
                         </span>
                         <small *ngIf="formProveedor.get('nombreComercial')?.hasError('required') && formProveedor.get('nombreComercial')?.touched"
                             style="color: red;">
@@ -160,7 +159,7 @@
                     <div class="field col">
                         <span class="p-float-label">                            
                             <input formControlName="razonSocial" [maxlength]="50" type="text" pInputText (input)="validarCampo('razonSocial')">
-                            <label for="razonSocial">{{ isNIT ? 'Razon Social' : 'Nombres' }}</label>
+                            <label for="razonSocial">{{ isNIT || isNull ? 'Razon Social' : 'Nombres' }}</label>
                         </span>
                         <small *ngIf="formProveedor.get('razonSocial')?.hasError('required') && formProveedor.get('razonSocial')?.touched"
                             style="color: red;">
