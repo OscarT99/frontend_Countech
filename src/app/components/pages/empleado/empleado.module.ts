@@ -21,6 +21,8 @@ import { InputSwitchModule } from 'primeng/inputswitch';
 import { KeyFilterModule } from 'primeng/keyfilter';
 import { CalendarModule } from 'primeng/calendar';
 import { TooltipModule } from 'primeng/tooltip';
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import { MessageService } from 'primeng/api';
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core'
 
 
@@ -30,7 +32,9 @@ import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core'
         CalendarModule,
         CommonModule,
         EmpleadoRoutingModule,
+        ConfirmDialogModule,
         TableModule,
+        TooltipModule,
         TagModule,
         FileUploadModule,
         FormsModule,
@@ -48,8 +52,10 @@ import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core'
         DialogModule,
         InputSwitchModule,
         KeyFilterModule,
-        TooltipModule
+        TooltipModule,
+        ConfirmDialogModule
     ],
+    providers:[MessageService],
     schemas: [CUSTOM_ELEMENTS_SCHEMA],
     declarations: [EmpleadoComponent]
 })

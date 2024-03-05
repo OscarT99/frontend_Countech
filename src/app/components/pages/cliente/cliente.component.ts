@@ -14,6 +14,7 @@ import { ConfirmationService} from 'primeng/api';
 
 })
 export class ClienteComponent implements OnInit {  
+  
   nuevoCliente: boolean = true;
 
   listClientes: Cliente[] = []
@@ -35,7 +36,7 @@ export class ClienteComponent implements OnInit {
   ];
 
 
-  tipoIdentificacion = [ 
+  tipoIdentificaciones = [ 
     { label: 'NIT', value: 'NIT' },   
     { label: 'Cédula de ciudadanía', value: 'Cédula de ciudadanía' },
     { label: 'Tarjeta de extranjería', value: 'Tarjeta de extranjería' },
@@ -148,7 +149,12 @@ export class ClienteComponent implements OnInit {
 
   openNew() {
     this.id = 0;
-    this.formCliente.reset()
+    this.formCliente.reset();
+
+    const primeraOpcion = '';
+    this.formCliente.get('tipoCliente')?.setValue(primeraOpcion);
+    this.formCliente.get('tipoIdentificacion')?.setValue(primeraOpcion);
+
     this.productDialog = true;
     this.nuevoCliente = true;    
   }
@@ -177,24 +183,32 @@ export class ClienteComponent implements OnInit {
       rejectIcon: 'pi pi-times mr-2',
       rejectButtonStyleClass: 'p-button-sm',
       acceptButtonStyleClass: 'p-button-outlined p-button-sm',
+      acceptLabel: 'Sí',  
+      rejectLabel: 'No',
       accept: () => {
         if (this.clienteSeleccionado != null && this.clienteSeleccionado.id != null) {
           this._clienteService.putCliente(this.clienteSeleccionado.id, this.clienteSeleccionado)
             .subscribe(() => {
-              if (this.clienteSeleccionado!.estado !== undefined) {
-                this.valSwitch = this.clienteSeleccionado!.estado;
+              if(this.clienteSeleccionado?.estado === true){
+                this.toastr.success('¡El cliente ha sido ACTIVADO exitosamente!', 'Éxito');
+              }else{
+                this.toastr.warning('¡El cliente ha sido DESACTIVADO exitosamente!', 'Éxito');
               }
             });
         }
       },
       reject: () => {
-        // Puedes manejar el rechazo aquí si es necesario
+        this.getListClientes()
       }
     });
   }
 
   get isNIT(): boolean {
     return this.formCliente.get('tipoIdentificacion')?.value === 'NIT';
+  }
+
+  get isNull():boolean{
+    return this.formCliente.get('tipoIdentificacion')?.value === '';
   }
 
   get isNITDetalle(): boolean {
@@ -336,8 +350,6 @@ validarCiudad() {
 validarContacto() {
   const contactoControl = this.formCliente.get('contacto');
   const contactoValue = contactoControl?.value;
-
-  // Verificar longitud mínima
   const minCaracteres = 3;
 
   if (contactoControl?.hasError('required')) {

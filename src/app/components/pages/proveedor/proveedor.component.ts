@@ -4,17 +4,20 @@ import { Table } from 'primeng/table';
 import { ProveedorService } from 'src/app/services/proveedor/proveedor.service';  
 import { Proveedor } from 'src/app/interfaces/proveedor/proveedor.interface'; 
 import { ToastrService } from 'ngx-toastr';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { ConfirmationService} from 'primeng/api';
 
-import * as XLSX from 'xlsx';
+import { Dropdown } from 'primeng/dropdown';
+import { ViewChild } from '@angular/core';
 
+import * as XLSX from 'xlsx';
 
 @Component({
     templateUrl: './proveedor.component.html',    
 })
 export class ProveedorComponent implements OnInit {
+
     nuevoProveedor: boolean = true;
 
     listProveedores: Proveedor[] = []
@@ -22,7 +25,6 @@ export class ProveedorComponent implements OnInit {
     formProveedor:FormGroup;
     id:number=0;
 
-    valSwitch: boolean = false;
     showConfirmationDialog: boolean = false;
     proveedorSeleccionado: Proveedor | null = null;
     switchState: boolean | undefined = undefined;
@@ -30,18 +32,18 @@ export class ProveedorComponent implements OnInit {
     detalleProveedor: any;
     mostrarModalDetalle: boolean = false;
 
-    tipoProveedor =  [
-      { label: 'Persona jurídica', value: 'Persona jurídica' },
-      { label: 'Persona natural', value: 'Persona natural' }
-    ];
+    tipoProveedores =  [
+       {label:'Persona jurídica',value:'Persona jurídica'},
+       {label:'Persona natural',value:'Persona natural'} 
+      ];
     
-    tipoIdentificacion = [
-      { label: 'NIT',value:'NIT' },
-      { label: 'Cédula de ciudadanía', value:'Cédula de ciudadanía' },
-      { label: 'Tarjeta de extranjería', value:'Tarjeta de extranjería' },
-      { label: 'Cedula de extranjero', value:'Cédula de extranjería' },
-      { label: 'Pasaporte', value:'Pasaporte' },
-      { label: 'Tarjeta de identidad', value:'Tarjeta de identidad' },
+    tipoIdentificaciones =  [
+      {label:'NIT',value:'NIT'},
+      {label:'Cédula de ciudadanía',value:'Cédula de ciudadanía'},
+      {label:'Tarjeta de extranjería',value:'Tarjeta de extranjería'},
+      {label:'Cedula de extranjero',value:'Cedula de extranjero'},
+      {label:'Pasaporte',value:'Pasaporte'},
+      {label:'Tarjeta de identidad',value:'Tarjeta de identidad'}      
     ];
     
     estado = [
@@ -51,13 +53,11 @@ export class ProveedorComponent implements OnInit {
 
     productDialog: boolean = false;
 
-    // rowsPerPageOptions = [5, 10, 15];
-
     constructor(private fb:FormBuilder,
       private _proveedorService:ProveedorService,
       private confirmationService: ConfirmationService,
       private toastr: ToastrService,      
-      private aRouter:ActivatedRoute,      
+      private aRouter:ActivatedRoute    
       ){
         this.formProveedor = this.fb.group({
           tipoProveedor: ['',Validators.required],
@@ -78,7 +78,9 @@ export class ProveedorComponent implements OnInit {
        }
 
     ngOnInit():void {        
-        this.getListProveedores()
+        this.getListProveedores();
+        
+        
     }
 
     getListProveedores(){     
@@ -102,7 +104,7 @@ export class ProveedorComponent implements OnInit {
           telefono:data.telefono,
           correo: data.correo,
           estado: data.estado
-        })
+        });
       })
     }
 
@@ -147,14 +149,19 @@ export class ProveedorComponent implements OnInit {
 
     openNew() {
         this.id = 0;                
-        this.formProveedor.reset()
+        this.formProveedor.reset();
+
+        const primeraOpcion = '';
+        this.formProveedor.get('tipoProveedor')?.setValue(primeraOpcion);
+        this.formProveedor.get('tipoIdentificacion')?.setValue(primeraOpcion);
+      
         this.productDialog = true;
-        this.nuevoProveedor = true;        
+        this.nuevoProveedor = true;    
     }
     
     editProduct(id:number) {
-        this.id=id;        
-        this.formProveedor.reset()
+        this.id=id;
+        this.formProveedor.reset();        
         this.getProveedor(id);
         this.productDialog = true;
         this.nuevoProveedor = false;
@@ -172,10 +179,15 @@ export class ProveedorComponent implements OnInit {
       return this.formProveedor.get('tipoIdentificacion')?.value === 'NIT';
     }
 
+    get isNull():boolean{
+      return this.formProveedor.get('tipoIdentificacion')?.value === '';
+    }
+
     get isNITDetalle(): boolean {
       return this.detalleProveedor.tipoIdentificacion === 'NIT';
     }
 
+    
     exportToExcel() {
       const data: any[] = []; // Array para almacenar los datos
     
@@ -242,12 +254,16 @@ export class ProveedorComponent implements OnInit {
         rejectIcon: 'pi pi-times mr-2',
         rejectButtonStyleClass: 'p-button-sm',
         acceptButtonStyleClass: 'p-button-outlined p-button-sm',
+        acceptLabel: 'Sí',
+        rejectLabel: 'No',
         accept: () => {
           if (this.proveedorSeleccionado != null && this.proveedorSeleccionado.id != null) {
             this._proveedorService.putProveedor(this.proveedorSeleccionado.id, this.proveedorSeleccionado)
-              .subscribe(() => {
-                if (this.proveedorSeleccionado!.estado !== undefined) {
-                  this.valSwitch = this.proveedorSeleccionado!.estado;
+              .subscribe(()=> {
+                if(this.proveedorSeleccionado?.estado === true){
+                  this.toastr.success('¡El proveedor ha sido ACTIVADO exitosamente!', 'Éxito');
+                }else{
+                  this.toastr.warning('¡El proveedor ha sido DESACTIVADO exitosamente!', 'Éxito');
                 }
               });
           }

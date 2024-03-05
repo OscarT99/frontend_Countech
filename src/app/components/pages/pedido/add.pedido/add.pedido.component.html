@@ -8,9 +8,9 @@
                         <label>Cliente</label>
                         <input *ngIf="mostrarID" type="text" pInputText formControlName="cliente"/>
                         <div>
-                            <p-autoComplete class="inputs-pedido" formControlName="razonSocial"
+                            <p-autoComplete formControlName="razonSocial"
                                 [suggestions]="sugerenciasClientes" (completeMethod)="buscarClientes($event)"
-                                [dropdown]="true" [minLength]="1" [placeholder]="'Buscar cliente'"
+                                [dropdown]="true" [placeholder]="'Buscar cliente'"
                                 (onSelect)="seleccionarCliente($event)"
                                 (keyup)="realizarBusquedaEnTiempoReal($event)">                                
                                 <ng-template let-cliente pTemplate="item">
@@ -30,7 +30,7 @@
                     <div class="col-4">
                         <label htmlFor="contacto">Contacto</label>
                         <div>
-                            <input class="mt-1 inputs-pedido" type="text" pInputText [disabled]="true"
+                            <input  type="text" pInputText [disabled]="true"
                                 [value]="formPedido.get('contacto')!.value" />
                         </div>
                     </div>
@@ -38,7 +38,7 @@
                     <div class="col-4">
                         <label htmlFor="ordenTrabajo">Orden de Trabajo </label>
                         <div>
-                            <input min="0" type="number" (input)="validarOrdenTrabajo()" [maxLength]="8" formControlName="ordenTrabajo" class="mt-1 inputs-pedido"  
+                            <input min="0" type="number" (input)="validarOrdenTrabajo()" [maxLength]="8" formControlName="ordenTrabajo"  
                                 pInputText />
                         </div>
                         <small
@@ -56,7 +56,7 @@
                     <div class="col-4">
                         <label htmlFor="fechaOrdenTrabajo">Fecha de Orden</label>
                         <div>
-                            <p-calendar class="inputs-pedido" formControlName="fechaOrdenTrabajo" [showIcon]="true"
+                            <p-calendar formControlName="fechaOrdenTrabajo" [showIcon]="true"
                                 inputId="fechaOrdenTrabajo" dateFormat="yy-mm-dd" [maxDate]="maxDate" ></p-calendar>
                         </div>
                         <small
@@ -69,7 +69,7 @@
                     <div class="col-4">
                         <label htmlFor="fechaEntregaOrden">Fecha Entrega Orden</label>
                         <div>
-                            <p-calendar class="inputs-pedido" formControlName="fechaEntregaOrden" [showIcon]="true"
+                            <p-calendar formControlName="fechaEntregaOrden" [showIcon]="true"
                                 inputId="fechaEntregaOrden" dateFormat="yy-mm-dd" [minDate]="minDate"></p-calendar>
                         </div>
                         <small
@@ -85,7 +85,7 @@
                     <div class="col-4">
                         <label htmlFor="referencia">Referencia</label>
                         <div>
-                            <input class="mt-1 inputs-pedido" type="text" id="referencia" formControlName="referencia"
+                            <input type="text" id="referencia" formControlName="referencia"
                                 pInputText />
                         </div>
                         <small
@@ -98,7 +98,7 @@
                     <div class="col-4">
                         <label htmlFor="descripcion">Descripción</label>
                         <div>
-                            <input class="mt-1 inputs-pedido" type="text" id="descripcion" formControlName="descripcion"
+                            <input type="text" id="descripcion" formControlName="descripcion"
                                 pInputText />
                         </div>
                         <small
@@ -110,7 +110,7 @@
                     <div class="col-4">
                         <label htmlFor="valorUnitario">Valor Unitario</label>
                         <div>
-                            <p-inputNumber mode="currency" currency="USD" locale="en-US" class="mt-1 inputs-pedido"
+                            <p-inputNumber mode="currency" currency="USD" locale="en-US"
                                 id="valorUnitario" formControlName="valorUnitario"></p-inputNumber>
                         </div>
                         <small *ngIf=" formPedido.get('valorUnitario')?.touched && formPedido.value.valorUnitario < 1"
@@ -123,14 +123,14 @@
                 <strong>Detalles de procesos</strong>
                 <div *ngIf="mostrarID != false">
                     <label>id</label>
-                    <input type="text" class="inputs-pedido" formControlName="idTemporalProceso" />
+                    <input type="text" formControlName="idTemporalProceso" />
                 </div>
 
                 <div class="grid p-fluid mt-1" style="border-top: 1px solid var(--surface-border);">
                     <div class="col-4">
                         <label htmlFor="proceso">Proceso</label>
                         <div>
-                            <input class="inputs-pedido" pInputText type="text" formControlName="proceso" id="proceso"
+                            <input pInputText type="text" formControlName="proceso" id="proceso"
                                 #procesoInput />
                         </div>
                         <small *ngIf="formPedido.get('proceso')?.hasError('required') && formPedido.get('proceso')?.touched 
@@ -141,9 +141,10 @@
                     <div class="col-4">
                         <label htmlFor="tipoMaquina">Tipo de Máquina</label>
                         <div>
-                            <p-dropdown class="inputs-pedido" [autoDisplayFirst]="false" [options]="tipoMaquina"
-                                formControlName="tipoDeMaquina" placeholder="Selecciona la maquina">
-                            </p-dropdown>
+                            <select  pInputText formControlName="tipoDeMaquina" >  
+                                <option value="" disabled [selected]>Selecciona un tipo de maquina</option>
+                                <option *ngFor="let maquina of tipoMaquina" [value]="maquina.value">{{ maquina.label }}</option>                               
+                            </select> 
                         </div>
                         <small
                             *ngIf="formPedido.get('tipoDeMaquina')?.hasError('required') && formPedido.get('tipoDeMaquina')?.touched
@@ -168,9 +169,9 @@
 
                 <div class="grid p-fluid mt-1" style="border-top: 1px solid var(--surface-border);">
                     <div class="col-2">
-                        <label htmlFor="color">color</label>
+                        <label htmlFor="color">Color</label>
                         <div>
-                            <input class="inputs-pedido" pInputText type="text" formControlName="color" id="color"
+                            <input pInputText type="text" formControlName="color" id="color"
                                 #colorInput />
                         </div>
                         <small *ngIf="formPedido.get('color')?.hasError('required') && formPedido.get('color')?.touched 
@@ -180,25 +181,26 @@
                     </div>
                     <div class="col-2">
                         <label htmlFor="tallaS">S</label>
-                        <p-inputNumber class="inputs-pedido" formControlName="tallaS"></p-inputNumber>
+                        <p-inputNumber  formControlName="tallaS"></p-inputNumber>
                     </div>
                     <div class="col-2">
                         <label htmlFor="tallaM">M</label>
-                        <p-inputNumber class="inputs-pedido" formControlName="tallaM"></p-inputNumber>
+                        <p-inputNumber  formControlName="tallaM"></p-inputNumber>
                     </div>
                     <div class="col-2">
                         <label htmlFor="tallaL">L</label>
-                        <p-inputNumber class="inputs-pedido" formControlName="tallaL"></p-inputNumber>
+                        <p-inputNumber  formControlName="tallaL"></p-inputNumber>
                     </div>
                     <div class="col-2">
                         <label htmlFor="tallaXL">XL</label>
-                        <p-inputNumber class="inputs-pedido" formControlName="tallaXL"></p-inputNumber>
+                        <p-inputNumber  formControlName="tallaXL"></p-inputNumber>
                     </div>
                     
                     <p-button *ngIf="formPedido.get('idTemporalColor')!.value != null" (click)="agregarColor()" label="Editar Color" icon="pi pi-plus"
-                    severity="warning" styleClass="mt-5">
+                    severity="warning" styleClass="mt-6">
                     </p-button>
-                        <p-button *ngIf="formPedido.get('idTemporalColor')!.value == null" (click)="agregarColor()" label="Agregar color" icon="pi pi-plus" styleClass="mt-5">
+                        <p-button *ngIf="formPedido.get('idTemporalColor')!.value == null" (click)="agregarColor()" label="Agregar color" icon="pi pi-plus"
+                         styleClass="mt-5">
                         </p-button>
                     
                 </div>
@@ -279,10 +281,12 @@
                 </div>
 
                 <div class="grid p-fluid mt-1 justify-content-between">
-                    <div class="col-4">
+                    <div class="col-3">
                         <label htmlFor="formaPago"><strong>Formas de Pago</strong></label>
-                        <p-dropdown [autoDisplayFirst]="false" placeholder="Seleccione forma de pago"
-                            formControlName="formaPago" [options]="formaPago"></p-dropdown>
+                        <select  pInputText formControlName="formaPago" >  
+                            <option value="" disabled [selected]>Seleccione forma de pago</option>
+                            <option *ngFor="let forma of formaPago" [value]="forma.value">{{ forma.label }}</option>                               
+                        </select>
                         <small
                             *ngIf="formPedido.get('formaPago')?.hasError('required') && formPedido.get('formaPago')?.touched"
                             style="color: red;">

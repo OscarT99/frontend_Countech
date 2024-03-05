@@ -124,6 +124,7 @@
       this._pedidoService.getPedido(id).subscribe((data: PedidoInstance) => {
         console.log(data.ProcesoEnReferenciaEnPedidos);
         this.formPedido.patchValue({
+          cliente:data.cliente,
           razonSocial: data.Cliente!.razonSocial,
           ordenTrabajo: data.ordenTrabajo,
           fechaOrdenTrabajo: data.fechaOrdenTrabajo,

@@ -91,14 +91,11 @@
             class="p-fluid">
             <form [formGroup]="formCliente" (ngSubmit)="addCliente()">
                 <div class="formgrid grid mt-3">
-                    <div class="field col"> 
-                        <select pInputText formControlName="tipoCliente" >  
-                            <option value="" disabled selected>Selecciona un tipo de cliente</option>
-                            <option value="Persona jurídica">Persona jurídica</option>
-                            <option value="Persona natural">Persona natural</option>
-                        </select>                       
-                            <!-- <p-dropdown formControlName="tipoCliente" [options]="tiposDeCliente"
-                            placeholder="Seleccione Tipo cliente" [autoDisplayFirst]="false"></p-dropdown>                                                     -->
+                    <div class="field col">                        
+                        <select  pInputText formControlName="tipoCliente" >  
+                            <option value="" selected disabled>Selecciona un tipo de cliente</option>
+                            <option *ngFor="let cliente of tiposDeCliente" [value]="cliente.value">{{ cliente.label }}</option>
+                        </select>                                                    
                         <small
                             *ngIf="formCliente.get('tipoCliente')?.hasError('required') && formCliente.get('tipoCliente')?.touched"
                             style="color: red;">
@@ -106,8 +103,10 @@
                             </small>
                     </div>
                     <div class="field col">                                                
-                            <p-dropdown formControlName="tipoIdentificacion" [options]="tipoIdentificacion"
-                            placeholder="Seleccione Tipo Documento" [autoDisplayFirst]="false"></p-dropdown>                                                     
+                        <select  pInputText formControlName="tipoIdentificacion" >  
+                            <option value="" selected disabled>Selecciona un tipo identificación</option>
+                            <option *ngFor="let cliente of tipoIdentificaciones" [value]="cliente.value">{{ cliente.label }}</option>
+                        </select>                                                     
                         <small
                             *ngIf="formCliente.get('tipoIdentificacion')?.hasError('required') && formCliente.get('tipoIdentificacion')?.touched"
                             style="color: red;">
