@@ -6,7 +6,7 @@
                 <div class="grid p-fluid mt-3">
                     <div class="col-4">
                         <label>Cliente</label>
-                        <input *ngIf="mostrarID" type="text" pInputText formControlName="cliente"/>
+                        <p-inputNumber *ngIf="mostrarID" formControlName="cliente"></p-inputNumber> 
                         <div>
                             <p-autoComplete formControlName="razonSocial"
                                 [suggestions]="sugerenciasClientes" (completeMethod)="buscarClientes($event)"
@@ -38,13 +38,16 @@
                     <div class="col-4">
                         <label htmlFor="ordenTrabajo">Orden de Trabajo </label>
                         <div>
-                            <input min="0" type="number" (input)="validarOrdenTrabajo()" [maxLength]="8" formControlName="ordenTrabajo"  
+                            <input type="text" (input)="validarOrdenTrabajo()" [maxLength]="8" formControlName="ordenTrabajo"  
                                 pInputText />
                         </div>
                         <small
                             *ngIf="formPedido.get('ordenTrabajo')?.hasError('required') && formPedido.get('ordenTrabajo')?.touched"
                             style="color: red;">
                             La orden es <strong>requerida</strong>
+                        </small>
+                        <small *ngIf="formPedido.get('ordenTrabajo')?.hasError('soloNumeros')" style="color: red;">
+                            Ingrese solo números en la orden de trabajo.
                         </small>
                         <small *ngIf="formPedido.get('ordenTrabajo')?.hasError('ordenTrabajoExistente')" style="color: red;">
                             Esta orden de trabajo ya existe para este cliente.
@@ -85,13 +88,16 @@
                     <div class="col-4">
                         <label htmlFor="referencia">Referencia</label>
                         <div>
-                            <input type="text" id="referencia" formControlName="referencia"
+                            <input type="text" (input)="validarReferencia()" formControlName="referencia"
                                 pInputText />
                         </div>
                         <small
                             *ngIf="formPedido.get('referencia')?.hasError('required') && formPedido.get('referencia')?.touched"
                             style="color: red;">
                             La Referencia es <strong>requerida</strong>
+                        </small>
+                        <small *ngIf="formPedido.get('referencia')?.hasError('soloNumeros')" style="color: red;">
+                            Ingrese solo números en la referencia.
                         </small>
                     </div>
 
@@ -197,7 +203,7 @@
                     </div>
                     
                     <p-button *ngIf="formPedido.get('idTemporalColor')!.value != null" (click)="agregarColor()" label="Editar Color" icon="pi pi-plus"
-                    severity="warning" styleClass="mt-6">
+                    severity="warning" styleClass="mt-5">
                     </p-button>
                         <p-button *ngIf="formPedido.get('idTemporalColor')!.value == null" (click)="agregarColor()" label="Agregar color" icon="pi pi-plus"
                          styleClass="mt-5">

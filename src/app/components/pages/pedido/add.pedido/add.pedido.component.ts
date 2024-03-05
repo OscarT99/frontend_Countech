@@ -105,7 +105,7 @@
         this.formPedido.get('cliente')?.valueChanges.subscribe(() => {
           this.validarOrdenTrabajo();
         });
-
+      
         if (this.id !== 0) {
           this.getPedido(this.id) 
         } 
@@ -495,14 +495,38 @@
         return;
       }
 
+      const soloNumeros = /^[0-9]*$/;
+      if (!soloNumeros.test(ordenTrabajoValue)) {
+        // Si no es un número, establecer el error
+        ordenTrabajoControl?.setErrors({ 'soloNumeros': true });
+        return;
+      }
+
       // Verificar la existencia en la lista de pedidos
-      const ordenExistente = this.listPedidos.some(pedido => pedido.cliente === this.formPedido.value.cliente && pedido.ordenTrabajo === ordenTrabajoValue);
-    
+      const ordenExistente = this.listPedidos.some(pedido => pedido.cliente == this.formPedido.value.cliente && pedido.ordenTrabajo == ordenTrabajoValue);
+        
       if (ordenExistente) {
         ordenTrabajoControl?.setErrors({ 'ordenTrabajoExistente': true });
       } else {
         // Si la orden de trabajo no existe, asegúrate de borrar cualquier error anterior.
         ordenTrabajoControl?.setErrors(null);
       }
+    }
+
+    validarReferencia(){
+      const referenciaControl = this.formPedido.get('referencia');
+      const referenciaValue = referenciaControl?.value;
+    
+      // Verificar si es requerido
+      if (referenciaControl?.hasError('required')) {
+        return;
+      }
+
+      const soloNumeros = /^[0-9]*$/;
+      if (!soloNumeros.test(referenciaValue)) {
+        // Si no es un número, establecer el error
+        referenciaControl?.setErrors({ 'soloNumeros': true });
+        return;
+      }      
     }
   }

@@ -39,12 +39,15 @@
                     <div class="col-4">
                         <label>N° Factura</label>
                         <div>
-                            <input formControlName="numeroFactura" type="text" pInputText />
+                            <input formControlName="numeroFactura" (input)="validarNumeroFactura()" type="text" pInputText />
                         </div>
                         <small
                             *ngIf="formCompra.get('numeroFactura')?.hasError('required') && formCompra.get('numeroFactura')?.touched"
                             style="color: red;">
                             El N° factura es <strong>requerido</strong>
+                        </small>
+                        <small *ngIf="formCompra.get('numeroFactura')?.hasError('numeroFacturaExistente')" style="color: red;">
+                            Este numero factura ya existe para este proveedor.
                         </small>
                     </div>
                 </div>
@@ -116,10 +119,7 @@
                     <div class="col-2">
                         <label>Impuesto</label>
                         <p-dropdown formControlName="ivaInsumo" [options]="impuestos"
-                            optionLabel="label"></p-dropdown>
-                            <!-- <select class="inputs-pedido" formControlName="ivaInsumo" >  
-                                <option *ngFor="let impuesto of impuestos" [value]="impuesto.value">{{ impuesto.label }}</option>                               
-                            </select> -->
+                            optionLabel="label" #ivaInsumoDropdown></p-dropdown>                            
                     </div>
                     <div class="mt-5">
                         <p-button class="mt-4" *ngIf="formCompra.get('idTemporal')!.value != null" (click)="agregarInsumo()" icon="pi pi-plus"

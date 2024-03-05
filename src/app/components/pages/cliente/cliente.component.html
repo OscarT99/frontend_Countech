@@ -142,7 +142,7 @@
                     <div class="field col">
                         <span class="p-float-label">
                             <input formControlName="nombreComercial" [maxlength]="50" id="nombreComercial" type="text" pInputText (input)="validarCampo('nombreComercial')">
-                            <label for="nombreComercial">{{ isNIT ? 'Nombre Comercial' : 'Apellidos' }}</label>
+                            <label for="nombreComercial">{{ isNIT || isNull? 'Nombre Comercial' : 'Apellidos' }}</label>
                         </span>
                         <small *ngIf="formCliente.get('nombreComercial')?.hasError('required') && formCliente.get('nombreComercial')?.touched"
                             style="color: red;">
@@ -159,7 +159,7 @@
                     <div class="field col">
                         <span class="p-float-label">                            
                             <input formControlName="razonSocial" [maxlength]="50" type="text" pInputText (input)="validarCampo('razonSocial')">
-                            <label for="razonSocial">{{ isNIT ? 'Razon Social' : 'Nombres' }}</label>
+                            <label for="razonSocial">{{ isNIT || isNull? 'Razon Social' : 'Nombres' }}</label>
                         </span>
                         <small *ngIf="formCliente.get('razonSocial')?.hasError('required') && formCliente.get('razonSocial')?.touched"
                             style="color: red;">

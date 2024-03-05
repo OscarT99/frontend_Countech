@@ -6,6 +6,8 @@ import { SelectItem } from 'primeng/api';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { TotalNetoService } from '../compra.servive';
 
+import { AutoComplete } from 'primeng/autocomplete';
+import { Dropdown } from 'primeng/dropdown';
 
 import { v4 as uuidv4 } from 'uuid';
 
@@ -22,6 +24,8 @@ import { InsumoInstance } from 'src/app/interfaces/insumo/insumo.interface';
 })
 export class AddCompraComponent implements OnInit {
 
+  listCompras : CompraInstance[] = []
+
   maxDate: Date = new Date();
 
   mostrarID:boolean=false;
@@ -35,6 +39,8 @@ export class AddCompraComponent implements OnInit {
   formCompra:FormGroup;
   detallesInsumo: DetalleCompraInstance[] = [];
   @ViewChild('insumoInput') insumoInput: ElementRef | undefined;
+  @ViewChild('insumoInput') autoComplete: AutoComplete | undefined;
+  @ViewChild('ivaInsumoDropdown') ivaInsumoDropdown: Dropdown | undefined;
 
   formaPago: SelectItem[] = [
     { label: 'Crédito', value: 'Crédito' },
@@ -63,8 +69,8 @@ export class AddCompraComponent implements OnInit {
         numeroFactura:['',Validators.required],
         fechaCompra:['',Validators.required],
         contacto:[{ value: '', disabled: true}],
-        insumo:['',Validators.required],
-        insumoNombre:['',Validators.required],
+        insumo: ['', this.detallesInsumo.length === 0 ? Validators.required : []],
+  insumoNombre: ['', this.detallesInsumo.length === 0 ? Validators.required : []],
         cantidad:[0,Validators.required],
         valorUnitario:[0,Validators.required],
         ivaInsumo:['',Validators.required],
@@ -80,9 +86,20 @@ export class AddCompraComponent implements OnInit {
   ngOnInit(): void {
     this.obtenerListaInsumos()    
     this.obtenerListaProveedores();
-       
+    this.getListCompras();
+    
+    this.formCompra.get('proveedor')?.valueChanges.subscribe(() => {
+      this.validarNumeroFactura();
+    });
   }
       
+  getListCompras(){     
+    this._compraService.getListCompras().subscribe((data:any) =>{              
+      this.listCompras = data.listaCompras; 
+      console.log(this.listCompras);
+    })        
+}
+
 
   /////   METODOS PARA ESCOGER EL PROVEEDOR
   obtenerListaProveedores(): void {
@@ -207,24 +224,32 @@ export class AddCompraComponent implements OnInit {
           impuestoIva: valorIva,
           valorTotal: cantidad * (valorUnitario + valorIva)
         };
-        this.detallesInsumo.push(nuevoInsumoInstance);
-     
-        console.log(this.detallesInsumo)
+        this.detallesInsumo.push(nuevoInsumoInstance);     
       }
       
   
       this.calcularTotales();
   
       this.formCompra.patchValue({
-        insumo:null,
-        insumoNombre: null,        
+        insumo:'',
+        insumoNombre: '',        
         cantidad: 0,
         valorUnitario: 0,
         ivaInsumo: '',
         idTemporal: null
       });
 
-      this.formCompra.get('insumo')!.setErrors(null);
+      this.formCompra.get('ivaInsumo')?.setValue(0);
+
+      if (this.autoComplete) {
+        this.autoComplete.clear();
+      }
+
+      if (this.ivaInsumoDropdown) {
+        this.ivaInsumoDropdown.resetFilter();
+      }
+
+      this.formCompra.get('insumoNombre')!.setErrors(null);
 
     } else {
       const index = this.detallesInsumo.findIndex(
@@ -253,8 +278,12 @@ export class AddCompraComponent implements OnInit {
           ivaInsumo: '',
           idTemporal: null  
         });
-        
-        this.formCompra.get('insumo')!.setErrors(null);
+       
+        if (this.autoComplete) {
+          this.autoComplete.clear();
+        }
+
+        this.formCompra.get('insumoNombre')!.setErrors(null);
 
       } else {
         console.error('No se encontró el detalle en la lista.');
@@ -328,7 +357,7 @@ export class AddCompraComponent implements OnInit {
 
     this.formCompra.markAllAsTouched();
     
-    if(this.formCompra.valid){
+    if(this.formCompra.valid || this.detallesInsumo.length > 0){
       const compra : CompraInstance = {
         proveedor:this.formCompra.value.proveedor,
         fechaCompra:this.formCompra.value.fechaCompra,
@@ -373,5 +402,23 @@ export class AddCompraComponent implements OnInit {
   }
   
 
+  validarNumeroFactura() {
+    const numeroFacturaControl = this.formCompra.get('numeroFactura');
+    const numeroFacturaValue = numeroFacturaControl?.value;
+
+    // Verificar si es requerido
+    if (numeroFacturaControl?.hasError('required')) {
+      return;
+    }
+
+    // Verificar la existencia en la lista de pedidos
+    const numeroFacturaExistente = this.listCompras.some(compra => compra.proveedor == this.formCompra.value.proveedor && compra.numeroFactura == numeroFacturaValue);
   
+    if (numeroFacturaExistente) {
+      numeroFacturaControl?.setErrors({ 'numeroFacturaExistente': true });
+    } else {
+      // Si la orden de trabajo no existe, asegúrate de borrar cualquier error anterior.
+      numeroFacturaControl?.setErrors(null);
+    }
+  }
 }
