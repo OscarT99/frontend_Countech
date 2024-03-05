@@ -1,86 +1,61 @@
-<body>
-  <div class="col-4">
-          <div class="loginform">
-            <h1>Cambiar contraseña</h1>
-            <form class="row g-3 mt-3"> 
-              <div class="col-10">
-                <div class="input-container mt-5">
+<div class="surface-ground flex align-items-center justify-content-center h-screen w-screen overflow-hidden">
+  <div class="w-full surface-card py-8 px-3 sm:px-5" style="border-radius:53px; max-width: 30rem; max-height: 45rem;">
+    <div class="text-center mb-5">
 
-                    <input
-                        [type]="showPassword ? 'text' : 'password'"
-                        id="contrasena"
-                        name="contrasena"
-                        [(ngModel)]="newPassword"
-                        class="form-control"
-                        (input)="validarContrasena()"
-                        [ngClass]="{'is-invalid': errorMessages.contrasena}"
-                        placeholder
-                        [disabled]="!camposHabilitados">
-                    <label for="contrasena" class="input-label">Contraseña
-                    </label>
+      <img src="assets/layout/images/logo.png" class="logo" alt="logo" style="max-width: 100px; max-height: 100px;">
 
-                    <div class="invalid-feedback error-message"
-                        *ngIf="errorMessages.contrasena" style="color: red;">
-                        {{errorMessages.contrasena}}
-                    </div>
-                </div>
-            </div>
+      <div class="text-900 text-3xl font-medium mb-3"></div>
+      <span class="text-600 font-medium text-xl ">Cambiar Cotraseña</span>
+    </div>
+    <div>
+      <form>
+        <div class="">
+          <div class="field col">
+            <span class="p-float-label">
+              <input [type]="showPassword ? 'text' : 'password'" pInputText class="w-full md:w-25rem"
+                style="padding:1rem" id="contrasena" name="contrasena" [(ngModel)]="newPassword" class="form-control"
+                (input)="validarContrasena()" [ngClass]="{'is-invalid': errorMessages.contrasena}" placeholder
+                [disabled]="!camposHabilitados">
+              <label for="contrasena">Nueva contraseña</label>
+              <div class="invalid-feedback error-message" *ngIf="errorMessages.contrasena" style="color: red;">
+                {{errorMessages.contrasena}}
+              </div>
+            </span>
             <div class="eye-icon col-2 check" (click)="togglePasswordVisibility()">
               <i class="fa-solid fa-eye" *ngIf="showPassword"></i>
               <i class="fa-solid fa-eye-slash" *ngIf="!showPassword"></i>
             </div>
+          </div>
+        </div>
 
-            <div class="col-10">
-              <div class="input-container mt-3">
 
-                <input 
-                [type]="showConfirmPassword ? 'text' : 'password'"
-                name="confirmarContrasena"
-                id="confirmarContrasena"
-                class="form-control"
-                [(ngModel)]="confirmarContrasena"
-                placeholder=""
-                (input)="validarConfirmar()"
-                [ngClass]="{'is-invalid': errorMessages.confirmarContrasena}"
-                [disabled]="!camposHabilitados"
-                >
-                  <label for="correo" class="input-label">Confirmar
-                    Contraseña
-                  </label>
-
-                  <div class="invalid-feedback error-message"
-                      *ngIf="errorMessages.confirmarContrasena" style="color: red;">
-                      {{errorMessages.confirmarContrasena}}
-                  </div>
+        <div class="formgrid grid">
+          <div class="field col">
+            <span class="p-float-label">
+              <input [type]="showConfirmPassword ? 'text' : 'password'" pInputText class="w-full md:w-25rem"
+                style="padding:1rem" id="confirmarContrasena" name="confirmarContrasena"
+                [(ngModel)]="confirmarContrasena" class="form-control" placeholder="" (input)="validarConfirmar()"
+                [ngClass]="{'is-invalid': errorMessages.confirmarContrasena}" [disabled]="!camposHabilitados">
+              <label for="contrasena">Confirmar contraseña</label>
+              <div class="invalid-feedback error-message" *ngIf="errorMessages.confirmarContrasena" style="color: red;">
+                {{errorMessages.confirmarContrasena}}
               </div>
-          </div>
-          <div class="eye-icon col-2 checkk" (click)="toggleConfirmPasswordVisibility()">
-            <i class="fa-solid fa-eye" *ngIf="showConfirmPassword"></i>
-            <i class="fa-solid fa-eye-slash" *ngIf="!showConfirmPassword"></i>
-          </div>
-
-          <div class="contenedor-botones">
-            <button pButton pRipple type="button" class="p-button-success boton-registrar" 
-            [disabled]="!camposValidos || !camposCompletos()"
-            (click)="changePassword()"
-            [ngClass]="{'is-invalid': errorMessages.recuperar}">
-            Cambiar contraseña
-          </button>
-            
-            <div class="invalid-feedback error-message mt-3"
-                 *ngIf="errorMessages.recuperar" style="color: red;">
-              {{errorMessages.recuperar}}
+            </span>
+            <div class="eye-icon col-2 checkk" (click)="toggleConfirmPasswordVisibility()">
+              <i class="fa-solid fa-eye" *ngIf="showConfirmPassword"></i>
+              <i class="fa-solid fa-eye-slash" *ngIf="!showConfirmPassword"></i>
             </div>
           </div>
-            </form>
-          </div>
+
+        </div>
+
+        <button type="button" pButton pRipple class="w-full p-3 text-xl"
+          [disabled]="!camposValidos || !camposCompletos()" (click)="changePassword()"
+          [ngClass]="{'is-invalid': errorMessages.recuperar}"
+          style="background-color: #4e5fbb; color: white; border: 2px solid #00bcd4;">Cambiar contraseña</button>
+
+      </form>
+    </div>
 
   </div>
-
-
-
-</body>
-
-
-
-
+</div>

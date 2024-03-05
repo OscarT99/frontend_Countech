@@ -8,6 +8,7 @@ import { FormsModule } from '@angular/forms';
 import { PasswordModule } from 'primeng/password';
 import { InputTextModule } from 'primeng/inputtext';
 import { ReactiveFormsModule } from '@angular/forms';
+import { DialogModule } from 'primeng/dialog';
 
 @NgModule({
     imports: [
@@ -18,7 +19,8 @@ import { ReactiveFormsModule } from '@angular/forms';
         InputTextModule,
         FormsModule,
         PasswordModule,
-        ReactiveFormsModule
+        ReactiveFormsModule,
+        DialogModule,
     ],
     declarations: [LoginComponent]
 })
