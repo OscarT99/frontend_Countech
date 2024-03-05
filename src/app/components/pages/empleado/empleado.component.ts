@@ -61,10 +61,9 @@ export class EmpleadoComponent implements OnInit {
     private _empleadoService: EmpleadoService,
     private _pedidoService: PedidoService,
     private confirmationService: ConfirmationService,
-      private _avanceProcesoService: AvanceProcesoEmpleadoService,
-      private confirmationService: ConfirmationService,
-      private toastr: ToastrService,      
-      private aRouter:ActivatedRoute,
+    private _avanceProcesoService: AvanceProcesoEmpleadoService,
+    private toastr: ToastrService,      
+    private aRouter:ActivatedRoute,
       ) {
         this.form = this.fb.group({
           tipoIdentidad: [''],
@@ -383,7 +382,7 @@ export class EmpleadoComponent implements OnInit {
         });
       
       }
-    });
+    };
   }
 
   getEmpleado(id:number) {
