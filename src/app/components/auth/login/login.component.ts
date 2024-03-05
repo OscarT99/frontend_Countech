@@ -64,9 +64,13 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { BsModalRef, BsModalService } from 'ngx-bootstrap/modal';
 import { RecuperarComponent } from '../recuperar/recuperar.component';
 import { ToastrService } from 'ngx-toastr';
+
+
 @Component({
     selector: 'app-login',
     templateUrl: './login.component.html',
+    styleUrls: ['./login.component.scss']
+
 })
 export class LoginComponent {
     formLogin: FormGroup;
@@ -77,31 +81,31 @@ export class LoginComponent {
         private fb: FormBuilder,
         private modalService: BsModalService,
         public bsModalRef: BsModalRef,
-        private toastr : ToastrService,
+        private toastr: ToastrService,
 
 
     ) {
         this.formLogin = this.fb.group({
             email: ['', Validators.required],
-            contrasena: ['', Validators.required] 
+            contrasena: ['', Validators.required]
         });
     }
 
-   
-  
-    user:any={
-      email:'',
-      contrsena:'',
-   
+
+
+    user: any = {
+        email: '',
+        contrsena: '',
+
     }
-  
-    errorMessages={
-      email:'',
-      contrasena:'',
-      credenciales:'',
-      recuperar:''
+
+    errorMessages = {
+        email: '',
+        contrasena: '',
+        credenciales: '',
+        recuperar: ''
     }
-  
+
 
     login(): void {
         const { email, contrasena } = this.formLogin.value;
@@ -113,7 +117,7 @@ export class LoginComponent {
 
                     // Redirige a otra página, guarda la información del usuario, etc.
                     localStorage.setItem('user', JSON.stringify(usuario));
-                    
+
                     // Redirigir a otra página después del inicio de sesión (por ejemplo, a la página de inicio)
                     // Reemplaza 'home' con la ruta a la página a la que deseas redirigir
                     this.router.navigate(['/pages/usuario']);
@@ -132,76 +136,81 @@ export class LoginComponent {
     }
 
     //RECUPERAR CONTRASEÑA
-    validarContrasena(){
+    validarContrasena() {
         const validacion = /^(?=.*[A-Z])(?=.*[\W_]).{8,}$/;
         const contrasena = (document.getElementById('contrasena') as HTMLInputElement).value;
-   
-        if(!contrasena){
-         this.errorMessages.contrasena=''
+
+        if (!contrasena) {
+            this.errorMessages.contrasena = ''
         }
-        else if(!validacion.test(contrasena)){
-         this.errorMessages.contrasena='Minimo 8 caracteres, 1 mayuscula y un simbolo.';
+        else if (!validacion.test(contrasena)) {
+            this.errorMessages.contrasena = 'Minimo 8 caracteres, 1 mayuscula y un simbolo.';
         }
-        else{
-         this.errorMessages.contrasena=''
+        else {
+            this.errorMessages.contrasena = ''
         }
     }
-    
-
-
-    
-  forgotPassword(form: NgForm) {
-    // Obtener el valor del campo de correo del formulario
-    const correo = form.value.correo;
-    console.log(correo)
-
-    // Llamar al servicio para solicitar el restablecimiento de contraseña
-    this.authService.forgotPassword({ correo }).subscribe(
-      (response) => {
-        console.log('Respuesta del servidor para recuperar contraseña:', response);
-        if (response.message) {
-          // Asignar el mensaje de éxito a una propiedad en tu componente
-          this.errorMessages.recuperar = response.message;
-  
-          // Establecer un temporizador para borrar el mensaje después de 2 segundos
-          setTimeout(() => {
-            this.errorMessages.recuperar = '';
-            
-            // Cerrar el modal después de 2 segundos
-            setTimeout(() => {
-              this.cerrarModal();
-            }, 2000);
-          }, 2000);
-        }
-
-      },
-      (error) => {
-        console.error('Error en la solicitud para recuperar contraseña:', error);
-        if (error.error && error.error.error) {
-            this.errorMessages.recuperar = error.error.error;
-            setTimeout(() => {
-              this.errorMessages.recuperar = '';
-            }, 2000);
-          }
-        }
-    );
-  }
 
 
 
 
-  cerrarModal(): void {
-    this.bsModalRef.hide();  // Cierra el modal
-    this.router.navigate(['/login']);
-}
+    forgotPassword(form: NgForm) {
+        // Obtener el valor del campo de correo del formulario
+        const correo = form.value.correo;
+        console.log(correo)
+
+        // Llamar al servicio para solicitar el restablecimiento de contraseña
+        this.authService.forgotPassword({ correo }).subscribe(
+            (response) => {
+                console.log('Respuesta del servidor para recuperar contraseña:', response);
+                if (response.message) {
+                    // Asignar el mensaje de éxito a una propiedad en tu componente
+                    this.errorMessages.recuperar = response.message;
+
+                    // Establecer un temporizador para borrar el mensaje después de 2 segundos
+                    setTimeout(() => {
+                        this.errorMessages.recuperar = '';
+
+                        // Cerrar el modal después de 2 segundos
+                        setTimeout(() => {
+                            this.cerrarModal();
+                        }, 2000);
+                    }, 2000);
+                }
+
+            },
+            (error) => {
+                console.error('Error en la solicitud para recuperar contraseña:', error);
+                if (error.error && error.error.error) {
+                    this.errorMessages.recuperar = error.error.error;
+                    setTimeout(() => {
+                        this.errorMessages.recuperar = '';
+                    }, 2000);
+                }
+            }
+        );
+    }
 
 
 
-   abrirRecuperar() {
-    this.bsModalRef= this.modalService.show(RecuperarComponent,{ 
-      backdrop:'static',
-      keyboard:false
-     });
-   }
 
+    cerrarModal(): void {
+        this.bsModalRef.hide();  // Cierra el modal
+        this.router.navigate(['/login']);
+    }
+
+
+
+    abrirRecuperar() {
+        this.bsModalRef = this.modalService.show(RecuperarComponent, {
+            backdrop: 'static',
+            keyboard: false
+        });
+    }
+
+
+    //RECUPERAR CONTRASEÑA
+    abrirRecuperar1() {
+
+    }
 }

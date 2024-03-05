@@ -39,6 +39,9 @@ export class AuthGuard implements CanActivate {
     if (this.authService.isLoggedIn()) {
       return true;
     } else {
+      // Si el token no es válido, elimina cualquier token almacenado
+      this.authService.logout();
+      // Redirige al usuario a la página de inicio de sesión
       this.router.navigate(['/auth/login']);
       return false;
     }

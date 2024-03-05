@@ -80,7 +80,7 @@
             </p-table>
         </div>
 
-        <p-dialog [(visible)]="productDialog" [style]="{width: '650px'}" header="Nuevo Usuario" [modal]="true"
+        <p-dialog [(visible)]="productDialog" [style]="{width: '650px'}" [header]="id !== 0 ? 'Editar Usuario' : 'Nuevo Usuario'" [modal]="true"
             class="p-fluid">
             <form [formGroup]="formUsuario" (ngSubmit)="addUsuario()">
 

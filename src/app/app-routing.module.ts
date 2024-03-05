@@ -1,10 +1,9 @@
-
-/*
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { AppLayoutComponent } from './shared/app.layout.component';
 import { OlvidoContrasenaComponent } from './components/auth/olvido-contrasena/olvido-contrasena.component';
-import { AuthGuard } from './auth.guard'; // Importa el guardia de enrutamiento
+import { AuthGuard } from './guards/auth.guard';
+import { CambiarContrasenaComponent } from './components/auth/cambiar-contrasena/cambiar-contrasena.component';
 
 const routes: Routes = [
   {
@@ -15,7 +14,7 @@ const routes: Routes = [
   {
     path: '', 
     component: AppLayoutComponent,
-    canActivate: [AuthGuard], // Aplica el guardia de enrutamiento a este conjunto de rutas
+    canActivate: [AuthGuard],
     children: [
       { path: 'pages', loadChildren: () => import('./components/pages/pages.modules').then(m => m.PagesModule) }
     ]
@@ -24,9 +23,18 @@ const routes: Routes = [
     path: 'auth', 
     loadChildren: () => import('./components/auth/auth.module').then(m => m.AuthModule) 
   },
+  {
+    path: 'cambiar-contrasena/:token',
+    component: CambiarContrasenaComponent,
+  },
   { 
     path: 'olvidoContrasena', 
     component: OlvidoContrasenaComponent 
+  },
+  // Ruta de captura para rutas desconocidas
+  {
+    path: '**',
+    redirectTo: '/auth/login'
   }
 ];
 
@@ -36,8 +44,8 @@ const routes: Routes = [
 })
 export class AppRoutingModule { }
 
-*/
 
+/*
 
 
 import { NgModule } from '@angular/core';
@@ -76,4 +84,4 @@ const routes: Routes = [
   imports: [RouterModule.forRoot(routes)],
   exports: [RouterModule]
 })
-export class AppRoutingModule { }
+export class AppRoutingModule { }*/

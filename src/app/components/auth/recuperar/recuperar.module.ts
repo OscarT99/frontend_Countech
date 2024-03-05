@@ -17,6 +17,7 @@ import { DialogModule } from 'primeng/dialog';
         PasswordModule,
         ReactiveFormsModule,
         DialogModule,
+        
 
     ],
     declarations: []

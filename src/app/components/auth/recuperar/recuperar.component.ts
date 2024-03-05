@@ -50,11 +50,11 @@ export class RecuperarComponent {
 
   validaremail() {
     const validacionemail = /^[a-zA-Z0-9._%-ñÑáéíóúÁÉÍÓÚ]+@[a-zA-Z0-9.-]+\.(com|co|org|net|edu)$/;
-    if (!this.user.email) {
-      this.errorMessages.recuperar = '';
+    if (!this.user.email || !this.user.email.trim()) {
+      this.errorMessages.recuperar = 'El email es necesario para recuperar la cantraseña';
       this.emailValido = false;
     } else if (!validacionemail.test(this.user.email)) {
-      this.errorMessages.recuperar = 'El email debe tener una estructura válida (usuario123@dominio.com).';
+      this.errorMessages.recuperar = 'El email debe tener una estructura válida (usuario@dominio.com).';
       this.emailValido = false;
     } else if (this.user.email.length > 100) {
       this.errorMessages.recuperar = 'El email no debe superar los 100 caracteres.';

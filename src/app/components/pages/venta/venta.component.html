@@ -183,6 +183,12 @@
                 <div *ngIf="detallePedido">
                     <div class="grid mt-1" style="justify-content: center"> 
                         <div class="col-4">
+                            <span style="font-weight: bold;">Id venta:</span>
+                            <div>
+                                <span>{{ detallePedido.id }}</span>
+                            </div>
+                        </div>
+                        <div class="col-4">
                             <span style="font-weight: bold;">Cliente:</span>
                             <div>
                                 <span> {{ detallePedido.Cliente.tipoIdentificacion !== 'NIT' ?
@@ -234,7 +240,7 @@
                                 <span>{{ detallePedido.valorUnitario }}</span>
                             </div>
                         </div>
-
+                        
                         <p-table class="col-6" [value]="detallePedido.ProcesoEnReferenciaEnPedidos">
                             <ng-template pTemplate="header">
                                 <tr>
@@ -337,7 +343,7 @@
 
 
 
-            <p-dialog header="Comprobante de Venta" [(visible)]="mostrarComprobante" [modal]="true" [responsive]="true" [style]="{ width: '600px', height: 'auto' }">
+            <p-dialog header="Comprobante de Venta" [(visible)]="mostrarComprobante" [modal]="true" [responsive]="true" [style]="{ width: '400px', height: '800px' }" >
                 <div #comprobanteVenta>
                 <p-panel header="">
                     <h2>Cuatro Soles</h2>
@@ -348,23 +354,27 @@
                   
                   <p-panel header="">
                     <div class="cliente-info">
-                      <h3>Cliente</h3>
-                      <p><strong>Nombre:</strong> {{ detallePedido?.Cliente?.razonSocial }}</p>
+                      <h4>__________________________</h4>
+                      <p><strong>Cliente:</strong> {{ detallePedido?.Cliente?.razonSocial }}</p>
+                      <p><strong>Télefono:</strong> {{ detallePedido?.Cliente?.telefono }}</p>
+                      <p><strong>Dirección:</strong> {{ detallePedido?.Cliente?.direccion }}</p>
+
+
                       <!-- Otras detalles del cliente como dirección, teléfono, etc. -->
                     </div>
                   </p-panel>
                   
                   <p-panel header="">
-                    <div class="cliente-info">
-                      <h3>Datos de la Venta</h3>
-                      <p><strong>Id Venta:</strong> {{ venta.id }}</p>
-                      <p><strong>Fecha Venta:</strong> {{ venta.fechaVenta }}</p>
+                    <div class="venta-info">
+                        <h4>__________________________</h4>
+                      <p><strong>Id Venta:</strong> {{ detallePedido?.id }}</p>
+                      <p><strong>Fecha Venta:</strong> {{ detallePedido?.fechaVenta }}</p>
                       <p><strong>Orden de Trabajo:</strong> {{ detallePedido?.ordenTrabajo }}</p>
                       <!-- Otras detalles de la venta como forma de pago, estado de pago, etc. -->
                     </div>
                   
                     <div class="resumen-venta">
-                      <h4>______________________________________________________</h4>
+                      <h4>__________________________</h4>
                       <p><strong>Forma de Pago:</strong> {{ detallePedido?.formaPago }}</p>
                       <p><strong>Estado de Pago:</strong> {{ detallePedido?.estadoPago }}</p>
                       <p><strong>Valor Total:</strong> {{ detallePedido?.valorTotal | currency }}</p>
@@ -372,9 +382,9 @@
                   </p-panel>
                 </div>
                   
-                <div style="text-align: center; margin-top: 20px; margin-bottom: 20px;">
-                    <button pButton class="p-button-danger" label="Descargar" icon="pi pi-file-pdf" pTooltip="Descargar" 
-                            (click)="generarPDF()" style="width: 130px; height: 40px; font-size: 20px;"></button>
+                <div style="text-align:right; margin-top: 20px; margin-bottom: 20px;">
+                    <button pButton class="p-button-danger" label="PDF" icon="pi pi-file-pdf" pTooltip="Descargar" 
+                            (click)="generarPDF()" style="width: 75px; height: 35px; font-size: 18px;"></button>
                 </div>
                 
                 
