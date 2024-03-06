@@ -18,7 +18,10 @@ import * as XLSX from 'xlsx';
 export class ListPedidoComponent implements OnInit {
     mostrarPedidosActivos: boolean = true;
 
-    listPedidos: PedidoInstance[] = []
+    listPedidosActivos: PedidoInstance[] = []
+    listPedidosAnulados: PedidoInstance[] = []
+
+
     pedido: PedidoInstance = {}
     id: number = 0;
 
@@ -40,15 +43,35 @@ export class ListPedidoComponent implements OnInit {
     ) { }
 
     ngOnInit(): void {
-        this.getListPedidos()
+        this.getListPedidosActivos();
+        // this.getListPedidosAnulados();
+        console.log(this.listPedidosActivos)
     }
 
-    getListPedidos() {
+    getListPedidosActivos() {
         this._pedidoService.getListPedidos().subscribe((data: any) => {
-            this.listPedidos = data.listaPedidos.filter((pedido: any) => {
+            this.listPedidosActivos = data.listaPedidos.filter((pedido: any) => {
                 return pedido.estado === 'Registrado' || pedido.estado === 'En proceso';
             });
         });
+    }
+
+    // getListPedidosAnulados() {
+    //     this._pedidoService.getListPedidos().subscribe((data: any) => {
+    //         this.listPedidosAnulados = data.listaPedidos.filter((pedido: any) => {
+    //             return pedido.estadoPedido === false;
+    //         });
+    //     });
+    // }
+
+
+
+    mostrarPedidos(){
+        if(this.mostrarPedidosActivos === true){
+            this.mostrarPedidosActivos = false
+        }else{
+            this.mostrarPedidosActivos = true
+        }
     }
 
     async mostrarDetallePedido(id: number) {
@@ -81,7 +104,7 @@ export class ListPedidoComponent implements OnInit {
             this._pedidoService.anularPedido(id, false, this.motivoAnulacion).subscribe(
                 (response) => {
                     this.toastr.success('El pedido se anuló correctamente.', 'pedido Anulado');
-                    this.getListPedidos();
+                    this.getListPedidosActivos();
                 },
                 (error) => {
                     console.error('Error al anular el pedido:', error);
@@ -92,17 +115,6 @@ export class ListPedidoComponent implements OnInit {
         this.showConfirmationDialogPedido = false;
         this.pedidoSeleccionado = null;
         this.motivoAnulacion = ''; // Restablecer el motivo de anulación
-    }
-
-    alternarVistaEstado() {
-        this.mostrarPedidosActivos = !this.mostrarPedidosActivos;
-    }
-
-    ffiltroEstado(pedido: any, filtros: { [s: string]: any }): boolean {
-        const estadoPedido = pedido.estadoPedido;
-    
-        return (this.mostrarPedidosActivos && estadoPedido === true && (!filtros['estado'] || filtros['estado'].value === 'true')) ||
-               (!this.mostrarPedidosActivos && estadoPedido === false && (!filtros['estado'] || filtros['estado'].value === 'false'));
     }
     
     exportToExcel(){
@@ -123,7 +135,7 @@ export class ListPedidoComponent implements OnInit {
 
         data.push(headers)
 
-        this.listPedidos.forEach(pedido => {
+        this.listPedidosActivos.forEach(pedido => {
             if(pedido.estadoPedido == true){
                 const row = [
                     pedido.cliente,

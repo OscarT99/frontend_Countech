@@ -12,12 +12,16 @@
                 </ng-template>
 
                 <ng-template pTemplate="right">
-                    <p-button [raised]="true" severity="success" label="Excel" icon="pi pi-file-excel" pTooltip="Descargar"
-                        (click)="exportToExcel()"></p-button>
+                    <div class="flex flex-wrap gap-3">
+                        <p-button label="{{mostrarPedidosActivos ? 'Ver pedidos anulados' : 'Ver pedidos activos'}}" (click)="mostrarPedidos()" 
+                        [raised]="true" [severity]="mostrarPedidosActivos ? 'warning' : 'info' " icon="pi pi-eye"></p-button>
+                        <p-button [raised]="true" severity="success" label="Excel" icon="pi pi-file-excel" pTooltip="Descargar"
+                         (click)="exportToExcel()"></p-button>
+                    </div>                    
                 </ng-template>
             </p-toolbar>
 
-            <p-table #dt [value]="listPedidos" [scrollable]="false" responsiveLayout="scroll" [rows]="5"
+            <p-table #dt [value]="listPedidosActivos" [scrollable]="false" responsiveLayout="scroll" [rows]="5"
                 [globalFilterFields]="['Cliente.razonSocial','estado']" [paginator]="true"
                 [rowsPerPageOptions]="[5,10,15]" [showCurrentPageReport]="true"
                 currentPageReportTemplate="Mostrando del {first} al {last} de {totalRecords} pedidos" [rowHover]="true"
@@ -42,13 +46,12 @@
                         <th pSortableColumn="fechaEntregaOrden">F. Entrega<p-sortIcon
                                 field="fechaEntregaOrden"></p-sortIcon></th>
                         <th pSortableColumn="valorTotal">Valor Total<p-sortIcon field="valorTotal"></p-sortIcon></th>
-                        <th pSortableColumn="estado" (click)="alternarVistaEstado()">Estado<p-sortIcon
-                                field="estado"></p-sortIcon></th>
+                        <th pSortableColumn="estado">Estado</th>
                         <th></th>
                     </tr>
                 </ng-template>
                 <ng-template pTemplate="body" let-pedido>
-                    <tr *ngIf="ffiltroEstado(pedido, dt.filters)">
+                    <tr>
                         <td style="min-width:10rem;"><span class="p-column-title">Cliente</span>
                             {{ pedido.Cliente.tipoIdentificacion !== 'NIT' ?
                             pedido.Cliente.razonSocial + ' ' + pedido.Cliente.nombreComercial :
