@@ -201,66 +201,6 @@
         </div>
     </ng-template>
 
-    <!-- Dialog para registrar el proceso asignado a un empleado -->
-    <p-dialog [(visible)]="asignarProcDialog" [style]="{width: '450px'}" [modal]="true" header="Asignar proceso" class="p-fluid">
-        <form [formGroup]="formAsignarProcesoEmpleado" (ngSubmit)="addAsignarProcesoEmpleado()">
-
-                <div class="field">
-                    <label for="empleado">Empleado*</label>
-                    
-                    <div>
-                      <p-autoComplete
-                        formControlName="empleadoId"
-                        [suggestions]="listEmpleados"
-                        (completeMethod)="buscarEmpleado($event)"
-                        [dropdown]="true"                          
-                        [placeholder]="'Seleccionar empleado'"
-                        (onSelect)="seleccionarEmpleado($event)">
-                        <ng-template let-empleado pTemplate="item">
-                                {{empleado.nombre}} {{empleado.apellido}}
-                        </ng-template>
-                      </p-autoComplete>                              
-                    </div>
-                    
-                    <small *ngIf="formAsignarProcesoEmpleado.get('empleado')?.hasError('required') && formAsignarProcesoEmpleado.get('empleado')?.touched" style="color: red;">
-                        El empleado es <strong>requerido</strong>
-                    </small>
-                </div>
-
-                <div class="formgrid grid">
-                    <div class="field col">
-                        <span class="p-float-label">
-                            <input type="number" id="cantidadPendiente" [readOnly]="true" [ngStyle]="{'pointer-events': 'none', 'background-color': '#ffffff', 'caret-color': 'transparent'}" pInputText formControlName="cantidadPendiente"/>
-                            <label for="cantidadPendiente">Cantidad disponible</label>
-                        </span>
-                    </div>
-                    <div class="field col">
-                        <span class="p-float-label">
-                            <input id="cantidadAsignada" pKeyFilter="int" type="number" pInputText formControlName="cantidadAsignada" (input)="validateCantAsignada()"/>
-                            <label for="cantidadAsignada">Cantidad por asignar</label>
-                        </span>
-                        <small>
-                            <span *ngIf="formAsignarProcesoEmpleado.get('cantidadAsignada')?.hasError('required') && formAsignarProcesoEmpleado.get('cantidadAsignada')?.touched" style="color: red;">
-                                La cantidad es <strong>requerida.</strong>
-                            </span>
-                            <span *ngIf="formAsignarProcesoEmpleado.get('cantidadAsignada')?.hasError('min') && formAsignarProcesoEmpleado.get('cantidadAsignada')?.touched" style="color: red;">
-                                La cantidad asignada debe ser mayor a 0.
-                            </span>
-                            <span *ngIf="formAsignarProcesoEmpleado.get('cantidadAsignada')?.hasError('cantError') && formAsignarProcesoEmpleado.get('cantidadAsignada')?.touched" style="color: red;">
-                                La cantidad asignada no puede ser mayor a la cantidad disponible.
-                            </span>
-                        </small>
-                    </div>
-                </div>
-                <div class="formgrid col grid mt-2 justify-content-end">
-                    <p-button label="Cancelar" icon="pi pi-times" [text]="true" (click)="hideDialog()"></p-button>
-                    <p-button type="submit" label="Asignar" [disabled]="formAsignarProcesoEmpleado.invalid" icon="pi pi-check"></p-button>
-                </div>
-                  
-        </form>
-    </p-dialog>
-
-
     <!-- Dialog para ver los procesos asignados y registrar avances -->
 
     <p-dialog [(visible)]="detalleProcAsigDialog" header="Procesos asignados" [style]="{width:'80vw'}" [draggable]="false" [resizable]="false" [modal]="true" class="p-fluid">

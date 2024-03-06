@@ -23,16 +23,16 @@ export class AsignarProcesoService {
 
   //getAsignarProcesoEmpleado sirve para obtener todos los procesos asignados a los empleados
   getAsignarProcesoEmpleado(): Observable<AsignarProcesoEmpleado> {
-    return this.http.get<AsignarProcesoEmpleado>(`http://localhost:8083/api/asignarprocesos`);
+    return this.http.get<AsignarProcesoEmpleado>(`${this.myAppUrl}api/asignarprocesos`);
   }
 
   getProcesoAvance(): Observable<AsignarProcesoEmpleado> {
-    return this.http.get<AsignarProcesoEmpleado>(`http://localhost:8083/api/asignarproceso/avance`);
+    return this.http.get<AsignarProcesoEmpleado>(`${this.myAppUrl}${this.myApiUrl}avance`);
   }
 
   //postEmpleado sirve para crear un empleado
   postAsignarProcesoEmpleado(asignarProceso: AsignarProcesoEmpleado): Observable<void> {
-    return this.http.post<void>(`http://localhost:8083/api/asignarproceso`, asignarProceso);
+    return this.http.post<void>(`${this.myAppUrl}${this.myApiUrl}`, asignarProceso);
   }
 
   //putEmpleado sirve para actualizar un empleado
@@ -41,7 +41,7 @@ export class AsignarProcesoService {
   }
 
   putAnularProceso(id: number, estadoAnular: EstadoAnular): Observable<any>{
-    return this.http.put<void>(`http://localhost:8083/api/anularprocesoasignado/${id}`, estadoAnular);
+    return this.http.put<void>(`${this.myAppUrl}api/anularprocesoasignado/${id}`, estadoAnular);
   }
 
   //deleteEmpleado sirve para eliminar un empleado

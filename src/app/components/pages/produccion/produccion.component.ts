@@ -333,24 +333,33 @@ export class ProduccionComponent implements OnInit {
   // Registrar una cantidad hecha de un proceso asignado a un empleado
   crearAvance(id: number) {
 
+    this.formAvance.markAllAsTouched();
+
     const dataAvance: AvanceProcesoEmpleado = {
       cantidadHecha: this.formAvance.value.cantidadHecha,
       asignarProcesoEmpleadoId: id
     }
-    this._avanceProcesoService.postAvanceProcesoEmpleado(dataAvance).subscribe(() => {
-      this.toastr.success('Registro de avance exitoso');
-      this.getListPedidoProcesos();
-      this.getAsignarProcesoEmpleado();
-      this.getPedidoInfoEstado();
-
-      this._pedidoService.getPedido(this.pedidoId).subscribe((data: any) => {
-        if(data.estado === 'Terminado'){
-          this.toastr.success('Pedido terminado correctamente', 'Éxito');
-          this.getListPedidos();
-        }
-      });
-
-    });
+    try{
+      if(this.formAvance.valid){
+        this._avanceProcesoService.postAvanceProcesoEmpleado(dataAvance).subscribe(() => {
+          this._pedidoService.getPedido(this.pedidoId).subscribe((data: any) => {
+            if(data.estado === 'Terminado'){
+              this.toastr.success('Pedido terminado correctamente', 'Éxito');
+              this.getListPedidos();
+            }
+          });
+          this.toastr.success('Registro de avance exitoso', 'Éxito');
+          this.getListPedidoProcesos();
+          this.getAsignarProcesoEmpleado();
+          this.getPedidoInfoEstado();
+        });
+      }else{
+        this.toastr.error('Por favor, complete todos los campos obligatorios', 'Error de validación');
+      }
+    }catch(error){
+      console.error('Ha ocurrido un error al registrar el avance:', error);
+      this.toastr.error('Ha ocurrido un error al registrar el avance', 'Error');
+    }
   };
 
 

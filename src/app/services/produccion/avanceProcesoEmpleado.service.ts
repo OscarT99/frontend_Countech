@@ -30,7 +30,7 @@ export class AvanceProcesoEmpleadoService {
 
   //getAsignarProcesoEmpleado sirve para obtener todos los procesos asignados a los empleados
   getAvanceProcesoEmpleado(): Observable<AvanceProcesoEmpleado> {
-    return this.http.get<AvanceProcesoEmpleado>(`http://localhost:8083/api/avanceprocesos`);
+    return this.http.get<AvanceProcesoEmpleado>(`${this.myAppUrl}api/avanceprocesos`);
   }
 
   //postEmpleado sirve para crear un empleado
