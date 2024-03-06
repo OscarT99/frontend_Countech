@@ -56,6 +56,8 @@ export class EmpleadoComponent implements OnInit {
   maxDate: Date = new Date();
 
 
+  formulariosAvance: FormGroup[] = [];
+
 
   constructor(private fb: FormBuilder,
     private _empleadoService: EmpleadoService,
@@ -98,6 +100,7 @@ export class EmpleadoComponent implements OnInit {
     ];
 
   }
+
 
 
   validateNumIdentidad() {
@@ -171,12 +174,7 @@ export class EmpleadoComponent implements OnInit {
         return;
     }
   }
-  
-  getPedido(id: number) {
-    this._pedidoService.getPedido(id).subscribe((data: PedidoInstance) => {
-      this.pedido = data;
-    });
-  }
+
 
   getEmpleadoProceso() {
     this._empleadoService.getEmpleadoProcesos().subscribe((data: any) => {
@@ -189,17 +187,14 @@ export class EmpleadoComponent implements OnInit {
         empleado.asignarProcesoEmpleados.forEach((procAsig: any) => {
           this._pedidoService.getPedidoProcesoById(procAsig.pedidoprocesoId).subscribe((proceso: any) => {
               procAsig.procesoNom = proceso.proceso;
+              // console.log(proceso.pedido)
+              this._pedidoService.getPedido(proceso.pedido).subscribe((pedido: any) => {
+                procAsig.ordenTrabajo = pedido.ordenTrabajo;
+              });
           })
-          console.log(this.listEmpleados)
         })
       });
 
-          // this.listEmpleados.forEach((procAsig: any) => {
-          //   this._pedidoService.getPedidoProcesoById(procAsig.id).subscribe((proceso: any) => {
-          //       procAsig.procesoNom = proceso.proceso;
-          //   })
-          // })
-    
       console.log(this.listEmpleados);
     });
   }
@@ -277,14 +272,25 @@ export class EmpleadoComponent implements OnInit {
 
     // Registrar una cantidad hecha de un proceso asignado a un empleado
     crearAvance(id: number){
+      this.form.markAllAsTouched();
+
       const dataAvance: AvanceProcesoEmpleado = {
         cantidadHecha: this.formAvance.value.cantidadHecha,
         asignarProcesoEmpleadoId: id
       }
-      this._avanceProcesoService.postAvanceProcesoEmpleado(dataAvance).subscribe(() => {
-        this.toastr.success('Registro de avance exitoso', 'Éxito');
-        this.getEmpleadoProceso();
-      });
+      try{
+        if(this.formAvance.valid){
+          this._avanceProcesoService.postAvanceProcesoEmpleado(dataAvance).subscribe(() => {
+            this.toastr.success('Registro de avance exitoso', 'Éxito');
+            this.getEmpleadoProceso();
+          });
+        }else{
+          this.toastr.error('Por favor, complete todos los campos obligatorios', 'Error de validación');
+        }
+      }catch(error){
+        console.error('Ha ocurrido un error al registrar el avance:', error);
+        this.toastr.error('Ha ocurrido un error al registrar el avance', 'Error');
+      }
     }
 
 
@@ -343,23 +349,29 @@ export class EmpleadoComponent implements OnInit {
 
     this.confirmationService.confirm({
       header: 'Confirmación',
-
+      acceptLabel: 'Sí',
+      rejectLabel: 'No',
       acceptIcon: 'pi pi-check mr-2',
       rejectIcon: 'pi pi-times mr-2',
       rejectButtonStyleClass: 'p-button-sm',
       acceptButtonStyleClass: 'p-button-outlined p-button-sm',
       accept: () => {
         if (this.empleadoSeleccionado != null && this.empleadoSeleccionado.id != null) {
+          if(this.empleadoSeleccionado?.estadoOcupado !== true){
           this._empleadoService.putEmpleado(this.empleadoSeleccionado.id, this.empleadoSeleccionado)
             .subscribe(() => {
               if(this.empleadoSeleccionado?.estado === true){
-                this.toastr.success('¡El empleado ha sido <strong>activado</strong> exitosamente!', 'Éxito');
+                this.toastr.success('¡El empleado ha sido <strong>activado</strong> exitosamente!', 'Éxito', { enableHtml: true });
               }else{
-                this.toastr.warning('¡El empleado ha sido <strong>desactivado</strong> exitosamente!', 'Éxito');
+                this.toastr.warning('¡El empleado ha sido <strong>desactivado</strong> exitosamente!', 'Éxito', { enableHtml: true });
               }
             } );
+        }else{
+          this.getEmpleadoProceso();
+          this.toastr.error('¡El empleado no puede ser desactivado, ya que se encuentra ocupado!', 'Error');
         }
 
+      }
       },
       reject: () => {
         this.getEmpleadoProceso();

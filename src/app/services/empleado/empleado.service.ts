@@ -18,23 +18,23 @@ export class EmpleadoService {
 
   // getEmpleadoProcesos sirve para obtener los empleados junto con sus procesos
   getEmpleadoProcesos(): Observable<Empleado> {
-    return this.http.get<Empleado>(`http://localhost:8083/api/empleado/proceso`)
+    return this.http.get<Empleado>(`${this.myAppUrl}api/empleado/proceso`)
   }
 
   //getListEmpleados sirve para obtener todos los empleados
   getEmpleadoList(): Observable<Empleado> {
-    return this.http.get<Empleado>(`http://localhost:8083/api/empleados`);
+    return this.http.get<Empleado>(`${this.myAppUrl}api/empleados`);
   }
 
   //getEmpleado sirve para obtener un empleado por su id
   getEmpleado(id: number): Observable<Empleado> {
-    return this.http.get<Empleado>(`http://localhost:8083/api/empleado/${id}`);
+    return this.http.get<Empleado>(`${this.myAppUrl}${this.myApiUrl}${id}`);
   }
 
 
   //postEmpleado sirve para crear un empleado
   postEmpleado(empleado: Empleado): Observable<void> {
-    return this.http.post<void>(`http://localhost:8083/api/empleado`, empleado);
+    return this.http.post<void>(`${this.myAppUrl}${this.myApiUrl}`, empleado);
   }
 
   //putEmpleado sirve para actualizar un empleado
