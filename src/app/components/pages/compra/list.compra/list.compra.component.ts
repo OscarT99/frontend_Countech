@@ -24,6 +24,7 @@ import { DetalleCompraInstance } from 'src/app/interfaces/compra/detalleCompra.i
 })
 export class ListCompraComponent implements OnInit {
 
+
     mostrarComprasActivas : boolean = true;
 
     motivoAnulacion: string = '';
@@ -34,7 +35,9 @@ export class ListCompraComponent implements OnInit {
     abonoCompra: AbonoCompra = {}
     formAbonoCompra: FormGroup;
 
-    listCompras: CompraInstance[] = []
+    listComprasActivas: CompraInstance[] = [];
+    listComprasAnuladas: CompraInstance[] = [];
+
     compra: CompraInstance = {}
     id: number = 0;
     totalNeto: number = 0;
@@ -74,18 +77,36 @@ export class ListCompraComponent implements OnInit {
     }
 
     ngOnInit(): void {
-        this.getListCompras();
-        //this.totalNeto = this.totalNetoService.totalNeto; // Obtener el total neto del servicio
-        console.log('Total Neto desde add.compra:', this.totalNeto);
+        this.getListComprasAtivas();
+        this.getListComprasAnuladas();
         this.formAbonoCompra.get('valorRestante')?.setValue(this.getValorRestante());
     }
 
 
-    getListCompras() {
+    getListComprasAtivas() {
         this._compraService.getListCompras().subscribe((data: any) => {
-            this.listCompras = data.listaCompras;
-        })
+            this.listComprasActivas = data.listaCompras.filter((compra: any) => {
+                return compra.estadoCompra === true
+            });
+        });
     }
+
+    getListComprasAnuladas(){
+        this._compraService.getListCompras().subscribe((data: any) => {
+            this.listComprasAnuladas = data.listaCompras.filter((compra: any) => {
+                return compra.estadoCompra === false
+            });
+        });
+    }
+
+    mostrarCompras(){
+        if(this.mostrarComprasActivas === true){
+            this.mostrarComprasActivas = false
+        }else{
+            this.mostrarComprasActivas = true
+        }
+    }
+
 
     async mostrarDetalleCompra(id: number) {
         try {
@@ -98,7 +119,7 @@ export class ListCompraComponent implements OnInit {
 
     anularCompra(compra: CompraInstance): void {
         this.compraSeleccionada = compra;
-        this.showConfirmationDialogCompra = true;
+        this.showConfirmationDialogCompra = true;        
     }
 
     confirmActionCompra(confirm: boolean): void {
@@ -114,7 +135,8 @@ export class ListCompraComponent implements OnInit {
             this._compraService.anularCompra(id, false, this.motivoAnulacion).subscribe(
                 (anularResponse) => {
                     this.toastr.success('La compra se anuló correctamente.', 'Compra Anulada');
-                    this.getListCompras();
+                    this.getListComprasAtivas();
+                    this.getListComprasAnuladas();
                        
                     if (this.compraSeleccionada!.DetalleEnCompras) {
                         // Obtener la cantidad de cada detalle
@@ -138,7 +160,7 @@ export class ListCompraComponent implements OnInit {
                     }
     
                     this.toastr.success('La compra se anuló correctamente y se restó la cantidad de insumo.', 'Compra Anulada');
-                    this.getListCompras();
+                    this.getListComprasAtivas();
                 },
                 (anularError) => {
                     console.error('Error al anular la compra:', anularError);
@@ -152,14 +174,10 @@ export class ListCompraComponent implements OnInit {
         this.motivoAnulacion = ''; // Restablecer el motivo de anulación
     }
 
-
     //Abono Compras
     value8: any;
     value9: any;
     productDialogAbono: boolean = false;
-
-
-
 
 
     getCompra(id: number) {
@@ -196,10 +214,6 @@ export class ListCompraComponent implements OnInit {
         })
     }
 
-
-
-
-
     newAbonoCompra(id: number) {
         this.id = id;
         this.productDialogAbono = true;
@@ -210,21 +224,11 @@ export class ListCompraComponent implements OnInit {
         this.getListAbonoCompras();
     }
 
-
-
-
-
     openNew() {
         this.id = 0;
         this.formAbonoCompra.reset()
         this.productDialogAbono = true;
     }
-
-
-
-
-
-
 
     confirm2(event: Event) {
         this.confirmationService.confirm({
@@ -396,19 +400,6 @@ export class ListCompraComponent implements OnInit {
         //return this.compra && this.totalNeto !== undefined ? parseFloat(this.totalNeto.toString()) : 0;
       }
     
-    
-    
-
-
-    alternarVistaEstadoCompra() {
-        this.mostrarComprasActivas = !this.mostrarComprasActivas;
-    }
-
-    ffiltroEstadoCompra(compra: any, filtros: { [s: string]: any }): boolean {
-        return (this.mostrarComprasActivas && compra.estadoCompra === true && (!filtros['estadoCompra'] || filtros['estadoCompra'].value === 'true')) ||
-            (!this.mostrarComprasActivas && compra.estadoCompra === false && (!filtros['estadoCompra'] || filtros['estadoCompra'].value === 'false'));
-    }
-
     exportToExcel() {
         const data: any[] = [];
 
@@ -425,7 +416,7 @@ export class ListCompraComponent implements OnInit {
         data.push(headers);
 
 
-        this.listCompras.forEach(compra => {
+        this.listComprasActivas.forEach(compra => {
             if (compra.estadoCompra == true) {
                 const row = [
                     compra.proveedor,
@@ -463,5 +454,5 @@ export class ListCompraComponent implements OnInit {
     getSeverityEstadoPago(estadoPago:string){
         return estadoPago === 'Pago' ? 'success' : 'warning';
     }
-    
+
 }

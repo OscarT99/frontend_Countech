@@ -8,14 +8,19 @@
                             [routerLink]="['/pages/compra/add']"></p-button>
                     </div>
                 </ng-template>
-
+                
                 <ng-template pTemplate="right">
-                    <p-button [raised]="true" severity="success" label="Excel" icon="pi pi-file-excel" pTooltip="Descargar" (click)="exportToExcel()"></p-button>
+                    <div class="flex flex-wrap gap-3">
+                        <p-button label="{{mostrarComprasActivas ? 'Ver compras anuladas' : 'Ver compras activas'}}" (click)="mostrarCompras()" 
+                        [raised]="true" [severity]="mostrarComprasActivas ? 'warning' : 'info' " icon="pi pi-eye"></p-button>
+                        <p-button [raised]="true" severity="success" label="Excel" icon="pi pi-file-excel" pTooltip="Descargar"
+                         (click)="exportToExcel()"></p-button>
+                    </div>                    
                 </ng-template>
             </p-toolbar>
 
-            <p-table #dt [value]="listCompras" responsiveLayout="scroll" [rows]="5"
-                [globalFilterFields]="['Proveedor.razonSocial','numeroFactura']" [paginator]="true"
+            <p-table #dt [value]="mostrarComprasActivas ? listComprasActivas : listComprasAnuladas" responsiveLayout="scroll" [rows]="5"
+                [globalFilterFields]="['Proveedor.razonSocial','numeroFactura','totalNeto']" [paginator]="true"
                 [rowsPerPageOptions]="[5,10,15]" [showCurrentPageReport]="true"
                 currentPageReportTemplate="Mostrando del {first} al {last} de {totalRecords} compras" [rowHover]="true"
                 dataKey="id">
@@ -38,13 +43,12 @@
                         <!-- <th pSortableColumn="formaPago">Forma Pago<p-sortIcon field="formaPago"></p-sortIcon></th> -->
                         <th pSortableColumn="totalNeto">Valor Total<p-sortIcon field="totalNeto"></p-sortIcon></th>
                         <th pSortableColumn="estadoPago">Saldo<p-sortIcon field="estadoPago"></p-sortIcon></th>
-                        <th pSortableColumn="estadoCompra" (click)="alternarVistaEstadoCompra()">Estado<p-sortIcon
-                                field="estadoCompra"></p-sortIcon></th>
+                        <th pSortableColumn="estadoCompra">Estado</th>
                         <th></th>
                     </tr>
                 </ng-template>
                 <ng-template pTemplate="body" let-compra>
-                    <tr *ngIf="ffiltroEstadoCompra(compra, dt.filters)">
+                    <tr>
                         <td style="min-width:8rem;"><span class="p-column-title">Proveedor</span>
                             {{ compra.Proveedor.tipoIdentificacion !== 'NIT' ?
                             compra.Proveedor.razonSocial + ' ' + compra.Proveedor.nombreComercial :
@@ -79,10 +83,10 @@
                                 <!-- <button  pTooltip="Editar" style="background:transparent;border:transparent"><i class="fa-sharp fa-solid fa-pencil fa-2xl mt-2" style="color: #FFD43B;"></i></button> -->                                
                                 <p-button icon="pi pi-file" [rounded]="true" severity="secondary"
                                     (click)="mostrarDetalleCompra(compra.id)" pTooltip="Ver detalle"></p-button>
-                                <button *ngIf="compra.formaPago === 'Crédito' && compra.estadoPago === 'Pendiente' && compra.estadoCompra === true"
-                                    pButton pRipple icon="pi pi-dollar" class="p-button-rounded p-button-success" 
+                                <p-button *ngIf="compra.formaPago === 'Crédito' && compra.estadoPago === 'Pendiente' && compra.estadoCompra === true"
+                                     icon="pi pi-dollar" [rounded]="true" severity="success" pTooltip="Abonar"
                                     (click)="newAbonoCompra(compra.id)">
-                                </button>    
+                                </p-button>    
                                 <p-button *ngIf="compra.estadoCompra == true" icon="pi pi-times" [rounded]="true" severity="danger"
                                     (click)="anularCompra(compra)" pTooltip="Anular"></p-button>
                             
@@ -220,11 +224,29 @@
                 <p>
                     ¿Está seguro de que desea anular la compra? despues de anulada no se podra volver a modificar
                 </p>
-                <input pInputText type="text" [(ngModel)]="motivoAnulacion" placeholder="Motivo de Anulación" />
-                <button pButton type="button" label="Sí" icon="pi pi-check"
-                    (click)="confirmActionCompra(true)"></button>
-                <button pButton type="button" label="No" icon="pi pi-times"
-                    (click)="confirmActionCompra(false)"></button>
+
+                <div>
+                    <input pInputText type="text" [minlength]="10" [(ngModel)]="motivoAnulacion" placeholder="Motivo de Anulación" />                    
+                </div>
+                    <!-- <small
+                        *ngIf="motivoAnulacion.trim() === '' "
+                        style="color: red;">
+                            El nombre del insumo <strong>requerido</strong>
+                    </small>
+                    <small
+                        *ngIf="motivoAnulacion.length < 10 "
+                        style="color: red;">
+                            Ingrese un motivo de anulación especifico
+                    </small> -->
+
+
+                <div class="formgrid col grid mt-2 justify-content-end flex flex-wrap gap-1">
+                    <p-button  label="Cancelar" icon="pi pi-times" [text]="true"
+                    (click)="confirmActionCompra(false)"></p-button>
+                    <p-button  label="Confirmar" icon="pi pi-check"
+                    (click)="confirmActionCompra(true)"></p-button>                    
+                </div>
+                
             </p-dialog>
 
         </div>
