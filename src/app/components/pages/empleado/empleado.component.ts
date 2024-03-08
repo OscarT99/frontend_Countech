@@ -14,10 +14,6 @@ import { Observable } from 'rxjs';
 import { ConfirmationService, MessageService, ConfirmEventType } from 'primeng/api';
 
 
-interface OptionTipoIdentidad {
-  label: string;
-  value: string;
-}
 
 @Component({
   templateUrl: './empleado.component.html',
@@ -28,6 +24,8 @@ export class EmpleadoComponent implements OnInit {
   listEmpleados: Empleado[] = [];
 
   infoDialog: boolean = false;
+
+  detalleEmpleado:  any;
   
   editDialog: boolean = false;
   
@@ -51,12 +49,24 @@ export class EmpleadoComponent implements OnInit {
 
   cols: any[] = [];
 
-  listTipoIdentidad: OptionTipoIdentidad[] | undefined;
+  listTipoIdentidad: any[] = [
+  'Cédula de ciudadanía',
+  'Tarjeta de extranjería',
+  'Cédula de extranjero',
+  'Pasaporte'
+  ];
+
+  contador: number = 0;
 
   maxDate: Date = new Date();
 
 
   formulariosAvance: FormGroup[] = [];
+
+
+  listProcesos: any[] = [];
+  
+  formArray: FormGroup[] = [];
 
 
   constructor(private fb: FormBuilder,
@@ -68,7 +78,7 @@ export class EmpleadoComponent implements OnInit {
       private aRouter:ActivatedRoute,
       ) {
         this.form = this.fb.group({
-          tipoIdentidad: [''],
+          tipoIdentidad: ['', [Validators.required]],
           numIdentidad: ['', [Validators.required]],
           nombre: ['', [Validators.required, Validators.maxLength(30), this.customTextRegExpValidator(/^[A-Za-záéíóúüÜÁÉÍÓÚÑñ ]+$/), this.customLengthtRegExpValidator(/^(\S+\s){0,2}\S*$/)]],
           apellido: ['', [Validators.required, Validators.maxLength(30), this.customTextRegExpValidator(/^[A-Za-záéíóúüÜÁÉÍÓÚÑñ ]+$/), this.customLengthtRegExpValidator(/^(\S+\s){0,2}\S*$/)]],
@@ -90,17 +100,32 @@ export class EmpleadoComponent implements OnInit {
 
   ngOnInit(): void {
 
+    this.getProcesos();
     this.getEmpleadoProceso();
 
-    this.listTipoIdentidad = [
-      { label: 'Cédula de ciudadanía', value:'Cédula de ciudadanía' },
-      { label: 'Tarjeta de extranjería', value:'Tarjeta de extranjería' },
-      { label: 'Cédula de extranjero', value:'Cédula de extranjería' },
-      { label: 'Pasaporte', value:'Pasaporte' },
-    ];
 
   }
 
+  
+  getProcesos(){
+    this._empleadoService.getEmpleadoProcesos().subscribe((data: any) => {
+      this.listEmpleados = data.EmpleadoProcesos;
+      this.listEmpleados.forEach((empleado: any) => {
+        empleado.asignarProcesoEmpleados.forEach((procAsig: any) => {
+          if (procAsig.estadoProcAsig === false) {
+            const formGroup = this.fb.group({
+              cantidadHecha: new FormControl('', [Validators.required, Validators.min(1)])
+            });
+            this.formArray.push(formGroup);
+            this.listProcesos.push(procAsig);
+          }
+        });
+      });
+  
+      console.log(this.listProcesos);
+      console.log(this.formArray[0]);
+    });
+  }
 
 
   validateNumIdentidad() {
@@ -176,6 +201,9 @@ export class EmpleadoComponent implements OnInit {
   }
 
 
+
+
+
   getEmpleadoProceso() {
     this._empleadoService.getEmpleadoProcesos().subscribe((data: any) => {
       this.listEmpleados = data.EmpleadoProcesos.map((empleadoProceso: any) => {
@@ -190,14 +218,17 @@ export class EmpleadoComponent implements OnInit {
               // console.log(proceso.pedido)
               this._pedidoService.getPedido(proceso.pedido).subscribe((pedido: any) => {
                 procAsig.ordenTrabajo = pedido.ordenTrabajo;
+                
               });
           })
         })
       });
 
-      console.log(this.listEmpleados);
+      // console.log(this.listEmpleados);
     });
   }
+
+
 
   showInfoDialog(id: number) {
     this.infoDialog = true;
@@ -345,9 +376,20 @@ export class EmpleadoComponent implements OnInit {
   }
 
   confirm(empleado: Empleado) {
+    
     this.empleadoSeleccionado = empleado;
 
+    const messageTemplate = `
+    <div class="flex flex-column align-items-center w-full gap-3 border-bottom-1 surface-border">
+    <i class="pi pi-exclamation-circle text-6xl text-primary-500"></i>
+    <p>
+      ¿Está seguro de que desea
+      <strong>${ this.empleadoSeleccionado?.estado ? 'ACTIVAR' : 'DESACTIVAR' }</strong> el empleado?
+    </p>
+  </div>`;
+    
     this.confirmationService.confirm({
+      message: messageTemplate,
       header: 'Confirmación',
       acceptLabel: 'Sí',
       rejectLabel: 'No',
@@ -401,6 +443,16 @@ export class EmpleadoComponent implements OnInit {
     }
     this.changeStateDialog = false;
   }
+
+  async mostrarDetalleEmpleado(id: number) {
+    try {
+      this.detalleEmpleado = await this._empleadoService.getEmpleado(id).toPromise();
+      this.infoDialog = true;
+      console.log(this.detalleEmpleado);
+    } catch (error) {
+      console.error('Error al obtener el detalle del empleado:', error);
+    }
+  }  
 
   getEmpleado(id:number) {
     

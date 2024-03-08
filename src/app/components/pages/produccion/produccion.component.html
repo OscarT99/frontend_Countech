@@ -353,7 +353,7 @@
                             </td>
                         
                             <td class="padding: 0;" *ngIf="proceso.estadoAnular === false && proceso.estadoProcAsig === false && proceso.cantidadAsignada === proceso.cantRestante">
-                                <p-button (click)="anularProceso(proceso.id)" icon="pi pi-times-circle" [rounded]="true" severity="danger" pTooltip="Anular"></p-button>
+                                <p-button (click)="confirm(proceso.id)" icon="pi pi-times-circle" [rounded]="true" severity="danger" pTooltip="Anular"></p-button>
                             </td>
                             <td *ngIf="proceso.estadoProcAsig === true && proceso.estadoAnular === false || proceso.estadoProcAsig === false && proceso.estadoAnular === false && proceso.cantidadAsignada !== proceso.cantRestante">
 
@@ -401,3 +401,4 @@
 
 </div>
 </div>
+

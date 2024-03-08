@@ -14,6 +14,8 @@ import { AccordionModule } from 'primeng/accordion';
 import { TabMenuModule } from 'primeng/tabmenu';
 import { TabViewModule } from 'primeng/tabview';
 import { TimelineModule } from 'primeng/timeline';
+import { ToastModule } from 'primeng/toast';
+
 import { InputTextModule } from 'primeng/inputtext';
 import { TreeTableModule } from 'primeng/treetable';
 import { DropdownModule } from 'primeng/dropdown';
@@ -29,6 +31,7 @@ import { MessagesModule } from 'primeng/messages';
         InputNumberModule,
         CommonModule,
         ToolbarModule,
+        ToastModule,
         ProduccionRoutingModule,
         TimelineModule,
         AccordionModule,

@@ -73,11 +73,14 @@ export class ProduccionComponent implements OnInit {
 
     activeAccordionTabIndex: number = 0;
 
+    idSelected: any;
+
 
   constructor(
     private confirmationService: ConfirmationService,
     // private messageService: MessageService,
     private fb: FormBuilder,
+    
     private _procesoReferenciaPedidoService: procesoReferenciaPedidoService,
     private _pedidoService:PedidoService,
     private _asignarProcesoService:AsignarProcesoService,
@@ -364,26 +367,62 @@ export class ProduccionComponent implements OnInit {
 
 
   // Anular un proceso asignado a un empleado
-  anularProceso(id: number){
+  // anularProceso(id: number){
+  //   this.confirmationService.confirm({
+  //     message: '¿Está seguro de anular el proceso?',
+  //     header: 'Anular proceso',
+  //     icon: 'pi pi-exclamation-triangle',
+  //     acceptLabel: 'Sí',
+  //     rejectLabel: 'No',
+  //     accept: () => {
+  //       const dataAnular: EstadoAnular = {
+  //         estadoAnular: true
+  //       }
+  //       // console.log({data: dataAnular}); 
+  //       this._asignarProcesoService.putAnularProceso(id, dataAnular).subscribe(() => {
+  //         this.toastr.success('Proceso anulado correctamente', 'Éxito');
+  //         this.getAsignarProcesoEmpleado();
+  //         this.getListPedidoProcesos();
+  //       });
+  //     },
+  //     reject: () => {
+  //       // this.toastr.error('Proceso no anulado', 'Error');
+  //     }
+  //   });
+  // }
+
+  confirm(id: number) {
+    this.idSelected = id;
+
+    const messageTemplate = `
+    <div class="flex flex-column align-items-center w-full gap-3 border-bottom-1 surface-border">
+      <i class="pi pi-exclamation-circle text-6xl text-primary-500"></i>
+      <p>¿Está seguro de que desea anular el proceso?</p>
+    </div>`;
+
     this.confirmationService.confirm({
-      message: '¿Está seguro de anular el proceso?',
-      header: 'Anular proceso',
-      icon: 'pi pi-exclamation-triangle',
+      message: messageTemplate,
+      header: 'Confirmación',
       acceptLabel: 'Sí',
       rejectLabel: 'No',
+      acceptIcon: 'pi pi-check mr-2',
+      rejectIcon: 'pi pi-times mr-2',
+      rejectButtonStyleClass: 'p-button-sm',
+      acceptButtonStyleClass: 'p-button-outlined p-button-sm',
       accept: () => {
-        const dataAnular: EstadoAnular = {
-          estadoAnular: true
-        }
-        // console.log({data: dataAnular}); 
-        this._asignarProcesoService.putAnularProceso(id, dataAnular).subscribe(() => {
-          this.toastr.success('Proceso anulado correctamente', 'Éxito');
-          this.getAsignarProcesoEmpleado();
-          this.getListPedidoProcesos();
-        });
+        if (this.idSelected != null) {
+            const dataAnular: EstadoAnular = {
+              estadoAnular: true
+            }
+            this._asignarProcesoService.putAnularProceso(id, dataAnular).subscribe(() => {
+              this.toastr.success('Proceso anulado correctamente', 'Éxito');
+              this.getAsignarProcesoEmpleado();
+              this.getListPedidoProcesos();
+            })
+      }
       },
       reject: () => {
-        // this.toastr.error('Proceso no anulado', 'Error');
+        this.toastr.error('¡El proceso no ha sido anulado!', 'Error');
       }
     });
   }

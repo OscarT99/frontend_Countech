@@ -30,7 +30,7 @@
             <th>Tipo de identificación</th>
             <th>Número de identificación</th>
             <th pSortableColumn="nombre">Nombre<p-sortIcon field="nombre"></p-sortIcon></th>
-            <th pSortableColumn="estado">Estado<p-sortIcon field="estado"></p-sortIcon></th>
+            <!-- <th pSortableColumn="estado">Estado<p-sortIcon field="estado"></p-sortIcon></th> -->
             <th>Estado producción</th>
             <th></th>
           </tr>
@@ -43,14 +43,14 @@
             <td>{{ empleado.tipoIdentidad }}</td>
             <td>{{ empleado.numIdentidad }}</td>
             <td>{{ empleado.nombre }} {{ empleado.apellido }}</td>
-            <td>
+            <!-- <td>
               <p-tag [value]="changeEstado(empleado.estado)" [severity]="getEstado(empleado.estado)"></p-tag>
-            </td>
+            </td> -->
             <td><p-tag [value]="changeEstadoProd(empleado.estadoOcupado)" [severity]="getEstadoProd(empleado.estadoOcupado)"></p-tag></td>
             <td>
               <div class="flex gap-3 justify-content-center">
                 <p-inputSwitch class="mt-3" [(ngModel)]="empleado.estado" (click)="confirm(empleado)" pTooltip="Cambiar estado"></p-inputSwitch>
-                <p-button icon="pi pi-file" severity="secondary" [rounded]="true" pTooltip="Ver detalle" (click)="showInfoDialog(empleado.id)"></p-button>
+                <p-button icon="pi pi-file" severity="secondary" [rounded]="true" pTooltip="Ver detalle" (click)="mostrarDetalleEmpleado(empleado.id)"></p-button>
                 <p-button icon="pi pi-pencil" severity="warning" [rounded]="true" pTooltip="Editar" (click)="showEditDialog(empleado.id)"></p-button>
               </div>
             </td>
@@ -70,14 +70,15 @@
                                   <th>Estado</th>
                               </tr>
                           </ng-template>
-                          <ng-template pTemplate="body" let-proceso>
+                          <ng-template pTemplate="body">
+                            <ng-container *ngFor="let proceso of empleado.asignarProcesoEmpleados; let i = index">
                               <tr>
                                 <td>{{ proceso.ordenTrabajo }}</td>
                                 <td>{{ proceso.procesoNom }}</td>
                                 <td>{{ proceso.cantidadAsignada }}</td>
                                 <td>{{ proceso.cantRestante }}</td>
                                 <td *ngIf="proceso.estadoProcAsig === false">
-                                  <form [formGroup]="formAvance" (ngSubmit)="crearAvance(proceso.id)">
+                                  <form [formGroup]="formArray[i]" (ngSubmit)="crearAvance(proceso.id)">
                                     <div class="formgrid col grid mt-2 justify-content-end" style="display: flex; flex-direction: row; padding: 0;">
                                         <div style="flex: 1;">
                                             <span class="p-float-label">
@@ -85,7 +86,7 @@
                                                 <label for="cantidadHecha">Cantidad hecha*</label>
                                             </span>
                                             <small>
-                                                <span *ngIf="formAvance.get('cantidadHecha')?.hasError('required') && formAvance.get('cantidadHecha')?.touched" style="color: red;">
+                                                <span *ngIf="formArray[i].get('cantidadHecha')?.hasError('required') && formArray[i].get('cantidadHecha')?.touched" style="color: red;">
                                                     La cantidad es <strong>requerida.</strong>
                                                 </span>
                                                 <span *ngIf="formAvance.get('cantidadHecha')?.hasError('min') && formAvance.get('cantidadHecha')?.touched" style="color: red;">
@@ -108,7 +109,7 @@
                                     <p-tag [value]="order.status" [severity]="getStatusSeverity(order.status)"></p-tag>
                                 </td> -->
                             </tr>
-                              
+                          </ng-container>
                           </ng-template>
                           <ng-template pTemplate="emptymessage">
                               <tr>
@@ -130,95 +131,90 @@
   </div>
 </div>
 
-<p-dialog header="Información del empleado" [(visible)]="infoDialog" [style]="{width: '450px'}" [modal]="true" class="p-fluid">
-  
-  <form [formGroup]="form">
-
-    <div class="formgrid grid">
-      
-        <div class="field col">
-          <label for="tipoIdentidad">Tipo de identificación</label>
-          <input [readOnly]="true" type="text" [ngStyle]="{'pointer-events': 'none', 'background-color': '#f4f4f4', 'caret-color': 'transparent'}" pInputText formControlName="tipoIdentidad">
+<p-dialog header="Detalle del empleado" [(visible)]="infoDialog" [style]="{width: '400px'}" [modal]="true" class="p-fluid">
+  <div *ngIf="detalleEmpleado">
+    <div class="grid mt-1">
+      <div class="col-6">
+        <span style="font-weight: bold;">Tipo de identificación:</span>
+        <div>
+          <span>{{ detalleEmpleado.tipoIdentidad }}</span>
         </div>
-  
-        <div class="field col">
-          <label for="numIdentidad">Número de identificación</label>
-          <input [readOnly]="true" type="text" [ngStyle]="{'pointer-events': 'none', 'background-color': '#f4f4f4', 'caret-color': 'transparent'}" pInputText formControlName="numIdentidad">
+      </div>
+      <div class="col-6">
+        <span style="font-weight: bold;">Número de identificación:</span>
+        <div>
+          <span>{{ detalleEmpleado.numIdentidad }}</span>
         </div>
+      </div>
+    </div>
+    
+   
+    <div class="grid mt-1">
+      <div class="col-10">
+        <span style="font-weight: bold;">Nombre completo:</span>
+        <div>
+          <span>{{ detalleEmpleado.nombre }} {{ detalleEmpleado.apellido }}</span>
+        </div>
+      </div>
+    </div>
+    
+    
+    <div class="grid mt-1">
+      <div class="col-6">
+        <span style="font-weight: bold;">Correo electrónico:</span>
+        <div>
+          <span>{{ detalleEmpleado.correo }}</span>
+        </div>
+      </div>
+      <div class="col-6">
+        <span style="font-weight: bold;">Teléfono:</span>
+        <div>
+          <span>{{ detalleEmpleado.telefono }}</span>
+        </div>
+      </div>
+    </div>
+    
 
+    <div class="grid mt-1">
+      <div class="col-6">
+        <span style="font-weight: bold;">Ciudad:</span>
+        <div>
+          <span>{{ detalleEmpleado.ciudad }}</span>
+        </div>
+      </div>
+      <div class="col-6">
+        <span style="font-weight: bold;">Dirección:</span>
+        <div>
+          <span>{{ detalleEmpleado.direccion }}</span>
+        </div>
+      </div>
+    </div>
+    
+    <div class="grid mt-1">
+      <div class="col-6">
+        <span style="font-weight: bold;">Fecha de ingreso:</span>
+        <div>
+          <span>{{ detalleEmpleado.fechaIngreso }}</span>
+        </div>
+      </div>
     </div>
 
-    <div class="formgrid grid">
-
-      <div class="field col">
-        <label for="nombre">Nombre</label>
-        <input [readOnly]="true" type="text" [ngStyle]="{'pointer-events': 'none', 'background-color': '#f4f4f4', 'caret-color': 'transparent'}" pInputText formControlName="nombre">
+    <div class="grid mt-1">
+      <div class="col-6">
+        <span style="font-weight: bold;">Estado:</span>
+        <div>
+          <span>{{ detalleEmpleado.estado ? 'Activo' : 'Inactivo' }}</span>
+        </div>
       </div>
-
-      <div class="field col">
-        <label for="apellido">Apellido</label>
-        <input [readOnly]="true" type="text" [ngStyle]="{'pointer-events': 'none', 'background-color': '#f4f4f4', 'caret-color': 'transparent'}" pInputText formControlName="apellido">
+      <div class="col-6">
+        <span style="font-weight: bold;">Estado producción:</span>
+        <div>
+          <span>{{ detalleEmpleado.estadoOcupado ? 'Ocupado' : 'Libre'}}</span>
+        </div>
       </div>
-
     </div>
 
-    <div class="formgrid grid">
-
-      <div class="field col">
-        <label for="correo">Correo electrónico</label>
-        <input [readOnly]="true" type="text" [ngStyle]="{'pointer-events': 'none', 'background-color': '#f4f4f4', 'caret-color': 'transparent'}" pInputText formControlName="correo">
-      </div>
-
-      <div class="field col">
-        <label for="teléfono">Telefono</label>
-        <input [readOnly]="true" type="text" [ngStyle]="{'pointer-events': 'none', 'background-color': '#f4f4f4', 'caret-color': 'transparent'}" pInputText formControlName="telefono">
-      </div>
-
-    </div>
-
-    <div class="formgrid grid">
-
-      <div class="field col">
-        <label for="ciudad">Ciudad</label>
-        <input [readOnly]="true" type="text" [ngStyle]="{'pointer-events': 'none', 'background-color': '#f4f4f4', 'caret-color': 'transparent'}" pInputText formControlName="ciudad">
-      </div>
-
-      <div class="field col">
-        <label for="direccion">Dirección</label>
-        <input [readOnly]="true" type="text" [ngStyle]="{'pointer-events': 'none', 'background-color': '#f4f4f4', 'caret-color': 'transparent'}" pInputText formControlName="direccion">
-      </div>
-
-    </div>
-
-    <div class="formgrid grid">
-
-      <div class="field col">
-        <label for="fechaIngreso">Fecha de ingreso</label>
-        <input [readOnly]="true" type="text" [ngStyle]="{'pointer-events': 'none', 'background-color': '#f4f4f4', 'caret-color': 'transparent'}" pInputText formControlName="fechaIngreso">
-      </div>
-
-    </div>
-
-    <!-- <div class="formgrid grid">
-
-      <div class="field col">
-        <label for="estado">Estado</label>
-        <input [readOnly]="true" type="text" [ngStyle]="{'pointer-events': 'none', 'background-color': '#f4f4f4', 'caret-color': 'transparent'}" pInputText formControlName="estado">
-      </div>
-
-      <div class="field col">
-        <label for="estadoProduccion">Estado producción</label>
-        <input [readOnly]="true" type="text" [ngStyle]="{'pointer-events': 'none', 'background-color': '#f4f4f4', 'caret-color': 'transparent'}" pInputText formControlName="estadoOcupado">
-      </div>
-
-    </div> -->
-
-  </form>
-
-  <ng-template pTemplate="footer">
-      <button pButton pRipple label="Cerrar" icon="pi pi-times" class="p-button-text" (click)="hideDialog()"></button>
-  </ng-template>
-
+  </div>
 </p-dialog>
 
 
@@ -372,11 +368,11 @@
 <p-dialog header="Registrar un empleado" [(visible)]="createDialog" [style]="{width: '450px'}" [modal]="true" class="p-fluid">
 
   <form [formGroup]="form" (ngSubmit)="addEmpleado()">
-
+    
     <div class="field">
       <span class="p-float-label">
-          <p-dropdown formControlName="tipoIdentidad" [options]="listTipoIdentidad" optionValue="value" placeholder="Seleccionar un tipo de identificación*"></p-dropdown>
-          <label for="tipoIdentidad">Seleccionar un tipo de identificación*</label>
+          <p-dropdown [options]="listTipoIdentidad" formControlName="tipoIdentidad" [showClear]="true" placeholder="Seleccionar"></p-dropdown>
+          <label for="tipoIdentidad">Tipo de identificación*</label>
       </span> 
       <small *ngIf="form.get('tipoIdentidad')?.value == null && form.get('tipoIdentidad')?.touched" style="color: red;">
           El tipo de identificación es requerido</small>
@@ -502,15 +498,6 @@
 
 <p-toast></p-toast>
         <p-confirmDialog>
-            <ng-template pTemplate="message">
-                <div class="flex flex-column align-items-center w-full gap-3 border-bottom-1 surface-border">
-                    <i class="pi pi-exclamation-circle text-6xl text-primary-500"></i>
-                    <p>
-                        ¿Está seguro de que desea
-                        <span style="font-weight: bold">{{ empleadoSeleccionado?.estado ? 'ACTIVAR' : 'DESACTIVAR' }}</span> el empleado?
-                      </p>
-                </div>
-            </ng-template>
         </p-confirmDialog>
 
 <p-dialog [(visible)]="avanceDialog" header="Info">
