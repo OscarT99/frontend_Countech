@@ -4,7 +4,7 @@ import { Table } from 'primeng/table';
 import { Empleado } from 'src/app/interfaces/empleado/empleado.interface';
 import { PedidoService } from 'src/app/services/pedido/pedido.service';
 import { PedidoInstance } from 'src/app/interfaces/pedido/pedido.interface'; 
-import { AsyncValidatorFn, FormBuilder, FormControl, FormControlName, FormGroup } from '@angular/forms';
+import { AsyncValidatorFn, FormArray, FormBuilder, FormControl, FormControlName, FormGroup } from '@angular/forms';
 import { ValidatorFn, AbstractControl, Validators } from '@angular/forms';
 import { ToastrService } from 'ngx-toastr';
 import { ActivatedRoute } from '@angular/router';
@@ -37,7 +37,7 @@ export class EmpleadoComponent implements OnInit {
 
   form: FormGroup;
 
-  formAvance: FormGroup;
+  // formAvance: FormGroup;
 
   pedido: PedidoInstance = {};
 
@@ -66,7 +66,11 @@ export class EmpleadoComponent implements OnInit {
 
   listProcesos: any[] = [];
   
-  formArray: FormGroup[] = [];
+  formArray = this.fb.group({
+    data: this.fb.array([])
+  });
+
+  count = 0;
 
 
   constructor(private fb: FormBuilder,
@@ -77,6 +81,7 @@ export class EmpleadoComponent implements OnInit {
       private toastr: ToastrService,      
       private aRouter:ActivatedRoute,
       ) {
+
         this.form = this.fb.group({
           tipoIdentidad: ['', [Validators.required]],
           numIdentidad: ['', [Validators.required]],
@@ -90,9 +95,6 @@ export class EmpleadoComponent implements OnInit {
           estado: [''],
           estadoOcupado: [''],
         });
-        this.formAvance = this.fb.group({
-          cantidadHecha: ['', [Validators.required, Validators.min(1)]],
-        });
         this.aRouter.params.subscribe(params => {
           this.id = +params['id'];
         });
@@ -100,30 +102,95 @@ export class EmpleadoComponent implements OnInit {
 
   ngOnInit(): void {
 
-    this.getProcesos();
+    // this.getProcesos();
     this.getEmpleadoProceso();
-
+    this.getProcesos();
 
   }
 
-  
-  getProcesos(){
+  get data(){
+    return this.formArray.get('data') as FormArray;
+  }
+
+  getProcesos(): void{
+    this.count = 0;
+    this.data.clear();
+
     this._empleadoService.getEmpleadoProcesos().subscribe((data: any) => {
-      this.listEmpleados = data.EmpleadoProcesos;
-      this.listEmpleados.forEach((empleado: any) => {
+      data.EmpleadoProcesos
+      .forEach((empleado: any) => {
         empleado.asignarProcesoEmpleados.forEach((procAsig: any) => {
           if (procAsig.estadoProcAsig === false) {
-            const formGroup = this.fb.group({
+            const formAvance = this.fb.group({
               cantidadHecha: new FormControl('', [Validators.required, Validators.min(1)])
             });
-            this.formArray.push(formGroup);
-            this.listProcesos.push(procAsig);
+            this.data.push(formAvance);
           }
+
         });
       });
   
-      console.log(this.listProcesos);
-      console.log(this.formArray[0]);
+      // console.log(this.listProcesos);
+      console.log(this.formArray);
+
+      // const con = this.formArray.get('data')?.value[0];
+      // console.log(con);
+    });
+  }
+
+    avanceData(id: number, value: number) {
+
+      const getValue = (this.formArray.get('data')?.value[value] as any).cantidadHecha as number;
+      const cantidadHechaControl = (this.formArray.get('data') as FormArray)?.controls[value].get('cantidadHecha');
+
+      const dataAvance: AvanceProcesoEmpleado = {
+        cantidadHecha: getValue,
+        asignarProcesoEmpleadoId: id
+      }
+
+      try{
+        if(cantidadHechaControl?.valid){
+          this._avanceProcesoService.postAvanceProcesoEmpleado(dataAvance).subscribe(() => {
+            this.toastr.success('Registro de avance exitoso', 'Éxito');
+            this.getProcesos();
+            this.getEmpleadoProceso();
+          });
+        }else{
+          this.toastr.error('Por favor, complete todos los campos obligatorios', 'Error de validación');
+        }
+      }catch(error){
+        console.error('Ha ocurrido un error al registrar el avance:', error);
+        this.toastr.error('Ha ocurrido un error al registrar el avance', 'Error');
+      }
+
+      console.log(dataAvance);
+      console.log(id);
+      // this.getProcesos();
+    }
+
+  
+  getEmpleadoProceso() {
+    this._empleadoService.getEmpleadoProcesos().subscribe((data: any) => {
+      this.listEmpleados = data.EmpleadoProcesos.map((empleadoProceso: any) => {
+        empleadoProceso.asignarProcesoEmpleados = empleadoProceso.asignarProcesoEmpleados.filter((asignacion: any) => !asignacion.estadoProcAsig);
+        return empleadoProceso;
+      });
+      this.listEmpleados.forEach((empleado: any) => {
+        empleado.asignarProcesoEmpleados.forEach((procAsig: any) => {
+          this._pedidoService.getPedidoProcesoById(procAsig.pedidoprocesoId).subscribe((proceso: any) => {
+            procAsig.num = this.count;
+            procAsig.procesoNom = proceso.proceso;
+            this.count = this.count + 1;
+            // console.log(proceso.pedido)
+            this._pedidoService.getPedido(proceso.pedido).subscribe((pedido: any) => {
+              procAsig.ordenTrabajo = pedido.ordenTrabajo;
+            });
+          });
+        });
+      });
+    
+      console.log(this.listEmpleados);
+      // console.log(this.formArray);
     });
   }
 
@@ -189,45 +256,19 @@ export class EmpleadoComponent implements OnInit {
     };
   }
 
-  validateCantHecha(cantRestante: number) {
-    const cantidadHechaControl = this.formAvance.get('cantidadHecha');
+  
+
+  validateCantHecha(num: number, cantRestante: number) {
+    const dataFormGroup = this.formArray.get('data') as FormGroup;
+    const cantidadHechaControl = dataFormGroup.controls[num].get('cantidadHecha');
     const cantidadHechaValue = cantidadHechaControl?.value;
     const cantidadRestanteControl = cantRestante;
-
+  
     if (cantidadHechaValue && cantidadHechaValue > cantidadRestanteControl) {
       cantidadHechaControl?.setErrors({ cantError: true });
-        return;
+      return;
     }
   }
-
-
-
-
-
-  getEmpleadoProceso() {
-    this._empleadoService.getEmpleadoProcesos().subscribe((data: any) => {
-      this.listEmpleados = data.EmpleadoProcesos.map((empleadoProceso: any) => {
-        empleadoProceso.asignarProcesoEmpleados = empleadoProceso.asignarProcesoEmpleados.filter((asignacion: any) => !asignacion.estadoProcAsig);
-        return empleadoProceso;
-      });
-
-      this.listEmpleados.forEach((empleado: any) => {
-        empleado.asignarProcesoEmpleados.forEach((procAsig: any) => {
-          this._pedidoService.getPedidoProcesoById(procAsig.pedidoprocesoId).subscribe((proceso: any) => {
-              procAsig.procesoNom = proceso.proceso;
-              // console.log(proceso.pedido)
-              this._pedidoService.getPedido(proceso.pedido).subscribe((pedido: any) => {
-                procAsig.ordenTrabajo = pedido.ordenTrabajo;
-                
-              });
-          })
-        })
-      });
-
-      // console.log(this.listEmpleados);
-    });
-  }
-
 
 
   showInfoDialog(id: number) {
@@ -300,29 +341,6 @@ export class EmpleadoComponent implements OnInit {
         return 'PENDIENTE';
     };
   }
-
-    // Registrar una cantidad hecha de un proceso asignado a un empleado
-    crearAvance(id: number){
-      this.form.markAllAsTouched();
-
-      const dataAvance: AvanceProcesoEmpleado = {
-        cantidadHecha: this.formAvance.value.cantidadHecha,
-        asignarProcesoEmpleadoId: id
-      }
-      try{
-        if(this.formAvance.valid){
-          this._avanceProcesoService.postAvanceProcesoEmpleado(dataAvance).subscribe(() => {
-            this.toastr.success('Registro de avance exitoso', 'Éxito');
-            this.getEmpleadoProceso();
-          });
-        }else{
-          this.toastr.error('Por favor, complete todos los campos obligatorios', 'Error de validación');
-        }
-      }catch(error){
-        console.error('Ha ocurrido un error al registrar el avance:', error);
-        this.toastr.error('Ha ocurrido un error al registrar el avance', 'Error');
-      }
-    }
 
 
   addEmpleado() {
