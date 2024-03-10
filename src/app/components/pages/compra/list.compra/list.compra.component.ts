@@ -24,10 +24,9 @@ import { DetalleCompraInstance } from 'src/app/interfaces/compra/detalleCompra.i
 })
 export class ListCompraComponent implements OnInit {
 
+    formMotivoAnulacion: FormGroup;
+    mostrarComprasActivas: boolean = true;
 
-    mostrarComprasActivas : boolean = true;
-
-    motivoAnulacion: string = '';
     showConfirmationDialogCompra: boolean = false;
     compraSeleccionada: CompraInstance | null = null;
 
@@ -63,13 +62,16 @@ export class ListCompraComponent implements OnInit {
         private messageService: MessageService,
         private totalNetoService: TotalNetoService,
     ) {
-        this.formAbonoCompra = this.fb.group({
-            id: ['', Validators.required],
-            proveedor: ['', Validators.required],
-            totalNeto: ['', Validators.required],
-            estadoPago: ['', Validators.required],
-            valorRestante: [{ value: 0, disabled: true }],
-        })
+        this.formMotivoAnulacion = this.fb.group({
+            motivoAnulacion: ['', Validators.required]
+        }),
+            this.formAbonoCompra = this.fb.group({
+                id: ['', Validators.required],
+                proveedor: ['', Validators.required],
+                totalNeto: ['', Validators.required],
+                estadoPago: ['', Validators.required],
+                valorRestante: [{ value: 0, disabled: true }],
+            })
         this.aRouter.params.subscribe(params => {
             this.id = +params['id'];
         });
@@ -91,7 +93,7 @@ export class ListCompraComponent implements OnInit {
         });
     }
 
-    getListComprasAnuladas(){
+    getListComprasAnuladas() {
         this._compraService.getListCompras().subscribe((data: any) => {
             this.listComprasAnuladas = data.listaCompras.filter((compra: any) => {
                 return compra.estadoCompra === false
@@ -99,79 +101,61 @@ export class ListCompraComponent implements OnInit {
         });
     }
 
-    mostrarCompras(){
-        if(this.mostrarComprasActivas === true){
+    mostrarCompras() {
+        if (this.mostrarComprasActivas === true) {
             this.mostrarComprasActivas = false
-        }else{
+        } else {
             this.mostrarComprasActivas = true
         }
     }
 
 
     async mostrarDetalleCompra(id: number) {
-        try {
-            this.detalleCompra = await this._compraService.getCompra(id).toPromise();
-            this.mostrarModalDetalle = true;
-        } catch (error) {
-            console.error('Error al obtener el detalle de la compra:', error);
-        }
+        this.detalleCompra = await this._compraService.getCompra(id).toPromise();
+        this.mostrarModalDetalle = true;
     }
 
     anularCompra(compra: CompraInstance): void {
         this.compraSeleccionada = compra;
-        this.showConfirmationDialogCompra = true;        
+        this.showConfirmationDialogCompra = true;
+        this.formMotivoAnulacion.reset();
     }
 
     confirmActionCompra(confirm: boolean): void {
         if (confirm && this.compraSeleccionada) {
-            if (this.motivoAnulacion.trim() === '') {
-                this.toastr.warning('Ingrese un motivo de anulación.', 'Motivo Requerido');
-                return;
-            }
 
-            const id = this.compraSeleccionada.id ?? 0;
-    
-            // Llamar al servicio de anulación de compra
-            this._compraService.anularCompra(id, false, this.motivoAnulacion).subscribe(
-                (anularResponse) => {
-                    this.toastr.success('La compra se anuló correctamente.', 'Compra Anulada');
-                    this.getListComprasAtivas();
-                    this.getListComprasAnuladas();
-                       
-                    if (this.compraSeleccionada!.DetalleEnCompras) {
-                        // Obtener la cantidad de cada detalle
-                        const cantidades = this.compraSeleccionada!.DetalleEnCompras.map(detalle => detalle?.cantidad);
-    
-                        // Llamar al servicio para restar cantidad de insumo para cada detalle
-                        for (const cantidad of cantidades) {
-                            if (cantidad !== undefined) {
-                                this._insumoService.restarCantidadInsumoCompra(id, cantidad).subscribe(
-                                    (restarCantidadResponse) => {
-                                        // Manejar la respuesta del servicio para restar cantidad de insumo
-                                        // Puedes realizar alguna lógica adicional si es necesario
-                                    },
-                                    (restarCantidadError) => {
-                                        console.error('Error al restar la cantidad del insumo:', restarCantidadError);
-                                        // Puedes manejar el error aquí si es necesario
-                                    }
-                                );
+            this.formMotivoAnulacion.markAllAsTouched();
+
+            if (this.formMotivoAnulacion.valid) {
+                const id = this.compraSeleccionada.id ?? 0;
+                const motivoAnulacion = this.formMotivoAnulacion.value.motivoAnulacion
+
+                // Llamar al servicio de anulación de compra
+                this._compraService.anularCompra(id, false, motivoAnulacion).subscribe(
+                    (anularResponse) => {
+                        this.toastr.success('La compra se anuló correctamente.', 'Compra Anulada');
+                        this.getListComprasAtivas();
+                        this.getListComprasAnuladas();
+
+                        if (this.compraSeleccionada && this.compraSeleccionada.DetalleEnCompras) {
+                            // Obtener la cantidad de cada detalle
+                            const cantidades = this.compraSeleccionada!.DetalleEnCompras.map(detalle => detalle?.cantidad);
+
+                            // Llamar al servicio para restar cantidad de insumo para cada detalle
+                            for (const cantidad of cantidades) {
+                                if (cantidad !== undefined) {
+                                    this._insumoService.restarCantidadInsumoCompra(id, cantidad).subscribe();
+                                }
                             }
                         }
-                    }
-    
-                    this.toastr.success('La compra se anuló correctamente y se restó la cantidad de insumo.', 'Compra Anulada');
-                    this.getListComprasAtivas();
-                },
-                (anularError) => {
-                    console.error('Error al anular la compra:', anularError);
-                    // Puedes manejar el error aquí si es necesario
-                }
-            );
+                    });
+            } else {
+                this.toastr.error('Complete los campos requeridos')
+            }
         }
 
         this.showConfirmationDialogCompra = false;
         this.compraSeleccionada = null;
-        this.motivoAnulacion = ''; // Restablecer el motivo de anulación
     }
 
     //Abono Compras
@@ -182,7 +166,6 @@ export class ListCompraComponent implements OnInit {
 
     getCompra(id: number) {
         this._compraService.getCompra(id).subscribe((data: CompraInstance) => {
-            console.log(data)
             this.formAbonoCompra = this.fb.group({
                 id: ['', Validators.required],
                 proveedor: ['', Validators.required],
@@ -194,8 +177,6 @@ export class ListCompraComponent implements OnInit {
                 totalNeto: ['', Validators.required],
                 estadoPago: ['', Validators.required],
                 valorRestante: [{ value: 0, disabled: true }],
-
-
             })
 
             this.formAbonoCompra.patchValue({
@@ -239,7 +220,6 @@ export class ListCompraComponent implements OnInit {
             acceptLabel: 'Sí',
             accept: () => {
                 this.agregarAbonoCompra(this.value9);
-                console.log(this.getValorRestante());
                 const valorRestante = this.getValorRestante();
                 this.value9 = undefined;
                 this.formAbonoCompra.get('valorRestante')?.setValue(valorRestante);
@@ -324,82 +304,79 @@ export class ListCompraComponent implements OnInit {
     }
 
 
-    
-  calcularTotales(): void {
-    let totalBruto = 0;
-    let ivaTotal = 0;
-    let totalNeto = 0;
-  
-    this.detallesInsumo.forEach(detalle => {
-      totalBruto += detalle.cantidad! * detalle.valorUnitario!;
-      ivaTotal += detalle.cantidad! * detalle.impuestoIva!;
-    });
-  
-    totalNeto = totalBruto + ivaTotal;
-    
-  }
+
+    calcularTotales(): void {
+        let totalBruto = 0;
+        let ivaTotal = 0;
+        let totalNeto = 0;
+
+        this.detallesInsumo.forEach(detalle => {
+            totalBruto += detalle.cantidad! * detalle.valorUnitario!;
+            ivaTotal += detalle.cantidad! * detalle.impuestoIva!;
+        });
+
+        totalNeto = totalBruto + ivaTotal;
+
+    }
 
 
 
-/*
-    getValorRestante(): number {
-        if (
-            this.totalNeto !== undefined &&
-            this.listAbonoCompras &&
-            this.listAbonoCompras.length > 0
-        ) {
-            const abonosRelacionados = this.listAbonoCompras.filter(abono => abono.compra === this.id);
-    
-            if (abonosRelacionados.length > 0 && !isNaN(parseFloat(this.totalNeto.toString()))) {
-                let totalAbonos = 0;
-    
-                abonosRelacionados.forEach(abono => {
-                    if (abono.valorAbono !== undefined) {
-                        const valorAbono = parseFloat(abono.valorAbono.toString());
-                        if (!isNaN(valorAbono)) {
-                            totalAbonos += valorAbono;
+    /*
+        getValorRestante(): number {
+            if (
+                this.totalNeto !== undefined &&
+                this.listAbonoCompras &&
+                this.listAbonoCompras.length > 0
+            ) {
+                const abonosRelacionados = this.listAbonoCompras.filter(abono => abono.compra === this.id);
+        
+                if (abonosRelacionados.length > 0 && !isNaN(parseFloat(this.totalNeto.toString()))) {
+                    let totalAbonos = 0;
+        
+                    abonosRelacionados.forEach(abono => {
+                        if (abono.valorAbono !== undefined) {
+                            const valorAbono = parseFloat(abono.valorAbono.toString());
+                            if (!isNaN(valorAbono)) {
+                                totalAbonos += valorAbono;
+                            }
                         }
-                    }
-                });
-    
-                const valorRestante = this.totalNeto - totalAbonos;
-                return valorRestante;
+                    });
+        
+                    const valorRestante = this.totalNeto - totalAbonos;
+                    return valorRestante;
+                }
             }
-        }
-    
-        // Si no hay abonos relacionados o si falta información, devuelve el total neto del servicio o 0 si no está definido
-        return this.totalNeto !== undefined ? parseFloat(this.totalNeto.toString()) : 0;
-    }*/
+        
+            // Si no hay abonos relacionados o si falta información, devuelve el total neto del servicio o 0 si no está definido
+            return this.totalNeto !== undefined ? parseFloat(this.totalNeto.toString()) : 0;
+        }*/
 
 
     getValorRestante(): number {
-       
-          const abonosRelacionados = this.listAbonoCompras.filter(abono => abono.compra === this.id);
-          console.log("Abonos relacionados", abonosRelacionados)
-      
-          let totalAbonos = 0;
-      
-            abonosRelacionados.forEach(abono => {
-              if (abono.valorAbono !== undefined) {
+
+        const abonosRelacionados = this.listAbonoCompras.filter(abono => abono.compra === this.id);
+
+        let totalAbonos = 0;
+
+        abonosRelacionados.forEach(abono => {
+            if (abono.valorAbono !== undefined) {
                 const valorAbono = parseFloat(abono.valorAbono.toString());
                 if (!isNaN(valorAbono)) {
-                  totalAbonos += valorAbono;
+                    totalAbonos += valorAbono;
                 }
-              }
-            });
-      
-            const valorTotal = parseFloat(this.totalNeto.toString());
-            console.log("Neto", this.totalNeto)
-            const valorRestante = valorTotal - totalAbonos;
-            console.log(valorRestante)
-            return valorRestante;
-          
-        
-      
+            }
+        });
+
+        const valorTotal = parseFloat(this.totalNeto.toString());
+        const valorRestante = valorTotal - totalAbonos;
+        return valorRestante;
+
+
+
         // Si no hay abonos relacionados o si falta información, devuelve el valor total de la venta o 0 si no está definido
         //return this.compra && this.totalNeto !== undefined ? parseFloat(this.totalNeto.toString()) : 0;
-      }
-    
+    }
+
     exportToExcel() {
         const data: any[] = [];
 
@@ -450,9 +427,25 @@ export class ListCompraComponent implements OnInit {
     getSeverityCompra(estadoCompra: boolean): string {
         return estadoCompra ? 'success' : 'danger';
     }
-    
-    getSeverityEstadoPago(estadoPago:string){
+
+    getSeverityEstadoPago(estadoPago: string) {
         return estadoPago === 'Pago' ? 'success' : 'warning';
+    }
+
+    ValidacionMotivoAnulacion() {
+        const motivoAnulacionControl = this.formMotivoAnulacion.get('motivoAnulacion');
+        const motivoAnulacionValue = motivoAnulacionControl?.value;
+        const minCaracteres = 10;
+
+        if (motivoAnulacionControl?.hasError('required')) {
+            return;
+        }
+
+        if (motivoAnulacionValue && motivoAnulacionValue.length < minCaracteres) {
+            motivoAnulacionControl?.setErrors({ minlength: true });
+        } else {
+            motivoAnulacionControl?.setErrors(null);
+        }
     }
 
 }

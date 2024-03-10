@@ -1,20 +1,20 @@
-import { AfterViewInit, Component, OnInit } from '@angular/core';
-import { SelectItem } from 'primeng/api';
+import { Component, OnInit } from '@angular/core';
 import { Table } from 'primeng/table';
 import { ClienteService } from 'src/app/services/cliente/cliente.service';
 import { Cliente } from 'src/app/interfaces/cliente/cliente.interface';
 import { ToastrService } from 'ngx-toastr';
-import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import * as XLSX from 'xlsx';
-import { ConfirmationService} from 'primeng/api';
+import { ConfirmationService } from 'primeng/api';
 
 @Component({
   templateUrl: './cliente.component.html',
 
 })
-export class ClienteComponent implements OnInit {  
-  
+export class ClienteComponent implements OnInit {
+
+  tipoCliente: any;
   nuevoCliente: boolean = true;
 
   listClientes: Cliente[] = []
@@ -36,8 +36,8 @@ export class ClienteComponent implements OnInit {
   ];
 
 
-  tipoIdentificaciones = [ 
-    { label: 'NIT', value: 'NIT' },   
+  tipoIdentificaciones = [
+    { label: 'NIT', value: 'NIT' },
     { label: 'Cédula de ciudadanía', value: 'Cédula de ciudadanía' },
     { label: 'Tarjeta de extranjería', value: 'Tarjeta de extranjería' },
     { label: 'Cedula de extranjero', value: 'Cédula de extranjería' },
@@ -52,7 +52,7 @@ export class ClienteComponent implements OnInit {
 
   productDialog: boolean = false;
 
-
+  mostrarAsteriscoRojo: boolean = true;
 
   constructor(private fb: FormBuilder,
     private _clienteService: ClienteService,
@@ -90,7 +90,6 @@ export class ClienteComponent implements OnInit {
 
   getCliente(id: number) {
     this._clienteService.getCliente(id).subscribe((data: Cliente) => {
-      console.log(data)
       this.formCliente.setValue({
         tipoCliente: data.tipoCliente,
         tipoIdentificacion: data.tipoIdentificacion,
@@ -109,9 +108,9 @@ export class ClienteComponent implements OnInit {
 
   addCliente() {
     this.formCliente.markAllAsTouched();
-  
+
     if (this.formCliente.valid) {
-      
+
       // Resto del código para agregar o actualizar el cliente
       const cliente: Cliente = {
         tipoCliente: this.formCliente.value.tipoCliente,
@@ -125,7 +124,7 @@ export class ClienteComponent implements OnInit {
         telefono: this.formCliente.value.telefono,
         correo: this.formCliente.value.correo,
       };
-  
+
       if (this.id !== 0) {
         cliente.id = this.id;
         this._clienteService.putCliente(this.id, cliente).subscribe(() => {
@@ -140,7 +139,7 @@ export class ClienteComponent implements OnInit {
           this.getListClientes();
         });
       }
-  
+
       this.productDialog = false;
     } else {
       this.toastr.error('Por favor, complete todos los campos obligatorios.', 'Error de validación');
@@ -156,7 +155,7 @@ export class ClienteComponent implements OnInit {
     this.formCliente.get('tipoIdentificacion')?.setValue(primeraOpcion);
 
     this.productDialog = true;
-    this.nuevoCliente = true;    
+    this.nuevoCliente = true;
   }
 
   editProduct(id: number) {
@@ -176,22 +175,22 @@ export class ClienteComponent implements OnInit {
 
   confirm(cliente: Cliente) {
     this.clienteSeleccionado = cliente;
-  
+
     this.confirmationService.confirm({
       header: 'Confirmación',
       acceptIcon: 'pi pi-check mr-2',
       rejectIcon: 'pi pi-times mr-2',
       rejectButtonStyleClass: 'p-button-sm',
       acceptButtonStyleClass: 'p-button-outlined p-button-sm',
-      acceptLabel: 'Sí',  
+      acceptLabel: 'Sí',
       rejectLabel: 'No',
       accept: () => {
         if (this.clienteSeleccionado != null && this.clienteSeleccionado.id != null) {
           this._clienteService.putCliente(this.clienteSeleccionado.id, this.clienteSeleccionado)
             .subscribe(() => {
-              if(this.clienteSeleccionado?.estado === true){
+              if (this.clienteSeleccionado?.estado === true) {
                 this.toastr.success('¡El cliente ha sido ACTIVADO exitosamente!', 'Éxito');
-              }else{
+              } else {
                 this.toastr.warning('¡El cliente ha sido DESACTIVADO exitosamente!', 'Éxito');
               }
             });
@@ -207,7 +206,7 @@ export class ClienteComponent implements OnInit {
     return this.formCliente.get('tipoIdentificacion')?.value === 'NIT';
   }
 
-  get isNull():boolean{
+  get isNull(): boolean {
     return this.formCliente.get('tipoIdentificacion')?.value === '';
   }
 
@@ -264,24 +263,20 @@ export class ClienteComponent implements OnInit {
   }
 
   async mostrarDetalleCliente(id: number) {
-    try {
-      this.detalleCliente = await this._clienteService.getCliente(id).toPromise();
-      this.mostrarModalDetalle = true;
-    } catch (error) {
-      console.error('Error al obtener el detalle del cliente:', error);
-    }
+    this.detalleCliente = await this._clienteService.getCliente(id).toPromise();
+    this.mostrarModalDetalle = true;
   }
 
   /////  VALIDACIONES DE LOS CAMPOS DEL FORMULARIO
 
-validarCampo(campo: string) {
+  validarCampo(campo: string) {
     const control = this.formCliente.get(campo);
-  
+
     if (control?.hasError('required')) {
       return;
     }
-  
-    if (campo === 'razonSocial' || campo === 'nombreComercial' ) {
+
+    if (campo === 'razonSocial' || campo === 'nombreComercial') {
       const minCaracteresRegex = /^.{3,}$/;
 
       if (!minCaracteresRegex.test(control?.value)) {
@@ -297,83 +292,83 @@ validarCampo(campo: string) {
         control?.setErrors(null);
       }
     }
-}
-  
-validarNumeroIdentificacion() {
-  const numeroIdentificacionControl = this.formCliente.get('numeroIdentificacion');
-  const numeroIdentificacionValue = numeroIdentificacionControl?.value;
+  }
 
-  // Verificar si se ingresan letras}
+  validarNumeroIdentificacion() {
+    const numeroIdentificacionControl = this.formCliente.get('numeroIdentificacion');
+    const numeroIdentificacionValue = numeroIdentificacionControl?.value;
+
+    // Verificar si se ingresan letras}
     if (!/^\d+$/.test(numeroIdentificacionValue)) {
       numeroIdentificacionControl?.setErrors({ soloNumeros: true });
       return;
     }
 
-  // Verificar la longitud mínima
-  if (numeroIdentificacionValue && numeroIdentificacionValue < 100000) {
+    // Verificar la longitud mínima
+    if (numeroIdentificacionValue && numeroIdentificacionValue < 100000) {
       numeroIdentificacionControl?.setErrors({ minlength: true });
       return;
-  }
+    }
 
-  // Verificar la existencia en la base de datos
-  const numeroExistente = this.listClientes.some(cliente => cliente.numeroIdentificacion === numeroIdentificacionValue);
+    // Verificar la existencia en la base de datos
+    const numeroExistente = this.listClientes.some(cliente => cliente.numeroIdentificacion === numeroIdentificacionValue);
 
-  if (numeroExistente) {
+    if (numeroExistente) {
       numeroIdentificacionControl?.setErrors({ numeroExistente: true });
-  } else {
+    } else {
       numeroIdentificacionControl?.setErrors(null);
+    }
   }
-}
 
-validarCiudad() {
-  const ciudadControl = this.formCliente.get('ciudad');
-  const ciudadValue = ciudadControl?.value;
+  validarCiudad() {
+    const ciudadControl = this.formCliente.get('ciudad');
+    const ciudadValue = ciudadControl?.value;
 
-  // Verificar si es requerido
-  if (ciudadControl?.hasError('required')) {
+    // Verificar si es requerido
+    if (ciudadControl?.hasError('required')) {
       return;
-  }
+    }
 
-  // Verificar solo letras y longitud mínima
-  const soloLetrasRegex = /^[a-zA-ZáéíóúüÁÉÍÓÚÜÑñ\s]*$/;
-  const minCaracteres = 4;
+    // Verificar solo letras y longitud mínima
+    const soloLetrasRegex = /^[a-zA-ZáéíóúüÁÉÍÓÚÜÑñ\s]*$/;
+    const minCaracteres = 4;
 
-  if (!soloLetrasRegex.test(ciudadValue)) {
+    if (!soloLetrasRegex.test(ciudadValue)) {
       ciudadControl?.setErrors({ soloLetras: true });
-  } else if (ciudadValue && ciudadValue.length < minCaracteres) {
+    } else if (ciudadValue && ciudadValue.length < minCaracteres) {
       ciudadControl?.setErrors({ minlength: true });
-  } else {
+    } else {
       ciudadControl?.setErrors(null);
-  }
-}
-
-validarContacto() {
-  const contactoControl = this.formCliente.get('contacto');
-  const contactoValue = contactoControl?.value;
-  const minCaracteres = 3;
-
-  if (contactoControl?.hasError('required')) {
-    return;
+    }
   }
 
-  if (contactoValue && contactoValue.length < minCaracteres) {
-    contactoControl?.setErrors({ minlength: true });
-  } else {
-    contactoControl?.setErrors(null);
+  validarContacto() {
+    const contactoControl = this.formCliente.get('contacto');
+    const contactoValue = contactoControl?.value;
+    const minCaracteres = 3;
+
+    if (contactoControl?.hasError('required')) {
+      return;
+    }
+
+    if (contactoValue && contactoValue.length < minCaracteres) {
+      contactoControl?.setErrors({ minlength: true });
+    } else {
+      contactoControl?.setErrors(null);
+    }
   }
-}
 
-validarCorreo() {
-  const correoControl = this.formCliente.get('correo');
-  const correoValue = correoControl?.value;
+  validarCorreo() {
+    const correoControl = this.formCliente.get('correo');
+    const correoValue = correoControl?.value;
 
-  // Verificar si es un correo válido
-  const correoValidoRegex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+    // Verificar si es un correo válido
+    const correoValidoRegex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
-  if (!correoValidoRegex.test(correoValue)) {
+    if (!correoValidoRegex.test(correoValue)) {
       correoControl?.setErrors({ correoInvalido: true });
-  } else {
+    } else {
       correoControl?.setErrors(null);
+    }
   }
-}
 }

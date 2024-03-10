@@ -8,6 +8,7 @@ export interface DetalleCompraInstance {
     insumo?:number;
     cantidad?:number;
     valorUnitario?:number;
+    ivaPorcentaje?:number;
     impuestoIva?:number;
     valorTotal?:number;
 }
