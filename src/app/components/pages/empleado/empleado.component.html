@@ -111,32 +111,6 @@
                                       </ng-container>
                                     </div>
                                   </form>
-                                  
-                                  
-                                  <!-- <form [formGroup]="formArray" formArrayName="formArray.controls" [formGroupName]="proceso.id">
-                                    <div class="formgrid col grid mt-2 justify-content-end" style="display: flex; flex-direction: row; padding: 0;">
-                                        <div style="flex: 1;">
-                                            <span class="p-float-label">
-                                                <input type="number" pInputText formControlName="cantidadHecha"/>
-                                                <label for="cantidadHecha">Cantidad hecha*</label>
-                                            </span>
-                                            <small>
-                                                <span *ngIf="formArray[proceso.num].get('cantidadHecha')?.hasError('required') && formArray[proceso.num].get('cantidadHecha')?.touched" style="color: red;">
-                                                    La cantidad es <strong>requerida.</strong>
-                                                </span>
-                                                <span *ngIf="formArray[proceso.num].get('cantidadHecha')?.hasError('min') && formArray[proceso.num].get('cantidadHecha')?.touched" style="color: red;">
-                                                    La cantidad debe ser mayor a 0.
-                                                </span>
-                                                <span *ngIf="formArray[proceso.num].get('cantidadHecha')?.hasError('cantError') && formArray[proceso.num].get('cantidadHecha')?.touched" style="color: red;">
-                                                    La cantidad no debe ser mayor a la <strong>cantidad restante</strong>.
-                                                </span>
-                                            </small>
-                                        </div>
-                                        <div style="margin-left: 4px;">
-                                            <p-button type="submit" icon="pi pi-save"  [rounded]="true" [text]="true" severity="success" pTooltip="Guardar"></p-button>        
-                                        </div>
-                                    </div>
-                                </form> -->
                               </td>
                                 <!-- <td>{{ proceso.estadoProcAsig }}</td> -->
                                 <td ><p-tag [value]="changeEstadoProc(proceso.estadoProcAsig)" severity="warning"></p-tag></td>

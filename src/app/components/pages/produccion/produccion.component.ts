@@ -16,7 +16,7 @@ import { AvanceProcesoEmpleado } from 'src/app/interfaces/produccion/avanceProce
 import { AvanceProcesoEmpleadoService } from 'src/app/services/produccion/avanceProcesoEmpleado.service';
 
 import { ToastrService } from 'ngx-toastr';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { FormArray, FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 
 import { ConfirmationService, MessageService, ConfirmEventType } from 'primeng/api';
@@ -75,6 +75,11 @@ export class ProduccionComponent implements OnInit {
 
     idSelected: any;
 
+    formArray = this.fb.group({
+      data: this.fb.array([])
+    });
+
+    count = 0;
 
   constructor(
     private confirmationService: ConfirmationService,
@@ -115,6 +120,11 @@ export class ProduccionComponent implements OnInit {
     this.getEmpleadoList();
     // Obtiene los procesos asignados con su relación de avances
     this.getAsignarProcesoEmpleado();
+  }
+
+  
+  get data(){
+    return this.formArray.get('data') as FormArray;
   }
 
   changeSeverityPedido(estado: string) {
@@ -213,6 +223,9 @@ export class ProduccionComponent implements OnInit {
 
   // Listar los procesos asignados a los empleados
   getAsignarProcesoEmpleado() {
+    this.count = 0;
+    this.data.clear();
+
     this._asignarProcesoService.getProcesoAvance().subscribe((data: any) => {
         this.listAsignarProcesoEmpleado = data.ProcesoAvances;
         // Iteramos el objeto para obtener la fecha y hora de creación
@@ -233,13 +246,26 @@ export class ProduccionComponent implements OnInit {
   
         // Iteramos el objeto para obtener el nombre del empleado
          this.filteredProcesosAsignados.forEach((proceso: any) => {
+          
+          if (proceso.estadoProcAsig === false) {
+            proceso.num = this.count;
+            this.count = this.count + 1;
+            const formAvance = this.fb.group({
+              cantidadHecha: new FormControl('', [Validators.required, Validators.min(1)])
+            });
+            this.data.push(formAvance);
+          }
           this._empleadoService.getEmpleado(proceso.empleadoId).subscribe((empleado: any) => {
               proceso.nombreEmpleado = empleado.nombre;
+
           })
         })
-
-      
+        
+        console.log(this.filteredProcesosAsignados);
+        console.log(this.formArray);
+        
       });
+      
   }
 
 
@@ -290,14 +316,15 @@ export class ProduccionComponent implements OnInit {
     }
   }
 
-  validateCantHecha(cantRestante: number) {
-    const cantidadHechaControl = this.formAvance.get('cantidadHecha');
+  validateCantHecha(num: number, cantRestante: number) {
+    const dataFormGroup = this.formArray.get('data') as FormGroup;
+    const cantidadHechaControl = dataFormGroup.controls[num].get('cantidadHecha');
     const cantidadHechaValue = cantidadHechaControl?.value;
     const cantidadRestanteControl = cantRestante;
-
+  
     if (cantidadHechaValue && cantidadHechaValue > cantidadRestanteControl) {
       cantidadHechaControl?.setErrors({ cantError: true });
-        return;
+      return;
     }
   }
 
@@ -332,18 +359,20 @@ export class ProduccionComponent implements OnInit {
     });
   }
 
-
   // Registrar una cantidad hecha de un proceso asignado a un empleado
-  crearAvance(id: number) {
 
-    this.formAvance.markAllAsTouched();
+  avanceData(id: number, value: number) {
+
+    const getValue = (this.formArray.get('data')?.value[value] as any).cantidadHecha as number;
+    const cantidadHechaControl = (this.formArray.get('data') as FormArray)?.controls[value].get('cantidadHecha');
 
     const dataAvance: AvanceProcesoEmpleado = {
-      cantidadHecha: this.formAvance.value.cantidadHecha,
+      cantidadHecha: getValue,
       asignarProcesoEmpleadoId: id
     }
+
     try{
-      if(this.formAvance.valid){
+      if(cantidadHechaControl?.valid){
         this._avanceProcesoService.postAvanceProcesoEmpleado(dataAvance).subscribe(() => {
           this._pedidoService.getPedido(this.pedidoId).subscribe((data: any) => {
             if(data.estado === 'Terminado'){
@@ -363,7 +392,14 @@ export class ProduccionComponent implements OnInit {
       console.error('Ha ocurrido un error al registrar el avance:', error);
       this.toastr.error('Ha ocurrido un error al registrar el avance', 'Error');
     }
-  };
+
+    console.log(dataAvance);
+    console.log(id);
+    // this.getProcesos();
+  }
+
+
+
 
 
   // Anular un proceso asignado a un empleado
