@@ -2,28 +2,28 @@
     <div class="col-12">
         <div class="card ">
 
-
             <p-toolbar styleClass="mb-4">
                 <ng-template pTemplate="left">
                     <div>
-                        <p-button [raised]="true"  label="Registrar pedido" icon="pi pi-plus"
+                        <p-button [raised]="true" label="Registrar pedido" icon="pi pi-plus"
                             [routerLink]="['/pages/pedido/add', 0]"></p-button>
                     </div>
                 </ng-template>
 
                 <ng-template pTemplate="right">
                     <div class="flex flex-wrap gap-3">
-                        <p-button label="{{mostrarPedidosActivos ? 'Ver pedidos anulados' : 'Ver pedidos activos'}}" (click)="mostrarPedidos()" 
-                        [raised]="true" [severity]="mostrarPedidosActivos ? 'warning' : 'info' " icon="pi pi-eye"></p-button>
-                        <p-button [raised]="true" severity="success" label="Excel" icon="pi pi-file-excel" pTooltip="Descargar"
-                         (click)="exportToExcel()"></p-button>
-                    </div>                    
+                        <p-button label="{{mostrarPedidosActivos ? 'Ver pedidos anulados' : 'Ver pedidos activos'}}"
+                            (click)="mostrarPedidos()" [raised]="true"
+                            [severity]="mostrarPedidosActivos ? 'warning' : 'info' " icon="pi pi-eye"></p-button>
+                        <p-button [raised]="true" severity="success" label="Excel" icon="pi pi-file-excel"
+                            pTooltip="Descargar" (click)="exportToExcel()"></p-button>
+                    </div>
                 </ng-template>
             </p-toolbar>
 
-            <p-table #dt [value]="listPedidosActivos" [scrollable]="false" responsiveLayout="scroll" [rows]="5"
-                [globalFilterFields]="['Cliente.razonSocial','estado']" [paginator]="true"
-                [rowsPerPageOptions]="[5,10,15]" [showCurrentPageReport]="true"
+            <p-table #dt [value]="mostrarPedidosActivos ? listPedidosActivos : listPedidosAnulados" [scrollable]="false"
+                responsiveLayout="scroll" [rows]="5" [globalFilterFields]="['Cliente.razonSocial','estado']"
+                [paginator]="true" [rowsPerPageOptions]="[5,10,15]" [showCurrentPageReport]="true"
                 currentPageReportTemplate="Mostrando del {first} al {last} de {totalRecords} pedidos" [rowHover]="true"
                 dataKey="id">
                 <ng-template pTemplate="caption">
@@ -65,7 +65,7 @@
                             <span class="p-column-title">Fecha Orden</span>
                             {{ pedido.fechaOrdenTrabajo }}
                         </td>
-                        <td style="min-width:8rem;">
+                        <td style="min-width:7rem;">
                             <span class="p-column-title">Fecha Entrega</span>
                             {{ pedido.fechaEntregaOrden }}
                         </td>
@@ -78,7 +78,7 @@
                             <p-tag [value]="getDisplayedEstado(pedido.estado, pedido.estadoPedido)"
                                 [severity]="getSeverity(pedido.estado, pedido.estadoPedido)"></p-tag>
                         </td>
-                        <td  style="min-width:8rem;">
+                        <td style="min-width:8rem;">
                             <div class="flex flex-wrap gap-3 ">
                                 <p-button icon="pi pi-file" [rounded]="true" severity="secondary"
                                     (click)="mostrarDetallePedido(pedido.id)" pTooltip="Ver detalle"></p-button>
@@ -100,10 +100,18 @@
                 </ng-template>
             </p-table>
 
-            <p-dialog header="Detalle del pedido" [(visible)]="mostrarModalDetalle" [modal]="true" [responsive]="true"
-                [style]="{ width: '60vw' }">
+            <p-dialog header="Detalle del pedido" [(visible)]="mostrarModalDetalle" [modal]="true" class="p-fluid"
+                [style]="{ width: '900px' }">
                 <div *ngIf="detallePedido">
                     <div class="grid mt-1">
+
+                        <div *ngIf="detallePedido.estadoPedido == false" class="card col-12">
+                            <h5>MOTIVO DE ANULACIÓN</h5>
+                            <div>
+                                <span>{{ detallePedido.motivoDeAnulacion}}</span>
+                            </div>
+                        </div>
+
                         <div class="col-4">
                             <span style="font-weight: bold;">Cliente:</span>
                             <div>
@@ -157,7 +165,8 @@
                             </div>
                         </div>
 
-                        <p-table class="col-6" [value]="detallePedido.ProcesoEnReferenciaEnPedidos">
+                        <p-table class="col-6" [value]="detallePedido.ProcesoEnReferenciaEnPedidos"
+                            styleClass="p-datatable-sm">
                             <ng-template pTemplate="header">
                                 <tr>
                                     <th>Proceso</th>
@@ -173,7 +182,8 @@
                         </p-table>
 
                         <p-table class="col-6"
-                            [value]="detallePedido.ProcesoEnReferenciaEnPedidos[0]?.ColorEnProcesoEnReferenciaEnPedidos">
+                            [value]="detallePedido.ProcesoEnReferenciaEnPedidos[0]?.ColorEnProcesoEnReferenciaEnPedidos"
+                            styleClass="p-datatable-sm">
                             <ng-template pTemplate="header">
                                 <tr>
                                     <th>Color/Talla</th>
@@ -219,13 +229,32 @@
                 <p>
                     ¿Está seguro de que desea anular el pedido? despues de anulado no se podra volver a modificar
                 </p>
-                <input pInputText type="text" [(ngModel)]="motivoAnulacion" placeholder="Motivo de Anulación" />
-                <button pButton type="button" label="Sí" icon="pi pi-check"
-                    (click)="confirmActionCompra(true)"></button>
-                <button pButton type="button" label="No" icon="pi pi-times"
-                    (click)="confirmActionCompra(false)"></button>
-            </p-dialog>
 
+                <form [formGroup]="formMotivoAnulacionPedido">
+                    <div>
+                        <textarea (input)="ValidacionMotivoAnulacion()" style="resize:none" rows="3" cols="100"
+                            pInputTextarea formControlName="motivoAnulacion"
+                            placeholder="Ingrese aca el motivo de la anulación"></textarea>
+                    </div>
+                    <small
+                        *ngIf="formMotivoAnulacionPedido.get('motivoAnulacion')?.hasError('required') && formMotivoAnulacionPedido.get('motivoAnulacion')?.touched"
+                        style="color: red;">
+                        El motivo es requerido.
+                    </small>
+                    <small
+                        *ngIf="formMotivoAnulacionPedido.get('motivoAnulacion')?.hasError('minlength') && formMotivoAnulacionPedido.get('motivoAnulacion')?.touched"
+                        style="color: red;">
+                        Ingrese un motivo especifico.
+                    </small>
+
+
+                    <div class="formgrid col grid mt-2 justify-content-end flex flex-wrap gap-1">
+                        <p-button label="Cancelar" icon="pi pi-times" [text]="true"
+                            (click)="confirmActionPedido(false)"></p-button>
+                        <p-button label="Confirmar" icon="pi pi-check" (click)="confirmActionPedido(true)"></p-button>
+                    </div>
+                </form>
+            </p-dialog>
         </div>
     </div>
 </div>
