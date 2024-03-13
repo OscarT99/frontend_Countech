@@ -116,14 +116,14 @@ export class ListPedidoComponent implements OnInit {
                     (error) => {
                         console.error('Error al anular el pedido:', error);
                     }
-                );
-
-                this.showConfirmationDialogPedido = false;
-                this.pedidoSeleccionado = null;
+                );                
             } else {
                 this.toastr.error('Complete los campos requeridos')
             }
         }
+
+                this.showConfirmationDialogPedido = false;
+                this.pedidoSeleccionado = null;
     }
 
     exportToExcel() {
@@ -147,7 +147,7 @@ export class ListPedidoComponent implements OnInit {
         this.listPedidosActivos.forEach(pedido => {
             if (pedido.estadoPedido == true) {
                 const row = [
-                    pedido.cliente,
+                    pedido.Cliente?.razonSocial,
                     pedido.ordenTrabajo,
                     pedido.fechaOrdenTrabajo,
                     pedido.fechaEntregaOrden,

@@ -1,7 +1,9 @@
+import { Proveedor } from "../proveedor/proveedor.interface";
 import { DetalleCompraInstance } from "./detalleCompra.interface";
 
 export interface CompraInstance {
     id?: number;
+    Proveedor?:Proveedor;
     proveedor?:number;
     fechaCompra?:Date;
     numeroFactura?: string;

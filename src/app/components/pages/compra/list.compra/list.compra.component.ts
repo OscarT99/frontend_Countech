@@ -396,7 +396,7 @@ export class ListCompraComponent implements OnInit {
         this.listComprasActivas.forEach(compra => {
             if (compra.estadoCompra == true) {
                 const row = [
-                    compra.proveedor,
+                    compra.Proveedor?.razonSocial,
                     compra.numeroFactura,
                     compra.fechaCompra,
                     compra.formaPago,
