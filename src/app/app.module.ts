@@ -12,7 +12,7 @@ import { AppLayoutModule } from './shared/app.layout.module';
 import { ClienteService } from './services/cliente/cliente.service';
 import { PedidoService } from './services/pedido/pedido.service';
 
-import { HttpClientModule } from '@angular/common/http';
+import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { ToastrModule } from 'ngx-toastr';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { ReactiveFormsModule } from '@angular/forms';
@@ -28,6 +28,7 @@ import { CambiarContrasenaComponent } from './components/auth/cambiar-contrasena
 import { RecuperarComponent } from './components/auth/recuperar/recuperar.component';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
+import { AuthInterceptor } from './components/interceptors/auth-interceptor';
 
 
 @NgModule({
@@ -53,7 +54,12 @@ import { CommonModule } from '@angular/common';
   ],
   providers: [
     { provide: LocationStrategy, useClass: HashLocationStrategy },
-    ClienteService,UsuarioService,AuthService, VentaService, AbonoVentaService,PedidoService,CompraService, AbonoCompraService
+    ClienteService,UsuarioService,AuthService, VentaService, AbonoVentaService,PedidoService,CompraService, AbonoCompraService,
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: AuthInterceptor,
+      multi: true // indica que puede haber múltiples interceptores
+    }
   ],
   bootstrap: [AppComponent]
 })

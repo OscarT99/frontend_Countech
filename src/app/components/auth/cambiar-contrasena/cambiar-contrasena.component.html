@@ -1,4 +1,4 @@
-<div class="surface-ground flex align-items-center justify-content-center h-screen w-screen overflow-hidden">
+<div style="display: flex; justify-content: center; align-items: center; background-size: cover; background-position: center; height: 100vh;">
   <div class="w-full surface-card py-8 px-3 sm:px-5" style="border-radius:53px; max-width: 30rem; max-height: 45rem;">
     <div class="text-center mb-5">
 
@@ -52,7 +52,7 @@
         <button type="button" pButton pRipple class="w-full p-3 text-xl"
           [disabled]="!camposValidos || !camposCompletos()" (click)="changePassword()"
           [ngClass]="{'is-invalid': errorMessages.recuperar}"
-          style="background-color: #4e5fbb; color: white; border: 2px solid #00bcd4;">Cambiar contraseña</button>
+          style="background-color: #4e5fbb; color: white; border: 2px solid #4351a2;">Cambiar contraseña</button>
 
       </form>
     </div>

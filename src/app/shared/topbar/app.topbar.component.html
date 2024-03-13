@@ -1,28 +1,90 @@
 <div class="layout-topbar">
+
+
     <a class="layout-topbar-logo" routerLink="">
         <!-- <img src="assets/layout/images/{{layoutService.config.colorScheme === 'light' ? 'logo-dark' : 'logo-white'}}.svg" alt="logo">
         <span>CounTech</span> -->
     </a>
 
-    <button #menubutton class="p-link layout-menu-button layout-topbar-button" (click)="layoutService.onMenuToggle()">
+    <button #menubutton class="p-link layout-menu-button layout-topbar-button" (click)="layoutService.onMenuToggle()" >
         <i class="pi pi-bars"></i>
     </button>
 
-    <button #topbarmenubutton class="p-link layout-topbar-menu-button layout-topbar-button" (click)="layoutService.showProfileSidebar()">
+    <button #topbarmenubutton class="p-link layout-topbar-menu-button layout-topbar-button"
+        (click)="layoutService.showProfileSidebar()">
         <i class="pi pi-ellipsis-v"></i>
     </button>
 
+
     <div #topbarmenu class="layout-topbar-menu">
-        
-        <div class="logout-container">
-            <button type="button" class="p-link layout-topbar-button" (click)="logout($event)" 
+
+
+
+        <div class="user-container">
+            <button type="button" class="p-link layout-topbar-button" (click)="abrirPerfil()" pTooltip="Perfil"
+                tooltipPosition="bottom">
+                <i class="pi pi-user"></i>
+                <span>Perfil</span>
+            </button>
+
+
+
+            <button class="ml-12" type="button" class="p-link layout-topbar-button" (click)="logout($event)"
                 pTooltip="Cerrar sesión" tooltipPosition="bottom">
                 <i class="pi pi-sign-out"></i>
-                <span>Logout</span>
+                <span>Cerrar sesión</span>
             </button>
+
 
             <!-- Confirmación de cerrar sesión -->
             <p-confirmPopup key="confirmCerrarSesion"></p-confirmPopup>
+
         </div>
+
+        
+
+        <p-dialog [(visible)]="productDialog" [style]="{width: '450px'}" header="Perfil Usuario" [modal]="true"
+            [responsive]="true" class="p-fluid">
+            <div class="grid  ml-2">
+                <div class="col-4">
+                    <span style="font-weight: bold;">Cédula:</span>
+                    <div>
+                        <span>{{ cedulaUsuario }}</span>
+                    </div>
+                </div>
+                <div class="col-8">
+                    <span style="font-weight: bold;">Nombre:</span>
+                    <div>
+                        <span>{{ nombreUsuario }}</span>
+                    </div>
+                </div>
+                <div class="col-4">
+                    <span style="font-weight: bold;">Estado:</span>
+                    <div>
+                        <p-tag class="p-element" severity="success">
+                            <span class="p-tag-value">Activo</span>
+                        </p-tag>
+                    </div>
+                </div>
+                <div class="col-8">
+                    <span style="font-weight: bold;">Email:</span>
+                    <div>
+                        <span>{{ emailUsuario }}</span>
+                    </div>
+                </div>
+
+            </div>
+
+
+
+
+
+
+
+
+
+        </p-dialog>
+
+
     </div>
 </div>

@@ -51,7 +51,7 @@ export class RecuperarComponent {
   validaremail() {
     const validacionemail = /^[a-zA-Z0-9._%-ñÑáéíóúÁÉÍÓÚ]+@[a-zA-Z0-9.-]+\.(com|co|org|net|edu)$/;
     if (!this.user.email || !this.user.email.trim()) {
-      this.errorMessages.recuperar = 'El email es necesario para recuperar la cantraseña';
+      this.errorMessages.recuperar = 'El email es necesario para recuperar la contraseña';
       this.emailValido = false;
     } else if (!validacionemail.test(this.user.email)) {
       this.errorMessages.recuperar = 'El email debe tener una estructura válida (usuario@dominio.com).';
@@ -74,7 +74,7 @@ export class RecuperarComponent {
        this.errorMessages.contrasena=''
       }
       else if(!validacion.test(contrasena)){
-       this.errorMessages.contrasena='Minimo 8 caracteres, 1 mayuscula y un simbolo.';
+       this.errorMessages.contrasena='Mínimo 8 caracteres, 1 mayúscula y 1 símbolo.';
       }else if (this.user.contrasena.length > 50) {
        this.errorMessages.contrasena = 'La contraseña no debe superar los 50 caracteres.';
      }

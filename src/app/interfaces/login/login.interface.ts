@@ -3,6 +3,8 @@ import { Usuario } from "../usuario/usuario.interface";
 export interface User {
     email?: string;
     contrasena?: string;
+    id?: number;
+
 }
 
 

@@ -20,6 +20,9 @@ import { AppLayoutComponent } from './app.layout.component';
 import { TooltipModule } from 'primeng/tooltip';
 import { ConfirmPopupModule } from 'primeng/confirmpopup';
 import { ConfirmationService } from 'primeng/api';
+import { ButtonModule } from 'primeng/button';
+import { DialogModule } from 'primeng/dialog';
+import { TagModule } from 'primeng/tag';
 
 @NgModule({
     declarations: [
@@ -44,7 +47,10 @@ import { ConfirmationService } from 'primeng/api';
         RouterModule,
         AppConfigModule,
         TooltipModule,
-        ConfirmPopupModule 
+        ConfirmPopupModule,
+        ButtonModule,
+        DialogModule,
+        TagModule,
     ],
     exports: [AppLayoutComponent],
     providers: [
