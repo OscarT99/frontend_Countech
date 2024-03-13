@@ -9,7 +9,7 @@ import { Router } from '@angular/router';
   providedIn: 'root'
 })
 export class AuthService {
-
+  private readonly userSessionStorageKey = "currentUser";
   private _currentUser: BehaviorSubject<User | null> =
     new BehaviorSubject<User | null>(this.retrieveUserFromStorage());
   currentUser: Observable<User | null> = this._currentUser.asObservable();
@@ -20,7 +20,7 @@ export class AuthService {
   private myAppUrl: string;
   private myApiUrl: string;
 
-  constructor(private http: HttpClient,  private router: Router) {
+  constructor(private http: HttpClient, private router: Router) {
     this.myAppUrl = environment.endpoint
     this.myApiUrl = 'api/auth/login'
   }
@@ -42,13 +42,31 @@ export class AuthService {
     this._currentUser.next(null);
     this._authStatus.next(AuthStatus.notAuthenticated);
 
-    
+
     localStorage.removeItem('token');
     localStorage.removeItem('user');
     localStorage.removeItem('authStatus');
 
     this.router.navigate(['/auth/login']);
   }
+
+  getUser() {
+    const userString = localStorage.getItem('user');
+    if (userString) {
+      const user = JSON.parse(userString);
+      const { id, nombre, email, cedula } = user;
+      return { id, nombre, email, cedula }; // Devolver solo las propiedades necesarias
+    } else {
+      return null; // Devolver null si no hay usuario almacenado en el almacenamiento local
+    }
+  }
+
+
+  getUser1(): User | null {
+    const storedUser = sessionStorage.getItem(this.userSessionStorageKey);
+    return storedUser ? JSON.parse(storedUser) : null;
+  }
+
 
   private retrieveUserFromStorage(): User | null {
     const user = localStorage.getItem('user');
@@ -66,7 +84,7 @@ export class AuthService {
 
 
   isValidToken(token: string): boolean {
-    return !!token; 
+    return !!token;
   }
   isLoggedIn(): boolean {
     return this.getToken() !== null;
@@ -76,13 +94,13 @@ export class AuthService {
 
 
   //Recuperar contraseña
-  public verificarCorreoExistente(email: string, token?:string): Observable<any> {
+  public verificarCorreoExistente(email: string, token?: string): Observable<any> {
     const headers = token ? new HttpHeaders().set('x-token', token) : undefined;
     const verificarCorreo = `${this.myApiUrl}-email?email=${email}`;
     return this.http.get<any>(verificarCorreo, { headers });
   }
 
-  
+
   public changePassword(token: string, newPassword: string): Observable<any> {
     const createUrl = `http://localhost:8083/api/auth/cambiar-contrasena/${token}`  //'cambiar-contrasena/:token';
     const user = { newPassword };  // Puedes ajustar la estructura del objeto según sea necesario
@@ -90,8 +108,8 @@ export class AuthService {
   }
 
   public forgotPassword(email: any): Observable<any> {
-    const createUrl= 'http://localhost:8083/api/auth/recuperar'; 
-  return this.http.post(createUrl, email);
+    const createUrl = 'http://localhost:8083/api/auth/recuperar';
+    return this.http.post(createUrl, email);
   }
 
 }

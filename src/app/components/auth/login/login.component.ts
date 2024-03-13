@@ -1,61 +1,3 @@
-/*
-import { Component } from '@angular/core';
-import { AuthService } from '../../../services/login/login.service'; // Importa tu servicio de autenticación
-import { Router } from '@angular/router';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-
-@Component({
-    selector: 'app-login',
-    templateUrl: './login.component.html',
-})
-export class LoginComponent {
-    rememberMe: boolean = false;
-    formLogin : FormGroup;
-
-    constructor(
-        private authService: AuthService,
-        private router: Router,
-        private fb : FormBuilder
-    ) {
-        this.formLogin = this.fb.group({
-            email: ['',Validators.required],
-            contrasena: ['',Validators.required] 
-        })
-    }
-
-    login(): void {
-        this.authService.login(this.formLogin.value.email,this.formLogin.value.contrasena)
-            .subscribe(
-                (response) => {
-                    const { usuario, token } = response;
-                    localStorage.setItem('token', token);
-
-                    // Redirige a otra página, guarda la información del usuario, etc.
-                    localStorage.setItem('user', JSON.stringify(usuario));
-                    
-                    // Redirigir a otra página después del inicio de sesión (por ejemplo, a la página de inicio)
-                    // Reemplaza 'home' con la ruta a la página a la que deseas redirigir
-                    this.router.navigate(['/pages/usuario']);
-                    console.log(token);
-                },
-                (error) => {
-                    console.error('Error al iniciar sesión:', error);
-                    if (error.error && error.error.msg) {
-                        // Muestra el mensaje de error recibido del backend
-                        console.error('Mensaje de error:', error.error.msg);
-                    } else {
-                        console.error('Error desconocido:', error);
-                    }
-                }
-            );
-    }
-
-
-    olvidoContrasena(): void {
-        this.router.navigateByUrl('..\olvido-contrasena\olvido-contrasena.component.html');
-    }
-}
-*/
 import { NgForm } from '@angular/forms';
 import { Component, HostListener, OnInit, inject } from '@angular/core';
 import { AuthService } from '../../../services/login/login.service'; // Importa tu servicio de autenticación
@@ -65,11 +7,10 @@ import { BsModalRef, BsModalService } from 'ngx-bootstrap/modal';
 import { RecuperarComponent } from '../recuperar/recuperar.component';
 import { ToastrService } from 'ngx-toastr';
 
-
 @Component({
     selector: 'app-login',
     templateUrl: './login.component.html',
-    styleUrls: ['./login.component.scss']
+    //styleUrls: ['_login.scss']
 
 })
 export class LoginComponent {
@@ -99,12 +40,6 @@ export class LoginComponent {
 
     }
 
-    errorMessages = {
-        email: '',
-        contrasena: '',
-        credenciales: '',
-        recuperar: ''
-    }
 
 
     login(): void {
@@ -122,34 +57,24 @@ export class LoginComponent {
                     // Reemplaza 'home' con la ruta a la página a la que deseas redirigir
                     this.router.navigate(['/pages/usuario']);
                     console.log(msg);
+                    const primerNombre = usuario.nombre.split(' ')[0];
+                    this.toastr.success('Inicio de sesión exitoso.', `¡Bienvenid@ ${primerNombre}!`);
                 },
                 (error) => {
                     console.error('Error al iniciar sesión:', error);
-                    if (error.error && error.error.msg) {
-                        // Muestra el mensaje de error recibido del backend
-                        console.error('Mensaje de error:', error.error.msg);
-                    } else {
-                        console.error('Error desconocido:', error);
-                    }
+                    if (this.errorMessages.email || this.errorMessages.contrasena || this.formLogin.get('email')?.value === '' || this.formLogin.get('contrasena')?.value === '') {
+                        this.toastr.error('Complete los campos correctamente', 'Error de validación');
+                    } else if (error.error.msg === 'El usuario no se encuentra activo') {
+                        this.toastr.error('Acceso denegado, contactese con el administrador para más información.', 'Usuario inactivo');
+                        
+                    } else if (error.status === 400) {
+                        this.toastr.error('Credenciales inválidas', 'Error de validación');
+                    }  
                 }
             );
     }
 
-    //RECUPERAR CONTRASEÑA
-    validarContrasena() {
-        const validacion = /^(?=.*[A-Z])(?=.*[\W_]).{8,}$/;
-        const contrasena = (document.getElementById('contrasena') as HTMLInputElement).value;
 
-        if (!contrasena) {
-            this.errorMessages.contrasena = ''
-        }
-        else if (!validacion.test(contrasena)) {
-            this.errorMessages.contrasena = 'Minimo 8 caracteres, 1 mayuscula y un simbolo.';
-        }
-        else {
-            this.errorMessages.contrasena = ''
-        }
-    }
 
 
 
@@ -209,8 +134,48 @@ export class LoginComponent {
     }
 
 
-    //RECUPERAR CONTRASEÑA
-    abrirRecuperar1() {
+    //VALIDACIONES
 
+    errorMessages = {
+        email: '',
+        contrasena: '',
+        credenciales: '',
+        recuperar: ''
     }
+
+    camposValidos: boolean = false;
+
+
+    validarContrasena() {
+        const contrasena = this.formLogin.get('contrasena');
+        if(contrasena){
+            if (contrasena.value === null || contrasena.value.trim() === '' || !contrasena) {
+                this.errorMessages.contrasena = 'La contraseña es requerida.';
+                this.camposValidos = false;
+
+            }else {
+                this.errorMessages.contrasena = ''
+                this.camposValidos = true;
+            }
+        }
+    }
+
+    validarEmail() {
+        const emailControl = this.formLogin.get('email');
+
+        if (emailControl) {
+            if (emailControl.value === null || emailControl.value.trim() === '') {
+                this.errorMessages.email = 'El campo email es requerido.';
+                this.camposValidos = false;
+
+            } else if (!/^[a-zA-Z0-9._%-ñÑáéíóúÁÉÍÓÚ]+@[a-zA-Z0-9.-]+\.(com|co|org|net|edu)$/.test(emailControl.value)) {
+                this.errorMessages.email = 'El email debe tener una estructura válida.';
+                this.camposValidos = false;
+            }  else {
+                this.errorMessages.email = '';
+                this.camposValidos = true;
+            }
+        }
+    }
+
 }

@@ -1,8 +1,8 @@
 <div class="grid">
     <div class="col-12">
-        <div class="card"> 
+        <div class="card">
             <p-toolbar styleClass="mb-4">
-                <ng-template pTemplate="left">                    
+                <ng-template pTemplate="left">
                 </ng-template>
                 <ng-template pTemplate="right">
                     <button pButton class="p-button-success" label="Excel" icon="pi pi-file-excel" pTooltip="Descargar"
@@ -10,10 +10,11 @@
                 </ng-template>
             </p-toolbar>
 
-            <p-table #dt [value]="listVentas"  responsiveLayout="scroll" [rows]="5" 
-                [globalFilterFields]="['cliente','ordenTrabajo','fechaVenta','formaPago','valorTotal','estadoPago']" [paginator]="true" 
-                [rowsPerPageOptions]="[5,10,15]" [showCurrentPageReport]="true" 
-                currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} registros" [rowHover]="true" dataKey="id">
+            <p-table #dt [value]="listVentas" responsiveLayout="scroll" [rows]="5"
+                [globalFilterFields]="['cliente','ordenTrabajo','fechaVenta','formaPago','valorTotal','estadoPago']"
+                [paginator]="true" [rowsPerPageOptions]="[5,10,15]" [showCurrentPageReport]="true"
+                currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} registros" [rowHover]="true"
+                dataKey="id">
                 <ng-template pTemplate="caption">
                     <div class="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
                         <h5 class="m-0">Lista de Ventas</h5>
@@ -25,58 +26,60 @@
                     </div>
                 </ng-template>
                 <ng-template pTemplate="header">
-                    <tr>                        
+                    <tr>
                         <th pSortableColumn="cliente">Cliente<p-sortIcon field="cliente"></p-sortIcon></th>
-                        <th pSortableColumn="ordenTrabajo">Orden de Trabajo<p-sortIcon field="ordenTrabajo"></p-sortIcon></th>                        
+                        <th pSortableColumn="ordenTrabajo">Orden de Trabajo<p-sortIcon
+                                field="ordenTrabajo"></p-sortIcon></th>
                         <th pSortableColumn="formaPago">Forma de Pago<p-sortIcon field="formaPago"></p-sortIcon></th>
-                        <th pSortableColumn="valorTotal">Valor Total<p-sortIcon field="valorTotal"></p-sortIcon></th>                        
+                        <th pSortableColumn="valorTotal">Valor Total<p-sortIcon field="valorTotal"></p-sortIcon></th>
                         <th pSortableColumn="estadoPago">Estado de Pago<p-sortIcon field="estadoPago"></p-sortIcon></th>
                         <th pSortableColumn="acciones">Acciones</th>
                         <th></th>
                     </tr>
                 </ng-template>
                 <ng-template pTemplate="body" let-venta>
-                    <tr>                        
+                    <tr>
                         <td style="width:22%; min-width:5rem;"><span class="p-column-title">Cliente</span>
                             {{ getNombreCliente(venta.cliente) }}
                         </td>
-                        <td style="width:14%; min-width:10rem;">
+                        <td style="width:17%; min-width:10rem;">
                             <span class="p-column-title">Orden de Trabajo</span>
                             {{ venta.ordenTrabajo }}
-                        </td>                        
+                        </td>
                         <td style="width:14%; min-width:10rem;">
                             <span class="p-column-title">Forma de Pago</span>
                             {{ venta.formaPago }}
-                        </td>  
+                        </td>
                         <td style="width:14%; min-width:10rem;">
                             <span class="p-column-title">Valor Total</span>
-                            {{ venta.valorTotal | currency:'USD':'symbol':'1.2-2'  }}
-                        </td>  
+                            {{ venta.valorTotal | currency:'USD':'symbol':'1.2-2' }}
+                        </td>
                         <td style="width: 14%; min-width: 10rem;" class="text-center">
                             <span class="p-column-title">Estado</span>
-                            <p-tag class="p-element" [severity]="venta.estadoPago === 'Pendiente' ? 'warning' : 'success'">
+                            <p-tag class="p-element" [severity]="venta.estadoPago === 'Pendiente' ? 'warning' : 'success'">                            
                                 <span class="p-tag-value">{{ venta.estadoPago }}</span>
                             </p-tag>
                         </td>
-                        
+
 
                         <td>
-                            <div class="flex"> 
-                                <p-button icon="pi pi-file" [rounded]="true" severity="secondary" class="p-button-rounded p-button-warning mr-2"
-                                (click)="mostrarDetallePedido(venta.id)" pTooltip="Ver detalle">
+                            <div class="flex">
+                                <p-button icon="pi pi-file" [rounded]="true" severity="secondary"
+                                    class="p-button-rounded p-button-warning mr-2"
+                                    (click)="mostrarDetallePedido(venta.id)" pTooltip="Ver detalle">
                                 </p-button>
 
                                 <button *ngIf="venta.formaPago === 'Crédito' && venta.estadoPago === 'Pendiente'"
-                                pButton pRipple icon="pi pi-dollar" class="p-button-rounded p-button-success mr-2" 
-                                (click)="newAbonoVenta(venta.id)" pTooltip="Abonar">
+                                    pButton pRipple icon="pi pi-dollar" class="p-button-rounded p-button-success mr-2"
+                                    (click)="newAbonoVenta(venta.id)" pTooltip="Abonar">
                                 </button>
 
-                                <button *ngIf="venta.estadoPago === 'Pago'"
-                                pButton pRipple icon="pi pi-book" class="p-button-rounded p-button-primary mr-2"
-                                (click)="comprobanteVenta1(venta.id)" pTooltip="Comprobante">
+                                <button *ngIf="venta.estadoPago === 'Pago'" pButton pRipple icon="pi pi-book"
+                                    class="p-button-rounded p-button-primary mr-2" (click)="comprobanteVenta1(venta.id)"
+                                    pTooltip="Comprobante">
                                 </button>
                             </div>
-                            
+
                         </td>
                     </tr>
                 </ng-template>
@@ -85,103 +88,113 @@
                         <td colspan="6" class="text-center">No se encontraron ventas</td>
                     </tr>
                 </ng-template>
-            </p-table>            
+            </p-table>
 
-            <p-dialog [(visible)]="productDialogAbono" [style]="{width: '1000px', height: '500px' }" header="Abono Venta" [modal]="true" class="p-fluid">         
+            <p-dialog [(visible)]="productDialogAbono" [style]="{width: '1000px', height: '500px', 'overflow-x': 'auto' }"
+                header="Abono Venta" [modal]="true" class="p-fluid">
                 <div style="display: flex;">
-                    <div style="flex: 1;">    
-                        <form [formGroup]="formVenta" >
+                    <div style="flex: 1;">
+                        <form [formGroup]="formVenta">
                             <div class="formgrid grid">
-                                <div class="field col">
+                                <div class="field col-3">
                                     <label for="id">Id Venta</label>
-                                        <input formControlName="id" id="id" type="number" pInputText readonly >
+                                    <input formControlName="id" id="id" type="number" pInputText readonly>
                                 </div>
-                                <div class="field col">
+                                <div class="field col-9">
                                     <label for="cliente">Cliente</label>
-                                        <input id="cliente" type="text" pInputText readonly [value]="getNombreCliente(venta.cliente)">
+                                    <input id="cliente" type="text" pInputText readonly
+                                        [value]="getNombreCliente(venta.cliente)">
                                 </div>
-                                
+
                             </div>
 
                             <div class="formgrid grid">
-
                                 <div class="field col">
                                     <label for="valorAbono">Total</label>
                                     <div class="p-inputgroup">
                                         <span class="p-inputgroup-addon">$</span>
-                                        <p-inputNumber formControlName="valorTotal" [(ngModel)]="value8" [readonly]="true"></p-inputNumber>
+                                        <p-inputNumber formControlName="valorTotal" 
+                                            [readonly]="true" [style]="{ 'width': '100%' }"></p-inputNumber>
                                     </div>
                                 </div>
+
                                 <div class="field col">
                                     <label for="valorAbono">Restante</label>
                                     <div class="p-inputgroup">
                                         <span class="p-inputgroup-addon" readonly>$</span>
-                                        <input type="number" formControlName="valorRestante" [readonly]="true" value="{{ getValorRestante() }}">
+                                        <input type="number" formControlName="valorRestante" [readonly]="true"
+                                            value="{{ getValorRestante() }}" [style]="{ 'width': '100%' }">
                                     </div>
-
-                                    
                                 </div>
-                                                            
-                        
+
                             </div>
-                        </form> 
-                        <div class="mb-2">
-                            <label for="valorAbono">Valor Abono</label>
-                        </div>
-                        
-                        <div class="p-inputgroup">
-                            <span class="p-inputgroup-addon">$</span>
-                            <p-inputNumber  inputId="valorAbono" [(ngModel)]="value9" placeholder="000.000.000" ></p-inputNumber>
-                            <span *ngIf="formAbonoVenta.get('valorAbono')?.hasError('required') && formAbonoVenta.get('valorAbono')?.touched" style="color: red;">
-                                El valor del abono es <strong>requerido</strong>
+
+
+
+                        </form>
+
+                       
+                        <div class="p-inputgroup mt-3">
+                            <span class="p-float-label">
+                                <input  pInputText class="w-full md:w-25rem" style="padding:1rem" id="valorAbono" name="valorAbono" 
+                                    [(ngModel)]="value9" class="form-control" (input)="validarValorAbono()" 
+                                    [ngClass]="{'is-invalid': errorMessages.valorAbono}" placeholder>
+                                <label for="valorAbono">Valor Abono*</label>
+                                <button (click)="confirm2($event)" pButton icon="pi pi-plus" 
+                                    class="p-button-rounded p-button-success ml-3"></button>
+                                <p-confirmPopup key="confirm2"></p-confirmPopup>
                             </span>
-                            <p-toast></p-toast>
-                            <button class="ml-1" (click)="confirm2($event)" pButton icon="pi pi-plus" class="p-button-rounded p-button-success"></button>
-                            <p-confirmPopup key="confirm2"></p-confirmPopup>
                         </div>
+                        <div class="invalid-feedback error-message mt-2" *ngIf="errorMessages.valorAbono" style="color: red;">
+                            {{errorMessages.valorAbono}}
+                        </div>
+                        
                     </div>
-                    <div style="flex: 1;"> 
+
+                    <div style="flex: 1;">
                         <div class="card m-5" [style]="{width: '500px', textAlign: 'center'}">
-                                <h5 >Abonos De La Venta {{ id }}</h5>
-                                <p-table #dt [value]="listAbonoVentas" responsiveLayout="scroll" [rows]="10" dataKey="id">
-                                    <ng-template pTemplate="header">
-                                        <tr>
-                                            <th pSortableColumn="idAbono">Id Abono</th>
-                                            <th pSortableColumn="fechaAbono">Fecha</th>
-                                            <th pSortableColumn="valorAbono">Valor Abonado</th>
-                                        </tr>
-                                    </ng-template>
-                                    <ng-template pTemplate="body" let-abonoVenta>
-                                        <tr>
-                                            <td style="width:14%; min-width:5rem;"><span class="p-column-title">Id Abono</span>
-                                                {{ abonoVenta.id }}
-                                            </td>
-                                            <td style="width:14%; min-width:10rem;">
-                                                <span class="p-column-title">Fecha</span>
-                                                {{ abonoVenta.fechaAbono }}
-                                            </td>
-                                            <td style="width:14%; min-width:8rem;">
-                                                <span class= "p-column-title">Valor Abonado</span>
-                                                {{ abonoVenta.valorAbono  }}
-                                            </td>
-                                        </tr>
-                                    </ng-template>
-                                </p-table>
+                            <h5>Abonos De La Venta {{ id }}</h5>
+                            <p-table #dt [value]="listAbonoVentas" responsiveLayout="scroll" [rows]="10" dataKey="id">
+                                <ng-template pTemplate="header">
+                                    <tr>
+                                        <th pSortableColumn="idAbono">Id Abono</th>
+                                        <th pSortableColumn="fechaAbono">Fecha</th>
+                                        <th pSortableColumn="valorAbono">Valor Abonado</th>
+                                    </tr>
+                                </ng-template>
+                                <ng-template pTemplate="body" let-abonoVenta>
+                                    <tr>
+                                        <td style="width:14%; min-width:5rem;"><span class="p-column-title">Id
+                                                Abono</span>
+                                            {{ abonoVenta.id }}
+                                        </td>
+                                        <td style="width:14%; min-width:10rem;">
+                                            <span class="p-column-title">Fecha</span>
+                                            {{ abonoVenta.fechaAbono }}
+                                        </td>
+                                        <td style="width:14%; min-width:8rem;">
+                                            <span class="p-column-title">Valor Abonado</span>
+                                            {{ abonoVenta.valorAbono }}
+                                        </td>
+                                    </tr>
+                                </ng-template>
+                            </p-table>
                         </div>
-                        
-                        
-                        
-            
-                    
+
+
+
+
+
                     </div>
-                    
+
                 </div>
             </p-dialog>
 
 
-            <p-dialog header="Detalle de Venta" [(visible)]="mostrarModalDetalle" [modal]="true" [responsive]="true" [style]="{width: '900px', height: '510spx' }">
+            <p-dialog header="Detalle de Venta" [(visible)]="mostrarModalDetalle" [modal]="true" [responsive]="true"
+                [style]="{width: '900px', height: '510spx' }">
                 <div *ngIf="detallePedido">
-                    <div class="grid mt-1" style="justify-content: center"> 
+                    <div class="grid mt-1" style="justify-content: center">
                         <div class="col-4">
                             <span style="font-weight: bold;">Id venta:</span>
                             <div>
@@ -240,7 +253,7 @@
                                 <span>{{ detallePedido.valorUnitario }}</span>
                             </div>
                         </div>
-                        
+
                         <p-table class="col-6" [value]="detallePedido.ProcesoEnReferenciaEnPedidos">
                             <ng-template pTemplate="header">
                                 <tr>
@@ -282,9 +295,17 @@
 
                         <div class="col-4">
                             <span style="font-weight: bold;">Forma Pago:</span>
-                            <div>
+                            <div style="display: flex; align-items: center;">
                                 <span>{{ detallePedido.formaPago }}</span>
+                                <!--Mostrar la tabla de abonos si la venta tiene la abonos relacionado-->
+                                <button *ngIf="detallePedido && venta.formaPago === 'Crédito'"
+                                    style="margin-left: 10px; margin-top: 5px; padding: 5px 10px; font-size: 12px;"
+                                    pButton type="button" class="btn btn-sm btn-secondary"
+                                    [label]="mostrarTablaAbonos ? 'Ocultar Abonos' : 'Ver Abonos'"
+                                    (click)="mostrarTablaAbonos = !mostrarTablaAbonos">
+                                </button>
                             </div>
+
                         </div>
                         <div class="col-4">
                             <span style="font-weight: bold;">Valor Total:</span>
@@ -301,12 +322,7 @@
 
                     </div>
 
-                   <!--TABLA ABONOS-->
-                   <!-- Botón para ver los abonos si la forma de pago es "Crédito" -->
-                   <div *ngIf="detallePedido && venta.formaPago === 'Crédito'" style="margin-left: 10px; margin-top: 10px;">
-                    <button pButton type="button" [label]="mostrarTablaAbonos ? 'Ocultar Abonos' : 'Ver Abonos'" (click)="mostrarTablaAbonos = !mostrarTablaAbonos"></button>
-                    </div>
-                
+                    <!--TABLA ABONOS-->
                     <!-- Tabla de abonos si se muestra -->
                     <div *ngIf="mostrarTablaAbonos" style="margin: 0 auto; margin-left: 10px;">
                         <div class="card m-5" [style]="{width: '500px'}">
@@ -321,7 +337,8 @@
                                 </ng-template>
                                 <ng-template pTemplate="body" let-abonoVenta>
                                     <tr>
-                                        <td style="width:14%; min-width:5rem;"><span class="p-column-title">Id Abono</span>
+                                        <td style="width:14%; min-width:5rem;"><span class="p-column-title">Id
+                                                Abono</span>
                                             {{ abonoVenta.id }}
                                         </td>
                                         <td style="width:14%; min-width:10rem;">
@@ -338,62 +355,63 @@
                         </div>
                     </div>
 
-                </div> 
+                </div>
             </p-dialog>
 
 
 
-            <p-dialog header="Comprobante de Venta" [(visible)]="mostrarComprobante" [modal]="true" [responsive]="true" [style]="{ width: '400px', height: '800px' }" >
-                <div #comprobanteVenta>
-                <p-panel header="">
-                    <h2>Cuatro Soles</h2>
-                    <p>Dirección: Bello Antioquia</p>
-                    <p>Teléfono: 210292837</p>
-                    <p>Email: cuatrosoles@empresa.com</p>
-                  </p-panel>
-                  
-                  <p-panel header="">
-                    <div class="cliente-info">
-                      <h4>__________________________</h4>
-                      <p><strong>Cliente:</strong> {{ detallePedido?.Cliente?.razonSocial }}</p>
-                      <p><strong>Télefono:</strong> {{ detallePedido?.Cliente?.telefono }}</p>
-                      <p><strong>Dirección:</strong> {{ detallePedido?.Cliente?.direccion }}</p>
-
-
-                      <!-- Otras detalles del cliente como dirección, teléfono, etc. -->
-                    </div>
-                  </p-panel>
-                  
-                  <p-panel header="">
-                    <div class="venta-info">
-                        <h4>__________________________</h4>
-                      <p><strong>Id Venta:</strong> {{ detallePedido?.id }}</p>
-                      <p><strong>Fecha Venta:</strong> {{ detallePedido?.fechaVenta }}</p>
-                      <p><strong>Orden de Trabajo:</strong> {{ detallePedido?.ordenTrabajo }}</p>
-                      <!-- Otras detalles de la venta como forma de pago, estado de pago, etc. -->
-                    </div>
-                  
-                    <div class="resumen-venta">
-                      <h4>__________________________</h4>
-                      <p><strong>Forma de Pago:</strong> {{ detallePedido?.formaPago }}</p>
-                      <p><strong>Estado de Pago:</strong> {{ detallePedido?.estadoPago }}</p>
-                      <p><strong>Valor Total:</strong> {{ detallePedido?.valorTotal | currency }}</p>
-                    </div>
-                  </p-panel>
+            <p-dialog header="Comprobante de Venta" [(visible)]="mostrarComprobante" [modal]="true" [responsive]="true"
+                [style]="{ width: '400px', height: '100%' }">
+                <div #comprobanteVenta class="align-items-center">
+                    <p-panel header=""
+                        [style]="{ marginTop: '0px', borderBottom: '1px solid #ccc', padding: '0.5rem' }">
+                        <div style="text-align: center;">
+                            <div class="cuatrosoles-info">
+                                <h2 style="font-size: 22px;">Cuatro Soles</h2>
+                                <p><strong>Cuidad:</strong> Bello Antioquia</p>
+                                <p><strong>Dirección:</strong> Bello Antioquia</p>
+                                <p> <strong>Teléfono:</strong> 210292837</p>
+                                <p><strong>Email:</strong> cuatrosoles@empresa.com</p>
+                            </div>
+                            <div class="cliente-info">
+                                <h4 style="font-size: 16px;">__________________________</h4>
+                                <p><strong>Cliente:</strong> <span style="font-size: 14px;">{{
+                                        detallePedido?.Cliente?.razonSocial }}</span></p>
+                                <p><strong>Télefono:</strong> <span style="font-size: 14px;">{{
+                                        detallePedido?.Cliente?.telefono }}</span></p>
+                                <p><strong>Dirección:</strong> <span style="font-size: 14px;">{{
+                                        detallePedido?.Cliente?.direccion }}</span></p>
+                                <!-- Otras detalles del cliente como dirección, teléfono, etc. -->
+                            </div>
+                            <div class="venta-info">
+                                <h4 style="font-size: 16px;">__________________________</h4>
+                                <p><strong>Id Venta:</strong> <span style="font-size: 14px;">{{ detallePedido?.id
+                                        }}</span></p>
+                                <p><strong>Fecha Venta:</strong> <span style="font-size: 14px;">{{
+                                        detallePedido?.fechaVenta }}</span></p>
+                                <p><strong>Orden de Trabajo:</strong> <span style="font-size: 14px;">{{
+                                        detallePedido?.ordenTrabajo }}</span></p>
+                                <p><strong>Forma de Pago:</strong> <span style="font-size: 14px;">{{
+                                        detallePedido?.formaPago }}</span></p>
+                                <p><strong>Estado de Pago:</strong> <span style="font-size: 14px;">{{
+                                        detallePedido?.estadoPago }}</span></p>
+                                <p><strong>Valor Total:</strong> <span style="font-size: 14px;">{{
+                                        detallePedido?.valorTotal | currency }}</span></p>
+                            </div>
+                        </div>
+                    </p-panel>
                 </div>
-                  
+
                 <div style="text-align:right; margin-top: 20px; margin-bottom: 20px;">
-                    <button pButton class="p-button-danger" label="PDF" icon="pi pi-file-pdf" pTooltip="Descargar" 
-                            (click)="generarPDF()" style="width: 75px; height: 35px; font-size: 18px;"></button>
+                    <button pButton class="p-button-danger" label="PDF" icon="pi pi-file-pdf" pTooltip="Descargar"
+                        (click)="generarPDF()" style="width: 75px; height: 35px; font-size: 14px;"></button>
                 </div>
-                
-                
-        
             </p-dialog>
-              
-            
+
+
+
 
 
         </div>
-</div>
-
+        </div>
+    </div>
