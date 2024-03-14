@@ -9,6 +9,7 @@ import { RippleModule } from 'primeng/ripple';
 import { ToastModule } from 'primeng/toast';
 import { ToolbarModule } from 'primeng/toolbar';
 import { InputTextModule } from 'primeng/inputtext';
+import { InputTextareaModule } from 'primeng/inputtextarea';
 import { DialogModule } from 'primeng/dialog';
 import { ConfirmPopupModule } from 'primeng/confirmpopup';
 import { InputNumberModule } from 'primeng/inputnumber';
@@ -27,6 +28,7 @@ import { TagModule } from 'primeng/tag';
         ToastModule,
         ToolbarModule,
         InputTextModule,
+        InputTextareaModule,
         DialogModule, 
         TooltipModule,
         TagModule ,                           

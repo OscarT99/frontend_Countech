@@ -62,12 +62,6 @@ export class AuthService {
   }
 
 
-  getUser1(): User | null {
-    const storedUser = sessionStorage.getItem(this.userSessionStorageKey);
-    return storedUser ? JSON.parse(storedUser) : null;
-  }
-
-
   private retrieveUserFromStorage(): User | null {
     const user = localStorage.getItem('user');
     return user ? JSON.parse(user) : null;

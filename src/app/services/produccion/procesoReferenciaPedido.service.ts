@@ -1,4 +1,4 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { environment } from 'src/enviroments/environment'; //Está mal escrito enviroments, debe ser environment
 import { ProcesoReferenciaPedidoInstance } from 'src/app/interfaces/pedido/procesoReferenciaPedido.interface';
@@ -17,17 +17,26 @@ export class procesoReferenciaPedidoService {
     this.myApiUrl = 'api/pedido/';
     this.putUrl = 'api/proceso/cantidad/';
   }
-  
+
   getProcesosEnReferenciaEnPedido(): Observable<ProcesoReferenciaPedidoInstance[]> {
-    return this.http.get<ProcesoReferenciaPedidoInstance[]>(`${this.myAppUrl}${this.myApiUrl}`);
+    const token = localStorage.getItem('token');
+    const headers = new HttpHeaders().set('x-token', token || '');
+
+    return this.http.get<ProcesoReferenciaPedidoInstance[]>(`${this.myAppUrl}${this.myApiUrl}`, { headers });
   }
 
   getProcesoEnReferenciaEnPedido(id: number): Observable<ProcesoReferenciaPedidoInstance> {
-    return this.http.get<ProcesoReferenciaPedidoInstance>(`${this.myAppUrl}${this.myApiUrl}${id}`);
+    const token = localStorage.getItem('token');
+    const headers = new HttpHeaders().set('x-token', token || '');
+
+    return this.http.get<ProcesoReferenciaPedidoInstance>(`${this.myAppUrl}${this.myApiUrl}${id}`, { headers });
   }
 
   putProcesoCantidad(id: number, procesoCantidad: ProcesoReferenciaPedidoInstance): Observable<void> {
-    return this.http.put<void>(`${this.myAppUrl}${this.putUrl}${id}`, procesoCantidad);
+    const token = localStorage.getItem('token');
+    const headers = new HttpHeaders().set('x-token', token || '');
+
+    return this.http.put<void>(`${this.myAppUrl}${this.putUrl}${id}`, procesoCantidad, { headers });
   }
 
 

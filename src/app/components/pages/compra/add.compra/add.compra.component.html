@@ -1,60 +1,65 @@
-<div class="grid">
+<div class="grid responsiveMediaQuery">
     <div class="col-12">
         <div class="card px-6 ">
             <h4>Nueva Compra</h4>
             <form [formGroup]="formCompra">
                 <div class="grid p-fluid mt-3">
                     <div class="col-4">
-                        <Label>Proveedor</Label>
+                        <Label>Proveedor *</Label>
                         <div>
-                            <input *ngIf="mostrarID" type="text" pInputText formControlName="proveedor"/>
-                            <p-autoComplete formControlName="razonSocial"
-                                [suggestions]="sugerenciasProveedores" (completeMethod)="buscarProveedores($event)"
-                                [dropdown]="true" [placeholder]="'Buscar Proveedor'"
-                                (onSelect)="seleccionarProveedor($event)"
-                                (keyup)="realizarBusquedaEnTiempoReal($event)">
+                            <input *ngIf="mostrarID" type="text" pInputText formControlName="proveedor" />
+                            <p-autoComplete formControlName="razonSocial" [suggestions]="sugerenciasProveedores"
+                                (completeMethod)="buscarProveedores($event)" [dropdown]="true"
+                                [placeholder]="'Buscar proveedor'" (onSelect)="seleccionarProveedor($event)"
+                                (keyup)="realizarBusquedaEnTiempoReal($event)" (onBlur)="validarProveedorExistente()">
                                 <ng-template let-proveedor pTemplate="item">
                                     {{ proveedor.tipoIdentificacion == 'NIT' ?
-                                        proveedor.razonSocial + ' - ' + proveedor.numeroIdentificacion :
-                                        proveedor.razonSocial + ' ' + proveedor.nombreComercial + ' - ' + proveedor.numeroIdentificacion }}
+                                    proveedor.razonSocial + ' - ' + proveedor.numeroIdentificacion :
+                                    proveedor.razonSocial + ' ' + proveedor.nombreComercial + ' - ' +
+                                    proveedor.numeroIdentificacion }}
                                 </ng-template>
                             </p-autoComplete>
                         </div>
                         <small
                             *ngIf="formCompra.get('razonSocial')?.hasError('required') && formCompra.get('razonSocial')?.touched"
                             style="color: red;">
-                            El Proveedor es <strong>requerido</strong>
+                            El proveedor es <strong>requerido</strong>
                         </small>
                     </div>
 
                     <div class="col-4">
                         <Label>Contacto</Label>
                         <div>
-                            <input type="text" pInputText [disabled]="true"
+                            <input type="text" pInputText [readOnly]="true"
                                 [value]="formCompra.get('contacto')!.value" />
                         </div>
                     </div>
 
 
                     <div class="col-4">
-                        <label>N° Factura</label>
+                        <label>N° Factura *</label>
                         <div>
-                            <input formControlName="numeroFactura" type="text" pInputText />
+                            <input formControlName="numeroFactura" (input)="validarNumeroFactura()" type="text"
+                                pInputText />
                         </div>
                         <small
                             *ngIf="formCompra.get('numeroFactura')?.hasError('required') && formCompra.get('numeroFactura')?.touched"
                             style="color: red;">
                             El N° factura es <strong>requerido</strong>
                         </small>
+                        <small *ngIf="formCompra.get('numeroFactura')?.hasError('numeroFacturaExistente')"
+                            style="color: red;">
+                            Este numero factura ya existe para este proveedor.
+                        </small>
                     </div>
                 </div>
 
                 <div class="grid p-fluid">
                     <div class="col-4">
-                        <label>Fecha Compra</label>
+                        <label>Fecha compra *</label>
                         <div>
-                            <p-calendar formControlName="fechaCompra" dateFormat="yy-mm-dd"
-                                [showIcon]="true" [maxDate]="maxDate"></p-calendar>
+                            <p-calendar formControlName="fechaCompra" dateFormat="yy-mm-dd" [showIcon]="true"
+                                [maxDate]="maxDate"></p-calendar>
                         </div>
                         <small
                             *ngIf="formCompra.get('fechaCompra')?.hasError('required') && formCompra.get('fechaCompra')?.touched"
@@ -64,7 +69,7 @@
                     </div>
                 </div>
 
-                <strong>Detalles de Insumos</strong>
+                <strong>DETALLES DE INSUMOS</strong>
                 <div *ngIf="mostrarID != false">
                     <label>id</label>
                     <input type="text" formControlName="idTemporal" />
@@ -72,14 +77,14 @@
 
                 <div class="grid p-fluid mt-1" style="border-top: 1px solid var(--surface-border);">
                     <div class="col-3">
-                        <label>Insumo</label>
+                        <label>Insumo *</label>
                         <div>
-                            <input *ngIf="mostrarID" type="text" pInputText formControlName="insumo"/>
-                            <p-autoComplete formControlName="insumoNombre"
-                                [suggestions]="sugerenciasInsumos" (completeMethod)="buscarInsumos($event)"
-                                [dropdown]="true" [placeholder]="'Buscar Insumo'"
-                                (onSelect)="seleccionarInsumo($event)" 
-                                (keyup)="realizarBusquedaEnTiempoRealInsumo($event)" #insumoInput>
+                            <input *ngIf="mostrarID" type="text" pInputText formControlName="insumo" />
+                            <p-autoComplete formControlName="insumoNombre" [suggestions]="sugerenciasInsumos"
+                                (completeMethod)="buscarInsumos($event)" [dropdown]="true"
+                                [placeholder]="'Buscar Insumo'" (onSelect)="seleccionarInsumo($event)"
+                                (keyup)="realizarBusquedaEnTiempoRealInsumo($event)"
+                                (onBlur)="validacionInsumoExistente()">
                                 <ng-template let-insumo pTemplate="item">
                                     {{insumo.nombre}}
                                 </ng-template>
@@ -91,7 +96,7 @@
                         </small>
                     </div>
                     <div class="col-2">
-                        <label>Cantidad</label>
+                        <label>Cantidad *</label>
                         <div>
                             <p-inputNumber [min]="0" formControlName="cantidad"></p-inputNumber>
                         </div>
@@ -102,7 +107,7 @@
                         </small>
                     </div>
                     <div class="col-2">
-                        <label>Valor Unitario</label>
+                        <label>Valor unitario *</label>
                         <div>
                             <p-inputNumber [min]="0" mode="currency" currency="USD" locale="en-US"
                                 formControlName="valorUnitario"></p-inputNumber>
@@ -115,19 +120,16 @@
                     </div>
                     <div class="col-2">
                         <label>Impuesto</label>
-                        <p-dropdown formControlName="ivaInsumo" [options]="impuestos"
-                            optionLabel="label"></p-dropdown>
-                            <!-- <select class="inputs-pedido" formControlName="ivaInsumo" >  
-                                <option *ngFor="let impuesto of impuestos" [value]="impuesto.value">{{ impuesto.label }}</option>                               
-                            </select> -->
+                        <select pInputText formControlName="ivaInsumo">
+                            <option *ngFor="let iva of impuestos" [value]="iva.value">{{ iva.label }}</option>
+                        </select>
                     </div>
                     <div class="mt-5">
-                        <p-button class="mt-4" *ngIf="formCompra.get('idTemporal')!.value != null" (click)="agregarInsumo()" icon="pi pi-plus"
-                        label="Editar Insumo"  severity="warning">
-                    </p-button>
-                        <p-button class="mt-4" *ngIf="formCompra.get('idTemporal')!.value === null" (click)="agregarInsumo()" icon="pi pi-plus"
-                         label="Agregar insumo" 
-                        ></p-button>                        
+                        <p-button class="mt-4" *ngIf="formCompra.get('idTemporal')!.value != null"
+                            (click)="agregarInsumo()" icon="pi pi-plus" label="Editar insumo" severity="warning">
+                        </p-button>
+                        <p-button class="mt-4" *ngIf="formCompra.get('idTemporal')!.value === null"
+                            (click)="agregarInsumo()" icon="pi pi-plus" label="Agregar insumo"></p-button>
                     </div>
                 </div>
 
@@ -139,9 +141,9 @@
                                 <tr>
                                     <th>Insumo</th>
                                     <th>Cantidad</th>
-                                    <th>Valor Unitario</th>
+                                    <th>Valor unitario</th>
                                     <th>Iva</th>
-                                    <th> SubTotal</th>
+                                    <th> Subtotal</th>
                                     <th></th>
                                 </tr>
                             </ng-template>
@@ -167,10 +169,10 @@
                 <div class="grid p-fluid mt-3 justify-content-between">
                     <div class="col-3">
                         <div>
-                            <label htmlFor="formaPago"><strong>Formas de Pago</strong></label>
-                            <select  pInputText formControlName="formaPago" >  
+                            <label htmlFor="formaPago"><strong>Formas de Pago *</strong></label>
+                            <select pInputText formControlName="formaPago">
                                 <option value="" disabled [selected]>Seleccione forma de pago</option>
-                                <option *ngFor="let forma of formaPago" [value]="forma.value">{{ forma.label }}</option>                               
+                                <option *ngFor="let forma of formaPago" [value]="forma.value">{{ forma.label }}</option>
                             </select>
                             <small
                                 *ngIf="formCompra.get('formaPago')?.hasError('required') && formCompra.get('formaPago')?.touched"
@@ -183,7 +185,8 @@
                         <div>
                             <label>Total bruto</label>
                             <p-inputNumber mode="currency" currency="USD" locale="en-US" formControlName="totalBruto"
-                                class="transparent-border inputs-pedido col-4 transparent-border" [readonly]="true"></p-inputNumber>
+                                class="transparent-border inputs-pedido col-4 transparent-border"
+                                [readonly]="true"></p-inputNumber>
                         </div>
                         <div>
                             <label>Iva</label>
@@ -192,7 +195,7 @@
                         </div>
                         <div>
                             <label>
-                                <h5>Total Neto
+                                <h5>Total neto
                                     <p-inputNumber mode="currency" currency="USD" locale="en-US"
                                         formControlName="totalNeto" class="inputs-pedido col-4"
                                         [readonly]="true"></p-inputNumber>
@@ -202,21 +205,24 @@
                     </div>
                 </div>
 
-                <div class="grid p-fluid col-8">
-                    <div><strong>Observaciones</strong></div>
-                    <textarea formControlName="observaciones" rows="2" cols="50"
-                        placeholder="Aqui puedes ingresar observaciones adicionales." pInputTextarea></textarea>
+                <div class="grid p-fluid">
+                    <div class="col-12">
+                        <div><strong>Observaciones</strong></div>
+                        <textarea style="resize:none" formControlName="observaciones"
+                            placeholder="Aqui puedes ingresar observaciones adicionales." pInputTextarea></textarea>
+                    </div>
                 </div>
 
                 <p-confirmDialog></p-confirmDialog>
 
                 <footer class="footer-pedido">
-                    <div>                        
-                        <button pButton pRipple type="button" label="Cancelar" class="p-button-danger"  (click)="mostrarConfirmacionSalir()"></button>
+                    <div>
+                        <button pButton pRipple type="button" label="Cancelar" class="p-button-danger"
+                            (click)="mostrarConfirmacionSalir()"></button>
                         <button pButton pRipple label="Guardar" class="p-button-success" (click)="addCompra()"></button>
                     </div>
                 </footer>
-            </form> 
+            </form>
         </div>
     </div>
 </div>

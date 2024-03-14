@@ -11,12 +11,13 @@ import {
 import { Observable } from 'rxjs';
 import { tap } from 'rxjs/operators';
 import { Router } from '@angular/router';
+import { AuthGuard } from '../../guards/auth.guard';
 
 @Injectable()
 export class AuthInterceptor implements HttpInterceptor {
     private sessionExpiredMessageShown = false;
 
-    constructor(private router: Router, private toastr: ToastrService) { }
+    constructor(private router: Router, private toastr: ToastrService, private authGuard: AuthGuard) { }
 
     intercept(request: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
         return next.handle(request).pipe(
@@ -31,6 +32,7 @@ export class AuthInterceptor implements HttpInterceptor {
                         this.toastr.error('Su sesión ha expirado. Por favor, inicie sesión de nuevo.');
                         this.sessionExpiredMessageShown = true;
                         this.router.navigate(['/auth/login']);
+                        this.authGuard.canActivate()
                     }
                 }
             })

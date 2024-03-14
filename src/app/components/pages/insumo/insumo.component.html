@@ -1,19 +1,20 @@
 <div class="grid">
     <div class="col-12">
         <div class="card">
-            
+
             <p-toolbar styleClass="mb-4">
                 <ng-template pTemplate="left">
-                    <div class="flex flex-wrap gap-3 ">
+                    <div class="flex flex-wrap gap-3">
                         <p-button [raised]="true" label="Registrar insumo" icon="pi pi-plus"
                             (click)="openNewInsumo()"></p-button>
-                        <p-button class="mr-2" label="Salida de insumo" icon="pi pi-sign-out" [raised]="true" severity="danger"
-                        (click)="openSalidaInsumo()"></p-button>
+                        <p-button class="mr-2" label="Salida de insumo" icon="pi pi-sign-out" [raised]="true"
+                            severity="danger" (click)="openSalidaInsumo()"></p-button>
                     </div>
                 </ng-template>
 
-                <ng-template pTemplate="right">                    
-                    <p-button [raised]="true" severity="success" label="Excel" icon="pi pi-file-excel" pTooltip="Descargar" (click)="exportToExcel()"></p-button>
+                <ng-template pTemplate="right">
+                    <p-button [raised]="true" severity="success" label="Excel" icon="pi pi-file-excel"
+                        pTooltip="Descargar" (click)="exportToExcel()"></p-button>
                 </ng-template>
             </p-toolbar>
 
@@ -26,8 +27,8 @@
                         <h5 class="m-0">Lista de Insumos</h5>
                         <span class="block mt-2 md:mt-0 p-input-icon-left">
                             <i class="pi pi-search"></i>
-                            <input pInputText type="text" placeholder="Buscar..." class="w-full sm:w-auto" 
-                            (input)="onGlobalFilter(dt, $event)"/>
+                            <input pInputText type="text" placeholder="Buscar..." class="w-full sm:w-auto"
+                                (input)="onGlobalFilter(dt, $event)" />
                         </span>
                     </div>
                 </ng-template>
@@ -48,13 +49,13 @@
                             <span class="p-column-title">Cantidad</span>
                             {{insumo.cantidad ?? 0}}
                         </td>
-                        <td>
+                        <td style="min-width:10rem;">
                             <div class="flex flex-wrap gap-3 ">
-                                <p-inputSwitch class="mt-3" [(ngModel)]="insumo.estado" 
-                                    (click)="confirm(insumo)" pTooltip="Cambiar estado">
+                                <p-inputSwitch class="mt-3" [(ngModel)]="insumo.estado" (click)="confirm(insumo)"
+                                    pTooltip="Cambiar estado">
                                 </p-inputSwitch>
                                 <p-button icon="pi pi-pencil" [rounded]="true" severity="warning"
-                                (click)="editInsumo(insumo.id)" pTooltip="Editar"></p-button>
+                                    (click)="editInsumo(insumo.id)" pTooltip="Editar"></p-button>
                             </div>
                         </td>
                     </tr>
@@ -66,44 +67,48 @@
                 </ng-template>
             </p-table>
 
-            <p-dialog [header]="nuevoInsumo ? 'Nuevo Insumo' : 'Editar Insumo'" class="p-fluid" [(visible)]="modalCrearInsumo" [style]="{width: '450px'}"
-                [modal]="true">
+            <p-dialog [header]="nuevoInsumo ? 'Nuevo Insumo' : 'Editar Insumo'" class="p-fluid"
+                [(visible)]="modalCrearInsumo" [style]="{width: '450px'}" [modal]="true">
                 <div style="display: flex; flex-direction: row;">
                     <form [formGroup]="formInsumo" (ngSubmit)="addInsumo()">
-                        <div 
-                        class="formgrid grid" >
+                        <div class="formgrid grid">
                             <div class="field col">
                                 <span class="p-float-label">
-                                    <input formControlName="nombre" id="nombre" type="text" pInputText 
-                                    (input)="validarNombreInsumo()" [maxLength]="30 ">
-                                    <label for="nombre">Nombre</label>
+                                    <input formControlName="nombre" id="nombre" type="text" pInputText
+                                        (input)="validarNombreInsumo()" [maxLength]="30 ">
+                                    <label for="nombre">Nombre *</label>
                                 </span>
                                 <small
                                     *ngIf="formInsumo.get('nombre')?.hasError('required') && formInsumo.get('nombre')?.touched"
                                     style="color: red;">
                                     El nombre del insumo <strong>requerido</strong>
                                 </small>
-                                <small *ngIf="formInsumo.get('nombre')?.hasError('insumoExistente') && formInsumo.get('nombre')?.touched"
+                                <small
+                                    *ngIf="formInsumo.get('nombre')?.hasError('insumoExistente') && formInsumo.get('nombre')?.touched"
                                     style="color: red;">
                                     El insumo ya existe en la base de datos
-                                </small>                                
-                                <small *ngIf="formInsumo.get('nombre')?.hasError('minlength') && formInsumo.get('nombre')?.touched"
+                                </small>
+                                <small
+                                    *ngIf="formInsumo.get('nombre')?.hasError('minlength') && formInsumo.get('nombre')?.touched"
                                     style="color: red;">
                                     El insumo debe tener al menos 3 caracteres
                                 </small>
                             </div>
                             <div class="field col">
                                 <span class="p-float-label">
-                                    <p-inputNumber *ngIf="idInsumo == 0" formControlName="cantidad" [min]="0"> </p-inputNumber>
-                                    <p-inputNumber [disabled]="true" [readonly]="true" *ngIf="idInsumo != 0" formControlName="cantidad" ></p-inputNumber>
+                                    <p-inputNumber *ngIf="idInsumo == 0" formControlName="cantidad" [min]="0">
+                                    </p-inputNumber>
+                                    <input pInputText [readonly]="true" *ngIf="idInsumo != 0"
+                                        formControlName="cantidad" />
                                     <label for="cantidad">Cantidad</label>
                                 </span>
                             </div>
                         </div>
-                            
-                        
+
+
                         <div class="formgrid col grid mt-2 justify-content-end">
-                            <p-button label="Cancelar" icon="pi pi-times" (click)="modalCrearInsumo = false" [text]="true"></p-button>
+                            <p-button label="Cancelar" icon="pi pi-times" (click)="modalCrearInsumo = false"
+                                [text]="true"></p-button>
                             <p-button type="submit" label="Guadar" icon="pi pi-check"></p-button>
                         </div>
 
@@ -112,46 +117,59 @@
             </p-dialog>
 
 
-            <p-dialog header="Insumo gastado" class="p-fluid" [(visible)]="modalSalidaInsumo" [style]="{width: '750px'}"
+            <p-dialog header="Insumo gastado" class="p-fluid" [(visible)]="modalSalidaInsumo" [style]="{width: '850px'}"
                 [modal]="true">
                 <div style="display: flex; flex-direction: row;">
                     <form [formGroup]="formSalidaInsumo" (ngSubmit)="confirmarSalidaInsumo()">
-                        <div class="formgrid grid mt-4">
-                            <div class="field col">
-                                <input *ngIf="mostrarID" type="text" pInputText formControlName="insumo"/>
-                            <p-autoComplete class="inputs-pedido" formControlName="insumoNombre"
-                                [suggestions]="sugerenciasInsumos" (completeMethod)="buscarInsumos($event)"
-                                [dropdown]="true" [minLength]="1" [placeholder]="'Buscar Insumo'"
-                                (onSelect)="seleccionarInsumo($event)" 
-                                (keyup)="realizarBusquedaEnTiempoRealInsumo($event)" #insumoInput>
-                                <ng-template let-insumo pTemplate="item">
-                                    {{insumo.nombre}}
-                                </ng-template>
-                            </p-autoComplete>
+                        <div class="formgrid grid mt-4 insumosGastados">
+                            <div class="field col-4">
+                                <input *ngIf="mostrarID" type="text" pInputText formControlName="insumo" />
+
+                                <label>Nombre insumo *</label>
+                                <p-autoComplete formControlName="insumoNombre" [suggestions]="sugerenciasInsumos"
+                                    (completeMethod)="buscarInsumos($event)" [dropdown]="true" [minLength]="1"
+                                    [placeholder]="'Buscar Insumo'" (onSelect)="seleccionarInsumo($event)"
+                                    (keyup)="realizarBusquedaEnTiempoRealInsumo($event)"
+                                    (onBlur)="validacionExistenteNombre()" #insumoInput>
+                                    <ng-template let-insumo pTemplate="item">
+                                        {{insumo.nombre}}
+                                    </ng-template>
+                                </p-autoComplete>
                                 <small
                                     *ngIf="formSalidaInsumo.get('insumoNombre')?.hasError('required') && formSalidaInsumo.get('insumoNombre')?.touched"
                                     style="color: red;">
                                     El insumo es <strong>requerido</strong>
-                                </small>                                
+                                </small>
                             </div>
-                            <div class="field col">
-                                <span class="p-float-label ">
-                                    <p-inputNumber *ngIf="idInsumo== 0" formControlName="cantidad" [min]="0"></p-inputNumber>
-                                    <label for="">Cantidad</label>
-                                </span>
+
+
+                            <div class="field col-2">
+                                <label for="">Inventario</label>
+                                <input pInputText formControlName="cantidadExistente" [readOnly]="true" />
+                            </div>
+
+                            <div class="field col-2">
+                                <label>Cantidad *</label>
+                                <input pInputText type="number" [min]="0" formControlName="cantidad"
+                                    (input)="validarCantidad()" />
                                 <small
                                     *ngIf="formSalidaInsumo.get('cantidad')?.touched && formSalidaInsumo.get('cantidad')?.value < 1"
                                     style="color: red;">
-                                    La cantidad es <strong>requerida</strong>
+                                    La cantidad no puede ser menor a 0
                                 </small>
-                                <small *ngIf="formSalidaInsumo.get('cantidad')?.hasError('cantidadExcedida')" style="color: red;">
+                                <small *ngIf="formSalidaInsumo.get('cantidad')?.hasError('cantidadExcedida')"
+                                    style="color: red;">
                                     La cantidad excede la cantidad disponible.
-                                 </small>
+                                </small>
                             </div>
-                            <div class="field col">
-                                <select  pInputText formControlName="tipoDeMaquina" >  
-                                    <option value="" disabled [selected]>Selecciona un tipo de maquina</option>
-                                    <option *ngFor="let maquina of tipoMaquina" [value]="maquina.value">{{ maquina.label }}</option>                               
+
+
+                            <div class="field col-3">
+                                <label>Tipo de maquina *</label>
+                                <select pInputText formControlName="tipoDeMaquina">
+                                    <option value="" disabled [selected]>Selecciona la maquina</option>
+                                    <option *ngFor="let maquina of tipoMaquina" [value]="maquina.value">{{ maquina.label
+                                        }}</option>
                                 </select>
                                 <small
                                     *ngIf="formSalidaInsumo.get('tipoDeMaquina')?.hasError('required') && formSalidaInsumo.get('tipoDeMaquina')?.touched"
@@ -159,9 +177,9 @@
                                     El tipo de maquina es <strong>requerido</strong>
                                 </small>
                             </div>
-                            <div class="col-1">
+                            <div class="col-1 mt-4">
                                 <p-button icon="pi pi-plus" [rounded]="true" (click)="addInsumoGastado()"
-                                pTooltip="Registrar"></p-button>
+                                    pTooltip="Registrar" class=""></p-button>
                             </div>
                         </div>
 
@@ -170,7 +188,7 @@
                                 <tr>
                                     <th>Insumo</th>
                                     <th>Cantidad</th>
-                                    <th>Tipo Maquina</th>
+                                    <th>Tipo maquina</th>
                                     <th></th>
                                 </tr>
                             </ng-template>
@@ -180,14 +198,15 @@
                                     <td>{{insumoGastado.cantidad}}</td>
                                     <td>{{insumoGastado.tipoDeMaquina}}</td>
                                     <td><p-button icon="pi pi-trash" [rounded]="true" [text]="true" severity="danger "
-                                            (click)="eliminarInsumoGastado(insumoGastado)" pTooltip="Eliminar"></p-button></td>
+                                            (click)="eliminarInsumoGastado(insumoGastado)"
+                                            pTooltip="Eliminar"></p-button></td>
                                 </tr>
                             </ng-template>
                         </p-table>
 
                         <div class="formgrid col grid mt-2 justify-content-end">
                             <p-button label="Cancelar" icon="pi pi-times" [text]="true"
-                            (click)="cerrarModalSalidaInsumo()"></p-button>
+                                (click)="cerrarModalSalidaInsumo()"></p-button>
                             <p-button type="submit" label="Guadar" icon="pi pi-check"></p-button>
                         </div>
                     </form>
@@ -203,8 +222,9 @@
                     <i class="pi pi-exclamation-circle text-6xl text-primary-500"></i>
                     <p>
                         ¿Está seguro de que desea
-                        <span style="font-weight: bold">{{ insumoSeleccionado?.estado ? 'ACTIVAR' : 'DESACTIVAR' }}</span> el insumo?
-                      </p>
+                        <span style="font-weight: bold">{{ insumoSeleccionado?.estado ? 'ACTIVAR' : 'DESACTIVAR'
+                            }}</span> el insumo?
+                    </p>
                 </div>
             </ng-template>
         </p-confirmDialog>

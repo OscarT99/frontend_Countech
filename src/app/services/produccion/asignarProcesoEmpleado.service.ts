@@ -1,4 +1,4 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { environment } from 'src/enviroments/environment'; //Está mal escrito enviroments, debe ser environment
 import { AsignarProcesoEmpleado, EstadoAnular } from 'src/app/interfaces/produccion/asignarProceso.interface';
@@ -18,30 +18,48 @@ export class AsignarProcesoService {
 
   //getOneAsignarProcesoEmpleado sirve para obtener un proceso asignado a un empleado por su id
   getOneAsignarProcesoEmpleado(id: number): Observable<AsignarProcesoEmpleado> {
-    return this.http.get<AsignarProcesoEmpleado>(`${this.myAppUrl}${this.myApiUrl}${id}`);
+    const token = localStorage.getItem('token');
+    const headers = new HttpHeaders().set('x-token', token || '');
+
+    return this.http.get<AsignarProcesoEmpleado>(`${this.myAppUrl}${this.myApiUrl}${id}`, { headers });
   }
 
   //getAsignarProcesoEmpleado sirve para obtener todos los procesos asignados a los empleados
   getAsignarProcesoEmpleado(): Observable<AsignarProcesoEmpleado> {
-    return this.http.get<AsignarProcesoEmpleado>(`http://localhost:8083/api/asignarprocesos`);
+    const token = localStorage.getItem('token');
+    const headers = new HttpHeaders().set('x-token', token || '');
+
+    return this.http.get<AsignarProcesoEmpleado>(`${this.myAppUrl}api/asignarprocesos`, { headers });
   }
 
   getProcesoAvance(): Observable<AsignarProcesoEmpleado> {
-    return this.http.get<AsignarProcesoEmpleado>(`http://localhost:8083/api/asignarproceso/avance`);
+    const token = localStorage.getItem('token');
+    const headers = new HttpHeaders().set('x-token', token || '');
+
+    return this.http.get<AsignarProcesoEmpleado>(`${this.myAppUrl}${this.myApiUrl}avance`, { headers });
   }
 
   //postEmpleado sirve para crear un empleado
   postAsignarProcesoEmpleado(asignarProceso: AsignarProcesoEmpleado): Observable<void> {
-    return this.http.post<void>(`http://localhost:8083/api/asignarproceso`, asignarProceso);
+    const token = localStorage.getItem('token');
+    const headers = new HttpHeaders().set('x-token', token || '');
+
+    return this.http.post<void>(`${this.myAppUrl}${this.myApiUrl}`, asignarProceso, { headers });
   }
 
   //putEmpleado sirve para actualizar un empleado
   putAsignarProcedimiento(id: number, asignarProceso: AsignarProcesoEmpleado): Observable<void> {
-    return this.http.put<void>(`${this.myAppUrl}${this.myApiUrl}${id}`, asignarProceso);
+    const token = localStorage.getItem('token');
+    const headers = new HttpHeaders().set('x-token', token || '');
+
+    return this.http.put<void>(`${this.myAppUrl}${this.myApiUrl}${id}`, asignarProceso, { headers });
   }
 
   putAnularProceso(id: number, estadoAnular: EstadoAnular): Observable<any>{
-    return this.http.put<void>(`http://localhost:8083/api/anularprocesoasignado/${id}`, estadoAnular);
+    const token = localStorage.getItem('token');
+    const headers = new HttpHeaders().set('x-token', token || '');
+
+    return this.http.put<void>(`${this.myAppUrl}api/anularprocesoasignado/${id}`, estadoAnular, { headers });
   }
 
   //deleteEmpleado sirve para eliminar un empleado

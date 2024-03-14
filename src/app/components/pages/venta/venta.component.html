@@ -154,7 +154,7 @@
 
                     <div style="flex: 1;">
                         <div class="card m-5" [style]="{width: '500px', textAlign: 'center'}">
-                            <h5>Abonos De La Venta {{ id }}</h5>
+                            <h5>Abonos de la Venta {{ id }}</h5>
                             <p-table #dt [value]="listAbonoVentas" responsiveLayout="scroll" [rows]="10" dataKey="id">
                                 <ng-template pTemplate="header">
                                     <tr>
@@ -179,6 +179,11 @@
                                         </td>
                                     </tr>
                                 </ng-template>
+                                <ng-template pTemplate="emptymessage">
+                                    <tr>
+                                        <td colspan="6" class="text-center">No se encontraron abonos en esta venta</td>
+                                    </tr>
+                                </ng-template>
                             </p-table>
                         </div>
 
@@ -196,6 +201,7 @@
                 [style]="{width: '900px', height: '510spx' }">
                 <div *ngIf="detallePedido">
                     <div class="grid mt-1" style="justify-content: center">
+
                         <div class="col-4">
                             <span style="font-weight: bold;">Id venta:</span>
                             <div>
@@ -298,7 +304,7 @@
                             <span style="font-weight: bold;">Forma Pago:</span>
                             <div style="display: flex; align-items: center;">
                                 <span>{{ detallePedido.formaPago }}</span>
-                                <!--Mostrar la tabla de abonos si la venta tiene la abonos relacionado-->
+                                <!--Mostrar el boton de abonos si la venta tiene la abonos relacionado-->
                                 <button *ngIf="detallePedido && venta.formaPago === 'Crédito'"
                                     style="margin-left: 10px; margin-top: 5px; padding: 5px 10px; font-size: 12px;"
                                     pButton type="button" class="btn btn-sm btn-secondary"
@@ -325,9 +331,9 @@
 
                     <!--TABLA ABONOS-->
                     <!-- Tabla de abonos si se muestra -->
-                    <div *ngIf="mostrarTablaAbonos" style="margin: 0 auto; margin-left: 10px;">
+                    <div *ngIf="mostrarTablaAbonos" style="margin: 0 auto; margin-left: 20%;">
                         <div class="card m-5" [style]="{width: '500px'}">
-                            <h5>Abonos De La Venta {{ id }}</h5>
+                            <h5 style="text-align: center;">Abonos de la Venta {{ venta.id }}</h5>
                             <p-table #dt [value]="listAbonoVentas" responsiveLayout="scroll" [rows]="10" dataKey="id">
                                 <ng-template pTemplate="header">
                                     <tr>
@@ -352,6 +358,11 @@
                                         </td>
                                     </tr>
                                 </ng-template>
+                                <ng-template pTemplate="emptymessage">
+                                    <tr>
+                                        <td colspan="6" class="text-center">No se encontraron abonos en esta venta</td>
+                                    </tr>
+                                </ng-template>
                             </p-table>
                         </div>
                     </div>
@@ -362,7 +373,7 @@
 
 
             <p-dialog header="Comprobante de Venta" [(visible)]="mostrarComprobante" [modal]="true" [responsive]="true"
-                [style]="{ width: '400px', height: '100%' }">
+                [style]="{ width: '410px', height: '100%' }">
                 <div #comprobanteVenta class="align-items-center">
                     <p-panel header=""
                         [style]="{ marginTop: '0px', borderBottom: '1px solid #ccc', padding: '0.5rem' }">
@@ -382,7 +393,6 @@
                                         detallePedido?.Cliente?.telefono }}</span></p>
                                 <p><strong>Dirección:</strong> <span style="font-size: 14px;">{{
                                         detallePedido?.Cliente?.direccion }}</span></p>
-                                <!-- Otras detalles del cliente como dirección, teléfono, etc. -->
                             </div>
                             <div class="venta-info">
                                 <h4 style="font-size: 16px;">__________________________</h4>
@@ -413,5 +423,6 @@
 
 
 
+        </div>
         </div>
     </div>

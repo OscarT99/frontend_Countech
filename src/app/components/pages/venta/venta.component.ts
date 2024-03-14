@@ -8,7 +8,6 @@ import { Cliente } from 'src/app/interfaces/cliente/cliente.interface';
 import { ClienteService } from 'src/app/services/cliente/cliente.service';
 import { AbonoVenta } from 'src/app/interfaces/abonoVenta/abonoVenta.interface';
 import { AbonoVentaService } from 'src/app/services/abonoVenta/abonoVenta.service';
-import { AbonoVentaComponent } from '../abonoVenta/abonoVenta.component';
 import { ToastrService } from 'ngx-toastr';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
@@ -46,7 +45,7 @@ export class VentaComponent implements OnInit {
   mostrarModalDetalle: boolean = false;
   mostrarComprobante: boolean = false;
   pedidoIdSeleccionado!: number;
-  detallePedido: any; // Puedes ajustar esto según la estructura de tu pedido
+  detallePedido: any; 
   @ViewChild('detallePedidoModal') detallePedidoModal!: Dialog;
   @ViewChild('comprobanteVenta') comprobanteVenta!: ElementRef;
 
@@ -60,21 +59,14 @@ export class VentaComponent implements OnInit {
   ventaSeleccionado: Venta | null = null;
   switchState: boolean | undefined = undefined;
 
-  /*
-    estadoPago: SelectItem[] = [
-      { label: 'Pago', value: 'Pago' },
-      { label: 'Pendiente', value: 'Pendiente' }
-    ];
-    selectedEstadoPago: SelectItem = { value: '' };
-  */
-
   value8: any;
+
+  //ValorAbono
   value9: any;
 
-
+  //Mostrar modales
   productDialogAbono: boolean = false;
   productDialogDetalle: boolean = false;
-
 
 
   products: Product[] = [];
@@ -96,9 +88,6 @@ export class VentaComponent implements OnInit {
     private confirmationService: ConfirmationService,
     private messageService: MessageService,
     private _pedidoService: PedidoService,
-
-
-
   ) {
     this.formVenta = this.fb.group({
       id: ['', Validators.required],
@@ -130,16 +119,9 @@ export class VentaComponent implements OnInit {
     this.getListVentas()
     this.getListClientes()
     this.getListAbonoVentas()
-    this.getListPedidos()
-    this.verificarFormaPago()
-
   }
-  getListPedidos() {
-    this._pedidoService.getListPedidos().subscribe((data: any) => {
-      this.listPedidos = data.listaPedidos;
 
-    })
-  }
+  mostrarTablaAbonos: boolean = false;
 
 
   async mostrarDetallePedido(id: number) {
@@ -147,6 +129,12 @@ export class VentaComponent implements OnInit {
       this.detallePedido = await this._pedidoService.getPedido(id).toPromise();
       console.log('Detalle del pedido:', this.detallePedido);
       this.mostrarModalDetalle = true;
+      this.mostrarTablaAbonos = false;
+      this.id = id;
+      this.getVenta(id);
+      // Filtra los abonos por la venta seleccionada
+      this.filtrarAbonosPorVenta(id);
+      this.getListAbonoVentas();
     } catch (error) {
       console.error('Error al obtener el detalle de la venta:', error);
     }
@@ -162,10 +150,6 @@ export class VentaComponent implements OnInit {
     }
   }
 
-  esPagoPendiente(estadoPago: string): boolean {
-    return estadoPago === 'Pendiente';
-  }
-
 
   getListClientes() {
     this._clienteService.getListClientes().subscribe((data: any) => {
@@ -179,11 +163,8 @@ export class VentaComponent implements OnInit {
     }
 
     const cliente = this.listClientes.find(c => c.id === clienteId);
-
     return cliente ? cliente.nombreComercial || 'Nombre no disponible' : 'Cliente no encontrado';
   }
-
-
 
   getListVentas() {
     this._ventaService.getListVentas().subscribe((data: any) => {
@@ -191,10 +172,10 @@ export class VentaComponent implements OnInit {
     })
   }
 
+
   getVenta(id: number) {
     this._ventaService.getVenta(id).subscribe((data: Venta) => {
       console.log(data)
-
       this.formVenta = this.fb.group({
         id: ['', Validators.required],
         cliente: ['', Validators.required],
@@ -214,56 +195,16 @@ export class VentaComponent implements OnInit {
         estadoPago: data.estadoPago
       })
 
-      this.venta = data; // Actualiza la variable de la venta con los datos recuperados
-
-      // Verifica si la venta tiene un cliente asociado
+      this.venta = data; 
+      
+      //Llama el nombre del cliente
       if (this.venta.cliente) {
-        // Aquí puedes llamar a una función que recupere el nombre del cliente
         this.getNombreCliente(this.venta.cliente);
       }
 
     })
   }
 
-  /*
-    addVenta() {
-      const venta: Venta = {
-        id: this.formVenta.value.id,
-        cliente: this.formVenta.value.cliente,
-        ordenTrabajo: this.formVenta.value.ordenTrabajo,
-        fechaVenta: this.formVenta.value.fechaVenta,
-        formaPago: this.formVenta.value.formaPago,
-        valorTotal: this.formVenta.value.valorTotal,
-        estadoPago: this.formVenta.value.estadoPago
-      }
-  
-      if (this.id !== 0) {
-        venta.id = this.id
-        this._ventaService.putVenta(this.id, venta).subscribe(() => {
-          this.productDialogAbono = false;
-          this.toastr.info(`La venta fue actualizada con éxito`, `Venta actualizado`)
-          this.getListVentas();
-        })
-      }
-  
-      this.productDialogAbono = false;
-    }
-  */
-
-  navigateToVentaList() {
-    // Navegar a lista de ventas actualizada
-    this.getListVentas();
-
-  }
-
-
-  /*
-    openNew() {
-      this.id = 0;
-      this.formVenta.reset()
-      this.productDialogAbono = true;
-    }
-  */
 
 
   confirm2(event: Event) {
@@ -276,14 +217,14 @@ export class VentaComponent implements OnInit {
         icon: 'pi pi-exclamation-triangle',
         acceptLabel: 'Sí',
         accept: () => {
-
+          this.agregarAbonoVenta(this.value9);
+          
           const valorRestante = this.getValorRestante()
           const nuevoValorRestante = valorRestante - this.value9
           if (nuevoValorRestante === 0) {
             this.actualizarEstadoPago(this.id, 'Pago');
+            this.toastr.info(`Se ha completado el pago de la venta con éxito, el estado de la venta es PAGO.`, `Pago completado`, { timeOut: 10000 });
           }
-
-          this.agregarAbonoVenta(this.value9);
         },
         reject: () => {
           this.toastr.error('El abono no se agregó a la venta', 'Cancelado');
@@ -294,15 +235,6 @@ export class VentaComponent implements OnInit {
     }
   }
 
-
-
-
-
-  hideDialog() {
-    this.productDialogAbono = false;
-    this.productDialogDetalle = false;
-
-  }
 
   onGlobalFilter(table: Table, event: Event) {
     table.filterGlobal((event.target as HTMLInputElement).value, 'contains');
@@ -325,7 +257,8 @@ export class VentaComponent implements OnInit {
 
     this.listVentas.forEach(venta => {
       const row = [
-        venta.cliente,
+        //venta.cliente,
+        this.getNombreCliente(venta.cliente),
         venta.ordenTrabajo,
         venta.fechaVenta,
         venta.formaPago,
@@ -380,7 +313,7 @@ export class VentaComponent implements OnInit {
         () => {
           setTimeout(() => {
             window.location.reload();
-          }, 5000);
+          }, 7000);
 
         },
         (error) => {
@@ -404,89 +337,7 @@ export class VentaComponent implements OnInit {
     }
   }
 
-
-
   //Agregar abono 
-  /*
-  agregarAbonoVenta(valorAbono: number) {
-    const nuevoAbono: AbonoVenta = {
-      valorAbono: valorAbono,
-      fechaAbono: new Date(), 
-      venta: this.id 
-    };
-  
-    this._abonoVentaService.postAbonoVenta(nuevoAbono).subscribe(
-      () => {
-        this.messageService.add({
-          severity: 'success',
-          summary: 'Agregado',
-          detail: 'El abono se agregó exitosamente a la venta'
-        });
-        this.getListAbonoVentas(); // Actualiza la lista de abonos de venta después de agregar uno nuevo
-        //this.hideDialog(); // Cierra el diálogo después de agregar el abono de venta
-      },
-      (error) => {
-        console.error('Error al agregar abono de venta:', error);
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Error',
-          detail: 'Hubo un error al agregar el abono a la venta'
-        });
-      }
-    );
-  }
-  */
-  /*
-    agregarAbonoVenta(valorAbono: number) {
-      const nuevoAbono: AbonoVenta = {
-        valorAbono: valorAbono,
-        fechaAbono: new Date(),
-        venta: this.id
-      };
-    
-      // Verificar si el valor restante es 0 antes de agregar un nuevo abono
-      const valorRestante = this.getValorRestante();
-    
-      if (valorRestante > 0) {
-        // Verificar si el valorAbono es mayor al valorRestante
-        if (valorAbono > valorRestante) {
-          this.messageService.add({
-            severity: 'error',
-            summary: 'Error',
-            detail: 'El valor del abono no puede ser mayor al valor restante'
-          });
-        } else {
-          this._abonoVentaService.postAbonoVenta(nuevoAbono).subscribe(
-            () => {
-              this.messageService.add({
-                severity: 'success',
-                summary: 'Agregado',
-                detail: 'El abono se agregó exitosamente a la venta'
-              });
-              this.getListAbonoVentas(); // Actualiza la lista de abonos de venta después de agregar uno nuevo
-              //this.hideDialog(); // Cierra el diálogo después de agregar el abono de venta
-            },
-            (error) => {
-              console.error('Error al agregar abono de venta:', error);
-              this.messageService.add({
-                severity: 'error',
-                summary: 'Error',
-                detail: 'Hubo un error al agregar el abono a la venta'
-              });
-            }
-          );
-        }
-      } else {
-        // Mostrar un mensaje o deshabilitar el botón de agregar abono si el valor restante es 0
-        this.messageService.add({
-          severity: 'info',
-          summary: 'Información',
-          detail: 'No se pueden agregar más abonos, el valor restante es 0'
-        });
-      }
-    }
-  */
-
   agregarAbonoVenta(valorAbono: number) {
     const nuevoAbono: AbonoVenta = {
       valorAbono: valorAbono,
@@ -501,15 +352,6 @@ export class VentaComponent implements OnInit {
           this.value9 = null;
           this.toastr.success('El abono se agregó exitosamente a la venta', 'Agregado');
           this.getListAbonoVentas();
-          const valorRestante = this.getValorRestante();
-          const nuevoValorRestante = valorRestante - valorAbono;
-          console.log('valor restante: ', valorRestante - valorAbono)
-
-          if (nuevoValorRestante === 0) {
-            this.actualizarEstadoPago(this.id, 'Pago');
-            this.toastr.info(`Se ha completado el pago de la venta. Su estado es Pago.`, `Pago completado`);
-          }
-
         },
         (error) => {
           console.error('Error al agregar abono de venta:', error);
@@ -526,6 +368,8 @@ export class VentaComponent implements OnInit {
 
   newAbonoVenta(id: number) {
     this.id = id;
+    this.value9 = null;
+
     this.productDialogAbono = true;
     this.getVenta(id);
 
@@ -533,7 +377,6 @@ export class VentaComponent implements OnInit {
     this.filtrarAbonosPorVenta(id);
     this.getListAbonoVentas();
   }
-
 
   //Listar abonos de la venta seleccionada
   filtrarAbonosPorVenta(ventaId: number) {
@@ -577,7 +420,7 @@ export class VentaComponent implements OnInit {
 
 
 
-  //validacion valor abono
+  //VALIDACIÓN valor abono
   errorMessages = {
     valorAbono: ''
   }
@@ -589,8 +432,7 @@ export class VentaComponent implements OnInit {
     const valorRestante = this.getValorRestante();
     const minValorAbono = 5000;
     const validacion = /^\d+$/;
-
-
+   
     if (valorAbono) {
       if (valorAbono === null || valorAbono.trim() === '' || valorAbono === "") {
         this.errorMessages.valorAbono = 'El campo valor abono es requerido.';
@@ -602,7 +444,7 @@ export class VentaComponent implements OnInit {
         this.errorMessages.valorAbono = 'El valor abono no puede ser mayor al valor restante.';
         this.camposValidos = false;
       } else if (valorAbono < minValorAbono) {
-        this.errorMessages.valorAbono = `El valor mínimo permitido es ${minValorAbono}.`;
+        this.errorMessages.valorAbono = `El valor mínimo permitido es $5.000.`;
         this.camposValidos = false;
       } else {
         this.errorMessages.valorAbono = '';
@@ -610,73 +452,6 @@ export class VentaComponent implements OnInit {
       }
     }
   }
-  validarValorAbono1() {
-    const valorAbono = this.value9;
-    const minValorAbono = 0;
-
-    if (valorAbono === null || valorAbono.trim() === '' || valorAbono === "") {
-      this.errorMessages.valorAbono = 'El campo valor abono es requerido.';
-      this.camposValidos = false;
-    } else if (valorAbono < minValorAbono) {
-      this.errorMessages.valorAbono = `El valor mínimo permitido es ${minValorAbono}`;
-      this.camposValidos = false;
-    } else {
-      this.errorMessages.valorAbono = '';
-      this.camposValidos = true;
-    }
-  }
-
-
-
-
-
-  //DETALLE VENTA
-  detalleVenta(id: number) {
-    this.id = id;
-    this.productDialogDetalle = true;
-    this.getVenta(id);
-    // Filtra los abonos por la venta seleccionada
-    this.filtrarAbonosPorVenta(id);
-    this.getListAbonoVentas();
-  }
-
-
-  mostrarTablaAbonos: boolean = true;
-
-
-  // Lógica para mostrar la tabla de abonos si la forma de pago es "Crédito"
-  verificarFormaPago() {
-    if (this.detallePedido && this.detallePedido.formaPago === 'Crédito') {
-      this.mostrarTablaAbonos = true;
-    } else {
-      this.mostrarTablaAbonos = false;
-    }
-  }
-
-
-  /*
-    marcarComoPagada(): void {
-      const valorRestante = this.getValorRestante();
-      if (valorRestante === 0) {
-          
-          // Llama al servicio para actualizar el estado de pago a "Pago"
-          this._ventaService.putVenta(this.venta.id, 'Pago').subscribe(
-              () => {
-                  this.toastr.success('La venta se ha marcado como pagada correctamente.', 'Venta Pagada');
-                  // Realiza cualquier otra lógica necesaria después de marcar la venta como pagada
-                  // Por ejemplo, volver a cargar la lista de ventas
-                  this.getListVentas();
-              },
-              (error) => {
-                  console.error('Error al marcar la venta como pagada:', error);
-                  this.toastr.error('Hubo un error al marcar la venta como pagada.', 'Error');
-              }
-          );
-      } else {
-          // Muestra un mensaje de advertencia si el valor restante es diferente de 0
-          this.toastr.warning('La venta no se puede marcar como pagada porque el valor restante es diferente de 0.', 'Advertencia');
-      }
-  }*/
 
 }
 
