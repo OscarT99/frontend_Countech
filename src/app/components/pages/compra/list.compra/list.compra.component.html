@@ -119,6 +119,7 @@
                                     detalleCompra.Proveedor.razonSocial + ' ' + detalleCompra.Proveedor.nombreComercial
                                     :
                                     detalleCompra.Proveedor.razonSocial }}</span>
+
                             </div>
                         </div>
 
@@ -168,11 +169,29 @@
                             </p-table>
                         </div>
 
-                        <div class="col-6">
+                        <div class="col-4">
                             <span style="font-weight: bold;">Forma Pago:</span>
-                            <span>{{ detalleCompra.formaPago }}</span>
+                            <div style="display: flex; align-items: center;">
+                                <span>{{ detalleCompra.formaPago }}</span>
+                                <!--Mostrar el boton de abonos si la compra tiene la abonos relacionado-->
+                                <button *ngIf="detalleCompra && detalleCompra.formaPago === 'Crédito'"
+                                    style="margin-left: 10px; margin-top: 5px; padding: 5px 10px; font-size: 12px;"
+                                    pButton type="button" class="btn btn-sm btn-secondary"
+                                    [label]="mostrarTablaAbonos ? 'Ocultar Abonos' : 'Ver Abonos'"
+                                    (click)="mostrarTablaAbonos = !mostrarTablaAbonos">
+                                </button>
+                            </div>
+
                         </div>
-                        <div class="col-6">
+
+                        <div class="col-4">
+                            <span style="font-weight: bold;">Estado Pago:</span>
+                            <div>
+                                <span>{{ detalleCompra.estadoPago }}</span>
+                            </div>
+                        </div> 
+
+                        <div class="col-4">
                             <div>
                                 <span style="font-weight: bold;">Total bruto: </span>
                                 <span>$ {{ detalleCompra.totalBruto | number: '1.2-2'}}</span>
@@ -191,9 +210,9 @@
 
                 </div>
 
-                <div *ngIf="detalleCompra && detalleCompra.formaPago === 'Crédito' && detalleCompra.estadoCompra">
+                <div *ngIf="mostrarTablaAbonos" style="margin: 0 auto; margin-left: 3%;">
                     <div class="card m-5">
-                        <h5>Abonos De La Venta {{ id }}</h5>
+                        <h5 style="text-align: center;">Abonos de la Compra {{ detalleCompra.id }}</h5>
                         <p-table #dt [value]="listAbonoCompras" responsiveLayout="scroll" [rows]="10" dataKey="id">
                             <ng-template pTemplate="header">
                                 <tr>
@@ -202,19 +221,24 @@
                                     <th pSortableColumn="valorAbono">Valor Abonado</th>
                                 </tr>
                             </ng-template>
-                            <ng-template pTemplate="body" let-abonoVenta>
+                            <ng-template pTemplate="body" let-abonoCompra>
                                 <tr>
                                     <td style="width:14%; min-width:5rem;"><span class="p-column-title">Id Abono</span>
-                                        {{ abonoVenta.id }}
+                                        {{ abonoCompra.id }}
                                     </td>
                                     <td style="width:14%; min-width:10rem;">
                                         <span class="p-column-title">Fecha</span>
-                                        {{ abonoVenta.fechaAbono }}
+                                        {{ abonoCompra.fechaAbono }}
                                     </td>
                                     <td style="width:14%; min-width:8rem;">
                                         <span class="p-column-title">Valor Abonado</span>
-                                        {{ abonoVenta.valorAbono }}
+                                        {{ abonoCompra.valorAbono }}
                                     </td>
+                                </tr>
+                            </ng-template>
+                            <ng-template pTemplate="emptymessage">
+                                <tr>
+                                    <td colspan="6" class="text-center">No se encontraron abonos en esta compra</td>
                                 </tr>
                             </ng-template>
                         </p-table>
@@ -269,16 +293,18 @@
                 <div style="flex: 1;">
                     <form [formGroup]="formAbonoCompra">
                         <div class="formgrid grid">
-                            <div class="field col">
+                            <div class="field col-3">
                                 <label for="id">Id Compra</label>
                                 <input formControlName="id" id="id" type="number" pInputText readonly>
                             </div>
-                            <div class="field col">
-                                <label for="cliente">Proveedor</label>
-                                <input formControlName="proveedor" id="proveedor" type="text" pInputText readonly>
+                            <div class="field col-9">
+                                <label for="proveedor">Proveedor</label>
+                                <input  formControlName="proveedor" id="proveedor" type="text" pInputText readonly >
+                                    
                             </div>
 
                         </div>
+                      
 
                         <div class="formgrid grid">
 
@@ -290,36 +316,37 @@
 
                                 </div>
                             </div>
+                            
                             <div class="field col">
                                 <label for="valorAbono">Restante</label>
                                 <div class="p-inputgroup">
                                     <span class="p-inputgroup-addon" readonly>$</span>
-                                    <input type="number" formControlName="totalNeto" [readonly]="true">
+                                    <input type="number" formControlName="valorRestante" [readonly]="true"
+                                    formControlName="totalNeto" [style]="{ 'width': '100%' }">
                                 </div>
                             </div>
+
 
 
                         </div>
 
                     </form>
-                    <div class="mb-2">
-                        <label for="valorAbono">Valor Abono</label>
+                    <div class="p-inputgroup mt-3">
+                        <span class="p-float-label">
+                            <input  pInputText class="w-full md:w-25rem" style="padding:1rem" id="valorAbono" name="valorAbono" 
+                                [(ngModel)]="value9" class="form-control" (input)="validarValorAbono()" 
+                                [ngClass]="{'is-invalid': errorMessages.valorAbono}" placeholder>
+                            <label for="valorAbono">Valor Abono*</label>
+                            <button (click)="confirm2($event)" pButton icon="pi pi-plus" 
+                                class="p-button-rounded p-button-success ml-3"></button>
+                            <p-confirmPopup key="confirm2"></p-confirmPopup>
+                        </span>
+                    </div>
+                    <div class="invalid-feedback error-message mt-2" *ngIf="errorMessages.valorAbono" style="color: red;">
+                        {{errorMessages.valorAbono}}
                     </div>
 
-                    <div class="p-inputgroup">
-                        <span class="p-inputgroup-addon">$</span>
-                        <p-inputNumber inputId="valorAbono" [(ngModel)]="value9"
-                            placeholder="000.000.000"></p-inputNumber>
-                        <span
-                            *ngIf="formAbonoCompra.get('valorAbono')?.hasError('required') && formAbonoCompra.get('valorAbono')?.touched"
-                            style="color: red;">
-                            El valor del abono es <strong>requerido</strong>
-                        </span>
-                        <p-toast></p-toast>
-                        <button class="ml-1" (click)="confirm2($event)" pButton icon="pi pi-plus"
-                            class="p-button-rounded p-button-success"></button>
-                        <p-confirmPopup key="confirm2"></p-confirmPopup>
-                    </div>
+                    
                 </div>
                 <div style="flex: 1;">
                     <div class="card m-5" [style]="{width: '500px', textAlign: 'center'}">
@@ -332,18 +359,18 @@
                                     <th pSortableColumn="valorAbono">Valor Abonado</th>
                                 </tr>
                             </ng-template>
-                            <ng-template pTemplate="body" let-abonoVenta>
+                            <ng-template pTemplate="body" let-abonoCompra>
                                 <tr>
                                     <td style="width:14%; min-width:5rem;"><span class="p-column-title">Id Abono</span>
-                                        {{ abonoVenta.id }}
+                                        {{ abonoCompra.id }}
                                     </td>
                                     <td style="width:14%; min-width:10rem;">
                                         <span class="p-column-title">Fecha</span>
-                                        {{ abonoVenta.fechaAbono }}
+                                        {{ abonoCompra.fechaAbono }}
                                     </td>
                                     <td style="width:14%; min-width:8rem;">
                                         <span class="p-column-title">Valor Abonado</span>
-                                        {{ abonoVenta.valorAbono }}
+                                        {{ abonoCompra.valorAbono }}
                                     </td>
                                 </tr>
                             </ng-template>

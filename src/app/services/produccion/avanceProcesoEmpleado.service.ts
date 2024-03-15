@@ -1,4 +1,4 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { environment } from 'src/enviroments/environment'; //Está mal escrito enviroments, debe ser environment
 import { AvanceProcesoEmpleado } from 'src/app/interfaces/produccion/avanceProcesoEmpleado.interface';
@@ -25,17 +25,26 @@ export class AvanceProcesoEmpleadoService {
 
   //getOneAsignarProcesoEmpleado sirve para obtener un proceso asignado a un empleado por su id
   getOneAvanceProcesoEmpleado(id: number): Observable<AvanceProcesoEmpleado> {
-    return this.http.get<AvanceProcesoEmpleado>(`${this.myAppUrl}${this.myApiUrl}${id}`);
+    const token = localStorage.getItem('token');
+    const headers = new HttpHeaders().set('x-token', token || '');
+
+    return this.http.get<AvanceProcesoEmpleado>(`${this.myAppUrl}${this.myApiUrl}${id}`, { headers });
   }
 
   //getAsignarProcesoEmpleado sirve para obtener todos los procesos asignados a los empleados
   getAvanceProcesoEmpleado(): Observable<AvanceProcesoEmpleado> {
-    return this.http.get<AvanceProcesoEmpleado>(`${this.myAppUrl}api/avanceprocesos`);
+    const token = localStorage.getItem('token');
+    const headers = new HttpHeaders().set('x-token', token || '');
+
+    return this.http.get<AvanceProcesoEmpleado>(`${this.myAppUrl}api/avanceprocesos`, { headers });
   }
 
   //postEmpleado sirve para crear un empleado
   postAvanceProcesoEmpleado(avanceProcesoEmpleado: AvanceProcesoEmpleado): Observable<void> {
-    return this.http.post<void>(`${this.myAppUrl}${this.myApiUrl}`, avanceProcesoEmpleado)
+    const token = localStorage.getItem('token');
+    const headers = new HttpHeaders().set('x-token', token || '');
+
+    return this.http.post<void>(`${this.myAppUrl}${this.myApiUrl}`, avanceProcesoEmpleado, { headers })
     .pipe(
       tap(() => {
         this._refresh$.next();
@@ -43,9 +52,14 @@ export class AvanceProcesoEmpleadoService {
     )
   }
 
+
+  
   //putEmpleado sirve para actualizar un empleado
   putAvanceProcesoEmpleado(id: number, avanceProcesoEmpleado: AvanceProcesoEmpleado): Observable<void> {
-    return this.http.put<void>(`${this.myAppUrl}${this.myApiUrl}${id}`, avanceProcesoEmpleado);
+    const token = localStorage.getItem('token');
+    const headers = new HttpHeaders().set('x-token', token || '');
+
+    return this.http.put<void>(`${this.myAppUrl}${this.myApiUrl}${id}`, avanceProcesoEmpleado, { headers });
   }
 
   //deleteEmpleado sirve para eliminar un empleado

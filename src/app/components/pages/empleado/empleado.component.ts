@@ -379,24 +379,6 @@ export class EmpleadoComponent implements OnInit {
     });
   }
 
-  confirmChangeState(confirmacion: boolean) {
-    // this.empleadoInfoDialog = false;
-    if (confirmacion && this.empleadoSeleccionado && this.empleadoSeleccionado.estadoOcupado === false) {
-      if (this.empleadoSeleccionado.id){
-        this._empleadoService.putEmpleado(this.empleadoSeleccionado.id, this.empleadoSeleccionado).subscribe(() => {
-          this.empleado.estado = !this.empleado.estado;
-          if (this.empleado.estado == false) {
-            this.toastr.success('Empleado activo', 'Éxito');
-          } else{
-            this.toastr.error('Empleado inactivo', 'Éxito');
-          }
-          this.getEmpleadoProceso();
-        });
-      
-      }
-    };
-  }
-
   getEmpleado(id:number) {
     
     this._empleadoService.getEmpleado(id).subscribe((data: Empleado) => {
