@@ -295,19 +295,28 @@
                 </ng-template>
                 <ng-template pTemplate="body" let-proceso let-expanded="expanded">
                     <tr>
+                        <td *ngIf="proceso.estadoAnular === true">
+
+                        </td>
                         <td *ngIf="proceso.estadoAnular === false">
                                 <button type="button" pButton pRipple [pRowToggler]="proceso" class="p-button-text p-button-rounded p-button-plain" [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"></button>
                         </td>
+
                         <td>{{proceso.nombreEmpleado}}</td>
+
                         <td>{{proceso.cantidadAsignada}}</td>
+
                         <td>{{proceso.cantRestante}}</td>
+                        
                             <td *ngIf="proceso.estadoProcAsig === true && proceso.estadoAnular === false">
                                 {{proceso.cantidadAsignada}}
                             </td>
+
                             <td *ngIf="proceso.estadoProcAsig === true && proceso.estadoAnular === true">
                                 0
                             </td>
-                        <td>
+                            
+                        <td *ngIf="proceso.estadoProcAsig === false">
                             <form [formGroup]="formArray">
                               <div [formGroup]="formArray">
                                 <ng-container formArrayName="data">
@@ -341,9 +350,11 @@
                               </div>
                             </form>
                         </td>
+
                         <td>
                             <p-tag [value]="changeEstadoProd(proceso.estadoProcAsig, proceso.estadoAnular)" [severity]="getEstadoProd(proceso.estadoProcAsig, proceso.estadoAnular)"></p-tag>
                         </td>
+
                             <td *ngIf="proceso.estadoAnular === true">
                                 <p-tag [value]="changeEstadoAnular(proceso.estadoAnular)" [severity]="styleEstadoAnular(proceso.estadoAnular)"></p-tag>
                             </td>
@@ -351,6 +362,7 @@
                             <td class="padding: 0;" *ngIf="proceso.estadoAnular === false && proceso.estadoProcAsig === false && proceso.cantidadAsignada === proceso.cantRestante">
                                 <p-button (click)="confirm(proceso.id)" icon="pi pi-times-circle" [rounded]="true" severity="danger" pTooltip="Anular"></p-button>
                             </td>
+
                             <td *ngIf="proceso.estadoProcAsig === true && proceso.estadoAnular === false || proceso.estadoProcAsig === false && proceso.estadoAnular === false && proceso.cantidadAsignada !== proceso.cantRestante">
 
                             </td>
