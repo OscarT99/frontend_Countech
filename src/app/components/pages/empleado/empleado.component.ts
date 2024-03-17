@@ -85,7 +85,7 @@ export class EmpleadoComponent implements OnInit {
         this.form = this.fb.group({
           tipoIdentidad: ['', [Validators.required]],
           numIdentidad: ['', [Validators.required]],
-          nombre: ['', [Validators.required, Validators.maxLength(30), this.customTextRegExpValidator(/^[A-Za-záéíóúüÜÁÉÍÓÚÑñ ]+$/), this.customLengthtRegExpValidator(/^(\S+\s){0,2}\S*$/)]],
+          nombre: ['', [Validators.required, Validators.maxLength(30), this.customTextRegExpValidator(/^[A-Za-záéíóúüÜÁÉÍÓÚÑñ\d ]+$/), this.customLengthtRegExpValidator(/^(\S+\s){0,2}\S*$/)]],
           apellido: ['', [Validators.required, Validators.maxLength(30), this.customTextRegExpValidator(/^[A-Za-záéíóúüÜÁÉÍÓÚÑñ ]+$/), this.customLengthtRegExpValidator(/^(\S+\s){0,2}\S*$/)]],
           correo: ['', [Validators.required, Validators.maxLength(40), this.customEmailRegExpValidator(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/)]],
           telefono: ['', [Validators.required, this.customNumberRegExpValidator(/^[0-9]{10}$/)]],
@@ -205,12 +205,14 @@ export class EmpleadoComponent implements OnInit {
         return;
     }
 
-    if (numIdentidadValue && numIdentidadValue.length > 10) {
+    if (numIdentidadValue && numIdentidadValue.length > 12) {
       numIdentidadControl?.setErrors({ maxlength: true });
         return;
     }
   
     // Verificar si el número de identificación ya existe en la base de datos
+    console.log(numIdentidadControl)
+    console.log(numIdentidadValue)
     const existingNumber = this.listEmpleados.some(empleado => empleado.numIdentidad === numIdentidadValue);
     if (existingNumber) {
       numIdentidadControl?.setErrors({ numeroExistente: true });

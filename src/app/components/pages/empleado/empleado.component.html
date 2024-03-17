@@ -87,7 +87,7 @@
                                             <div class="formgrid col grid mt-2" style="display: flex;">
                                               <div style="margin-right: 4px;">
                                                 <span class="p-float-label">
-                                                  <input type="number" pInputText formControlName="cantidadHecha" (ngModelChange)="validateCantHecha(i, proceso.cantRestante)" />
+                                                  <input type="number" pInputText pKeyFilter="int" formControlName="cantidadHecha" (ngModelChange)="validateCantHecha(i, proceso.cantRestante)" />
                                                   <label for="cantidadHechas">Cantidad hecha</label>
                                                 </span>
                                                 <small>
@@ -229,52 +229,39 @@
 <p-dialog header="Editar empleado" [(visible)]="editDialog" [style]="{width: '450px'}" [modal]="true" class="p-fluid">
   <form [formGroup]="form" (ngSubmit)="addEmpleado()">
 
-    <!-- <div class="field">
+
+    <div class="field">
       <span class="p-float-label">
-        <p-dropdown inputId="tipoIdentidad" [autoDisplayFirst]="false" [options]="listTipoIdentidad" formControlName="tipoIdentidad" placeholder="Seleccionar un tipo de identificación*"></p-dropdown>
-        <label for="tipoIdentidad">Seleccionar un tipo de identificación*</label>
+          <p-dropdown [options]="listTipoIdentidad" formControlName="tipoIdentidad" [showClear]="true" placeholder="Seleccionar"></p-dropdown>
+          <label for="tipoIdentidad">Tipo de identificación*</label>
       </span> 
       <small *ngIf="form.get('tipoIdentidad')?.value == null && form.get('tipoIdentidad')?.touched" style="color: red;">
-        El tipo de identificación es requerido</small>
-    </div> -->
-
-      <div class="formgrid grid">
-
-      <div class="field col">
+          El tipo de identificación es requerido</small>
+    </div>
+      
+    <div class="field">
         <span class="p-float-label">
-          <input [readOnly]="true" type="text" pInputText formControlName="tipoIdentidad">
-          <label for="numIdentidad">Tipo de identidad</label>
+            <input id="numIdentidad" type="text" pInputText pKeyFilter="int" formControlName="numIdentidad" (input)="validateNumIdentidad()"/>
+            <label for="numIdentidad">Número de identificación*</label>
         </span>
-      </div>
-
-      <div class="field col">
-        <span class="p-float-label">
-          <input [readOnly]="true" type="text" pInputText formControlName="numIdentidad">
-          <label for="numIdentidad">Número de identificación</label>
-      </span>
-      </div>
-        <!-- <small *ngIf="form.get('numIdentidad')?.touched && form.get('numIdentidad')?.hasError('required') || form.get('numIdentidad')?.hasError('required') && form.get('numIdentidad')?.dirty" style="color: red;">
-          El número de identificación es requerido</small>
-      <small *ngIf="form.get('numIdentidad')?.hasError('minlength') && form.get('numIdentidad')?.touched" style="color: red;">
-          El número de identificación debe ser mínimo de 6 dígitos
+        <small *ngIf="form.get('numIdentidad')?.touched && form.get('numIdentidad')?.hasError('required') || form.get('numIdentidad')?.hasError('required') && form.get('numIdentidad')?.dirty" style="color: red;">
+            El número de identificación es requerido</small>
+        <small *ngIf="form.get('numIdentidad')?.hasError('minlength') && form.get('numIdentidad')?.touched" style="color: red;">
+            El número de identificación debe ser mínimo de 6 dígitos
+        </small>
+        <small *ngIf="form.get('numIdentidad')?.hasError('numeroExistente') && form.get('numIdentidad')?.touched && form.get('numIdentidad')?.value !== form.get('numIdentidad')" style="color: red;">
+          El número de identificación está en uso
       </small>
-      <small *ngIf="form.get('numIdentidad')?.hasError('numeroExistente') && form.get('numIdentidad')?.touched" style="color: red;">
-          El número de identificación está en uso</small>
-      <small *ngIf="form.get('numIdentidad')?.dirty && form.get('numIdentidad')?.hasError('maxlength')" style="color: red;">
-          Solo se permiten máximo 10 dígitos</small> -->
-      </div>
-
-
-
+        <small *ngIf="form.get('numIdentidad')?.dirty && form.get('numIdentidad')?.hasError('maxlength')" style="color: red;">
+            Solo se permiten máximo 12 dígitos</small>
+    </div> 
+      
 
   <div class="field">
     <span class="p-float-label">
       <input id="nombre" type="text" pInputText formControlName="nombre"/>
       <label for="nombre">Nombres*</label>
     </span>
-    <!-- <small *ngIf="form.get('tipoIdentidad')?.value == null && form.get('tipoIdentidad')?.touched" style="color: red;">
-      El tipo de identificación es requerido</small> -->
-
     <small *ngIf="form.get('nombre')?.hasError('required') && form.get('nombre')?.dirty || form.get('nombre')?.hasError('required') && form.get('nombre')?.touched" style="color: red;">
       El nombre es requerido</small>
   <small *ngIf="form.get('nombre')?.value !== '' && form.get('nombre')?.dirty && form.get('nombre')?.hasError('customTextRegExp')" style="color: red;">
@@ -399,7 +386,7 @@
       <small *ngIf="form.get('numIdentidad')?.hasError('numeroExistente') && form.get('numIdentidad')?.touched" style="color: red;">
           El número de identificación está en uso</small>
       <small *ngIf="form.get('numIdentidad')?.dirty && form.get('numIdentidad')?.hasError('maxlength')" style="color: red;">
-          Solo se permiten máximo 10 dígitos</small>
+          Solo se permiten máximo 12 dígitos</small>
   </div> 
   
   <div class="field">

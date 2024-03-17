@@ -15,11 +15,11 @@ import { TabMenuModule } from 'primeng/tabmenu';
 import { TabViewModule } from 'primeng/tabview';
 import { TimelineModule } from 'primeng/timeline';
 import { ToastModule } from 'primeng/toast';
-
 import { InputTextModule } from 'primeng/inputtext';
 import { TreeTableModule } from 'primeng/treetable';
 import { DropdownModule } from 'primeng/dropdown';
 import { TagModule } from 'primeng/tag';
+import { KeyFilterModule } from 'primeng/keyfilter';
 import { InputSwitchModule } from 'primeng/inputswitch';
 import { MessagesModule } from 'primeng/messages';
 
@@ -27,6 +27,7 @@ import { MessagesModule } from 'primeng/messages';
     imports: [
         AutoCompleteModule,
         ConfirmDialogModule,
+        KeyFilterModule,
         TagModule,
         InputNumberModule,
         CommonModule,
