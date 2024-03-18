@@ -18,6 +18,10 @@ import { InputNumberModule } from 'primeng/inputnumber';
 import { DialogModule } from 'primeng/dialog';
 import { AutoCompleteModule } from "primeng/autocomplete";
 import { InputSwitchModule } from 'primeng/inputswitch';
+import { TooltipModule } from 'primeng/tooltip';
+import { TagModule } from 'primeng/tag';
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import { MessageService } from 'primeng/api';
 
 
 @NgModule({
@@ -40,8 +44,13 @@ import { InputSwitchModule } from 'primeng/inputswitch';
         DialogModule,
         AutoCompleteModule,
         ReactiveFormsModule,
-        InputSwitchModule,             
+        InputSwitchModule,
+        TooltipModule,
+        TagModule,  
+        ConfirmDialogModule,
     ],
+    providers:[MessageService],
+
     declarations: [UsuarioComponent]
 })
 export class UsuarioModule { }

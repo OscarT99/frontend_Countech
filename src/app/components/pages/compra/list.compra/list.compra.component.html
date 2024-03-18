@@ -1,166 +1,383 @@
 <div class="grid">
     <div class="col-12">
-        <div class="card px-6 py-6">            
+        <div class="card">
             <p-toolbar styleClass="mb-4">
                 <ng-template pTemplate="left">
-                    <div class="my-2">
-                        <button pButton pRipple label="Nuevo" icon="pi pi-plus" class="p-button-success mr-2" [routerLink]="['/pages/compra/add', 0]"></button>                        
+                    <div>
+                        <p-button [raised]="true" label="Registrar compra" icon="pi pi-plus"
+                            [routerLink]="['/pages/compra/add']"></p-button>
                     </div>
                 </ng-template>
 
-                <ng-template pTemplate="right">                    
-                    <button pButton pRipple label="Exportar" icon="pi pi-upload" class="p-button-help" ></button>
+                <ng-template pTemplate="right">
+                    <div class="flex flex-wrap gap-3">
+                        <p-button label="{{mostrarComprasActivas ? 'Ver compras anuladas' : 'Ver compras activas'}}"
+                            (click)="mostrarCompras()" [raised]="true"
+                            [severity]="mostrarComprasActivas ? 'warning' : 'info' " icon="pi pi-eye"></p-button>
+                        <p-button [raised]="true" severity="success" label="Excel" icon="pi pi-file-excel"
+                            pTooltip="Descargar" (click)="exportToExcel()"></p-button>
+                    </div>
                 </ng-template>
             </p-toolbar>
 
-            <p-table #dt [value]="listCompras"  responsiveLayout="scroll" [rows]="10" [globalFilterFields]="[]" [paginator]="true" [rowsPerPageOptions]="[5,10,15]" [showCurrentPageReport]="true" currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries" [rowHover]="true" dataKey="id">
+            <p-table #dt [value]="mostrarComprasActivas ? listComprasActivas : listComprasAnuladas"
+                responsiveLayout="scroll" [rows]="5"
+                [globalFilterFields]="['Proveedor.razonSocial','numeroFactura','totalNeto']" [paginator]="true"
+                [rowsPerPageOptions]="[5,10,15]" [showCurrentPageReport]="true"
+                currentPageReportTemplate="Mostrando del {first} al {last} de {totalRecords} compras" [rowHover]="true"
+                dataKey="id">
                 <ng-template pTemplate="caption">
                     <div class="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
                         <h5 class="m-0">Lista de Compras</h5>
                         <span class="block mt-2 md:mt-0 p-input-icon-left">
                             <i class="pi pi-search"></i>
-                            <input pInputText type="text" (input)="onGlobalFilter(dt, $event)" placeholder="Buscar..."  class="w-full sm:w-auto"/>
+                            <input pInputText type="text" placeholder="Buscar..." (input)="onGlobalFilter(dt, $event)"
+                                class="w-full sm:w-auto" />
                         </span>
                     </div>
                 </ng-template>
                 <ng-template pTemplate="header">
-                    <tr>                        
+                    <tr>
                         <th pSortableColumn="proveedor">Proveedor<p-sortIcon field="proveedor"></p-sortIcon></th>
-                        <th pSortableColumn="numeroFactura">N° Factura<p-sortIcon field="numeroFactura"></p-sortIcon></th>                        
-                        <th pSortableColumn="fechaCompra">Fecha Compra<p-sortIcon field="fechaCompra"></p-sortIcon></th>
-                        <th pSortableColumn="formaPago">Forma Pago<p-sortIcon field="formaPago"></p-sortIcon></th>
-                        <th pSortableColumn="totalNeto">Valor Total<p-sortIcon field="totalNeto"></p-sortIcon></th>                        
-                        <th pSortableColumn="estadoPago">Saldo<p-sortIcon field="estadoPago"></p-sortIcon></th>
-                        <th pSortableColumn="estadoCompra">Estado<p-sortIcon field="estadoCompra"></p-sortIcon></th>
+                        <th pSortableColumn="numeroFactura">Factura<p-sortIcon field="numeroFactura"></p-sortIcon>
+                        </th>
+                        <th pSortableColumn="fechaCompra">F. Compra<p-sortIcon field="fechaCompra"></p-sortIcon></th>
+                        <th pSortableColumn="totalNeto">Valor Total<p-sortIcon field="totalNeto"></p-sortIcon></th>
+                        <th *ngIf="mostrarComprasActivas" pSortableColumn="estadoPago">Saldo<p-sortIcon
+                                field="estadoPago"></p-sortIcon></th>
+                        <th *ngIf="mostrarComprasActivas == false" pSortableColumn="estadoCompra">Estado</th>
                         <th></th>
                     </tr>
                 </ng-template>
                 <ng-template pTemplate="body" let-compra>
-                    <tr>                        
-                        <td style="width:14%; min-width:5rem;"><span class="p-column-title">Proveedor</span>
-                            {{ compra.Proveedor.razonSocial }}
+                    <tr>
+                        <td style="min-width:8rem;"><span class="p-column-title">Proveedor</span>
+                            {{ compra.Proveedor.tipoIdentificacion !== 'NIT' ?
+                            compra.Proveedor.razonSocial + ' ' + compra.Proveedor.nombreComercial :
+                            compra.Proveedor.razonSocial }}
                         </td>
-                        <td style="width:14%; min-width:10rem;">
-                            <span class="p-column-title">N° Factura</span>
+                        <td style="min-width:5rem;">
+                            <span class="p-column-title">Factura</span>
                             {{ compra.numeroFactura }}
-                        </td>                        
-                        <td style="width:14%; min-width:8rem;">
-                            <span class="p-column-title">Fecha Compra</span>
+                        </td>
+                        <td style=" min-width:8rem;">
+                            <span class="p-column-title">F. Compra</span>
                             {{ compra.fechaCompra }}
                         </td>
-                        <td style="width:14%; min-width:10rem;">
-                            <span class="p-column-title">Forma Pago</span>
-                            {{ compra.formaPago }}
-                        </td>  
-                        <td style="width:14%; min-width:10rem;">
+                        <td style=" min-width:8rem;">
                             <span class="p-column-title">Total Neto</span>
-                            {{ compra.totalNeto }}
-                        </td>                        
-                        <td style="width:14%; min-width: 5rem;">
+                            $ {{ compra.totalNeto | number: '1.2-2' }}
+                        </td>
+                        <td *ngIf="mostrarComprasActivas" style=" min-width: 5rem;">
                             <span class="p-column-title">Saldo</span>
-                            {{ compra.estadoPago }}
+                            <p-tag [severity]="getSeverityEstadoPago(compra.estadoPago)">{{compra.estadoPago}}</p-tag>
                         </td>
-                        <td style="width:14%; min-width: 5rem;">
-                            <span class="p-column-title">Estado</span>
-                            {{ compra.estadoCompra }}
+                        <td *ngIf="mostrarComprasActivas == false" style=" min-width: 5rem;">
+                            <span class="p-column-title">Estado 10 </span>
+                            <p-tag [value]="getEstadoLabel(compra.estadoCompra)"
+                                [severity]="getSeverityCompra(compra.estadoCompra)"></p-tag>
                         </td>
-                        <td>
-                            <div class="flex">
-                                <button pButton pRipple icon="pi pi-file" class="p-button-rounded p-button-warning mr-2" (click)="mostrarDetalleCompra(compra.id)"></button>                                                                
-                                <button *ngIf="compra.estadoCompra == true" pButton pRipple icon="pi pi-pencil" class="p-button-rounded p-button-success mr-2" (click)="editarCompra(compra.id)"></button>        
-                                <button *ngIf="compra.estadoCompra == true" pButton pRipple icon="pi pi-times" class="p-button-rounded p-button-danger" (click)="anularCompra(compra)"></button>                                                        
+                        <td style=" min-width: 10rem;">
+                            <div class="flex flex-wrap gap-3 ">
+                                <p-button icon="pi pi-file" [rounded]="true" severity="secondary"
+                                    (click)="mostrarDetalleCompra(compra.id)" pTooltip="Ver detalle"></p-button>
+                                <p-button
+                                    *ngIf="compra.formaPago === 'Crédito' && compra.estadoPago === 'Pendiente' && compra.estadoCompra === true"
+                                    icon="pi pi-dollar" [rounded]="true" severity="success" pTooltip="Abonar"
+                                    (click)="newAbonoCompra(compra.id)">
+                                </p-button>
+                                <p-button *ngIf="compra.estadoCompra == true" icon="pi pi-times" [rounded]="true"
+                                    severity="danger" (click)="anularCompra(compra)" pTooltip="Anular"></p-button>
+
                             </div>
                         </td>
                     </tr>
                 </ng-template>
-            </p-table>  
+                <ng-template pTemplate="emptymessage">
+                    <tr>
+                        <td colspan="6" class="text-center">No se encontraron compras</td>
+                    </tr>
+                </ng-template>
+            </p-table>
 
-            <p-dialog header="Detalle de la compra" [(visible)]="mostrarModalDetalle" [modal]="true" [responsive]="true" [style]="{ width: '50vw' }">
+            <p-dialog class="p-fluid" header="Detalle de la compra" [(visible)]="mostrarModalDetalle" [modal]="true"
+                [style]="{ width: '550px' }">
                 <div *ngIf="detalleCompra">
-                    <div class="grid mt-1">                        
-                            <div class="col-4">
-                                <span style="font-weight: bold;">Proveedor:</span>
-                                <span>{{ detalleCompra.Proveedor.razonSocial }}</span>
+                    <div class="grid mt-1">
+
+                        <div *ngIf="detalleCompra.estadoCompra == false" class="card col-12">
+                            <h5>MOTIVO DE ANULACIÓN</h5>
+                            <div>
+                                <span>{{ detalleCompra.motivoDeAnulacion}}</span>
                             </div>
-                            <div class="col-4">
-                                <span style="font-weight: bold;">Contacto:</span>
+                        </div>
+
+                        <div class="col-4">
+                            <span style="font-weight: bold;">Proveedor:</span>
+                            <div>
+                                <span>{{ detalleCompra.Proveedor.tipoIdentificacion !== 'NIT' ?
+                                    detalleCompra.Proveedor.razonSocial + ' ' + detalleCompra.Proveedor.nombreComercial
+                                    :
+                                    detalleCompra.Proveedor.razonSocial }}</span>
+
+                            </div>
+                        </div>
+
+                        <div class="col-4">
+                            <span style="font-weight: bold;">Contacto:</span>
+                            <div>
                                 <span>{{ detalleCompra.Proveedor.contacto }}</span>
                             </div>
-                            <div class="col-4">
-                                <span style="font-weight: bold;">N° Factura:</span>
+                        </div>
+
+                        <div class="col-4">
+                            <span style="font-weight: bold;">N° Factura:</span>
+                            <div>
                                 <span>{{ detalleCompra.numeroFactura }}</span>
                             </div>
-                        
-                            <div class="col-4">
-                                <span style="font-weight: bold;">Fecha Compra:</span>
+                        </div>
+
+                        <div class="col-4">
+                            <span style="font-weight: bold;">Fecha Compra:</span>
+                            <div>
                                 <span>{{ detalleCompra.fechaCompra }}</span>
                             </div>
-                            
-                            <div class="col-12">
-                                <p-table [value]="detalleCompra.DetalleEnCompras" styleClass="p-datatable-sm">
-                                    <ng-template pTemplate="header">
-                                        <tr>                                                                                        
-                                            <th>Insumo</th>
-                                            <th>Valor Unitario</th>
-                                            <th>Cantidad</th>
-                                            <th>Iva</th>
-                                            <th>Valor Total</th>
-                                        </tr>
-                                    </ng-template>
-                                    <ng-template pTemplate="body" let-detalleInsumo>
-                                        <tr>
-                                            <td>{{detalleInsumo.insumo}}</td>                                            
-                                            <td>{{detalleInsumo.valorUnitario}}</td>
-                                            <td>{{detalleInsumo.cantidad}}</td>
-                                            <td>{{detalleInsumo.impuestoIva}}</td>
-                                            <td>{{detalleInsumo.valorTotal}}</td>
-                                            <td></td>
-                                        </tr>                                        
-                                    </ng-template>
-                                </p-table>
+                        </div>
+
+
+                        <div class="col-12">
+                            <p-table [value]="detalleCompra.DetalleEnCompras" styleClass="p-datatable-sm">
+                                <ng-template pTemplate="header">
+                                    <tr>
+                                        <th>Insumo</th>
+                                        <th>Valor Unitario</th>
+                                        <th>Cantidad</th>
+                                        <th>Iva</th>
+                                        <th>Valor Total</th>
+                                    </tr>
+                                </ng-template>
+                                <ng-template pTemplate="body" let-detalleInsumo>
+                                    <tr>
+                                        <td>{{detalleInsumo.Insumo.nombre}}</td>
+                                        <td>{{detalleInsumo.valorUnitario | number: '1.2-2'}}</td>
+                                        <td>{{detalleInsumo.cantidad}}</td>
+                                        <td>{{detalleInsumo.impuestoIva | number: '1.2-2'}}</td>
+                                        <td>{{detalleInsumo.valorTotal | number: '1.2-2'}}</td>
+                                        <td></td>
+                                    </tr>
+                                </ng-template>
+                            </p-table>
+                        </div>
+
+                        <div class="col-4">
+                            <span style="font-weight: bold;">Forma Pago:</span>
+                            <div style="display: flex; align-items: center;">
+                                <span>{{ detalleCompra.formaPago }}</span>
+                                <!--Mostrar el boton de abonos si la compra tiene la abonos relacionado-->
+                                <button *ngIf="detalleCompra && detalleCompra.formaPago === 'Crédito'"
+                                    style="margin-left: 10px; margin-top: 5px; padding: 5px 10px; font-size: 12px;"
+                                    pButton type="button" class="btn btn-sm btn-secondary"
+                                    [label]="mostrarTablaAbonos ? 'Ocultar Abonos' : 'Ver Abonos'"
+                                    (click)="mostrarTablaAbonos = !mostrarTablaAbonos">
+                                </button>
                             </div>
 
-                            <div class="col-6">
-                                <span style="font-weight: bold;">Forma Pago:</span>
-                                <span>{{ detalleCompra.formaPago }}</span>
+                        </div>
+
+                        <div class="col-4">
+                            <span style="font-weight: bold;">Estado Pago:</span>
+                            <div>
+                                <span>{{ detalleCompra.estadoPago }}</span>
                             </div>
-                            <div class="col-6">
-                                <div>
-                                    <span style="font-weight: bold;">Total bruto:</span>
-                                    <span>{{ detalleCompra.totalBruto }}</span>
-                                </div>
-                                <div>
-                                    <span style="font-weight: bold;">Iva:</span>
-                                    <span>{{ detalleCompra.iva }}</span>
-                                </div>
-                                <div>
-                                    <span style="font-weight: bold;">Total Neto:</span>
-                                    <span>{{ detalleCompra.totalNeto }}</span>
-                                </div>
-                                
+                        </div> 
+
+                        <div class="col-4">
+                            <div>
+                                <span style="font-weight: bold;">Total bruto: </span>
+                                <span>$ {{ detalleCompra.totalBruto | number: '1.2-2'}}</span>
                             </div>
+                            <div>
+                                <span style="font-weight: bold;">Iva: </span>
+                                <span>$ {{ detalleCompra.iva | number: '1.2-2'}}</span>
+                            </div>
+                            <div>
+                                <span style="font-weight: bold;">Total Neto: </span>
+                                <span>$ {{ detalleCompra.totalNeto | number: '1.2-2'}}</span>
+                            </div>
+
+                        </div>
                     </div>
 
                 </div>
-                
-                <!-- <button pButton type="button" label="Cerrar" class="p-button-secondary" (click)="cerrarModalDetallePedido()"></button> -->
+
+                <div *ngIf="mostrarTablaAbonos" style="margin: 0 auto; margin-left: 3%;">
+                    <div class="card m-5">
+                        <h5 style="text-align: center;">Abonos de la Compra {{ detalleCompra.id }}</h5>
+                        <p-table #dt [value]="listAbonoCompras" responsiveLayout="scroll" [rows]="10" dataKey="id">
+                            <ng-template pTemplate="header">
+                                <tr>
+                                    <th pSortableColumn="idAbono">Id Abono</th>
+                                    <th pSortableColumn="fechaAbono">Fecha</th>
+                                    <th pSortableColumn="valorAbono">Valor Abonado</th>
+                                </tr>
+                            </ng-template>
+                            <ng-template pTemplate="body" let-abonoCompra>
+                                <tr>
+                                    <td style="width:14%; min-width:5rem;"><span class="p-column-title">Id Abono</span>
+                                        {{ abonoCompra.id }}
+                                    </td>
+                                    <td style="width:14%; min-width:10rem;">
+                                        <span class="p-column-title">Fecha</span>
+                                        {{ abonoCompra.fechaAbono }}
+                                    </td>
+                                    <td style="width:14%; min-width:8rem;">
+                                        <span class="p-column-title">Valor Abonado</span>
+                                        {{ abonoCompra.valorAbono }}
+                                    </td>
+                                </tr>
+                            </ng-template>
+                            <ng-template pTemplate="emptymessage">
+                                <tr>
+                                    <td colspan="6" class="text-center">No se encontraron abonos en esta compra</td>
+                                </tr>
+                            </ng-template>
+                        </p-table>
+                    </div>
+
+
+
+                </div>
+
             </p-dialog>
 
-            <p-dialog
-                [(visible)]="showConfirmationDialogCompra"
-                header="Confirmación"
-                [modal]="true"
-                [closable]="false"
-                appendTo="body"
-            >
-                <p>
-                    ¿Está seguro de que desea anular la compra? despues de anulada no se podra volver a modificar
-                </p>
-                <input pInputText type="text" [(ngModel)]="motivoAnulacion" placeholder="Motivo de Anulación" />
-                <button pButton type="button" label="Sí" icon="pi pi-check" (click)="confirmActionCompra(true)"></button>
-                <button pButton type="button" label="No" icon="pi pi-times" (click)="confirmActionCompra(false)"></button>
+            <p-dialog header="Confirmación" [(visible)]="showConfirmationDialogCompra" [modal]="true" class="p-fluid">
+                <div>
+                    <p>
+                        ¿Está seguro de que desea anular la compra? despues de anulada no se podra volver a modificar
+                    </p>
+
+                    <form [formGroup]="formMotivoAnulacion">
+                        <div>
+                            <textarea (input)="ValidacionMotivoAnulacion()" style="resize:none" rows="3" cols="100"
+                                pInputTextarea formControlName="motivoAnulacion"
+                                placeholder="Ingrese aca el motivo de la anulación"></textarea>
+                        </div>
+                        <small
+                            *ngIf="formMotivoAnulacion.get('motivoAnulacion')?.hasError('required') && formMotivoAnulacion.get('motivoAnulacion')?.touched"
+                            style="color: red;">
+                            El motivo es requerido.
+                        </small>
+                        <small
+                            *ngIf="formMotivoAnulacion.get('motivoAnulacion')?.hasError('minlength') && formMotivoAnulacion.get('motivoAnulacion')?.touched"
+                            style="color: red;">
+                            Ingrese un motivo especifico.
+                        </small>
+
+
+                        <div class="formgrid col grid mt-2 justify-content-end flex flex-wrap gap-1">
+                            <p-button label="Cancelar" icon="pi pi-times" [text]="true"
+                                (click)="confirmActionCompra(false)"></p-button>
+                            <p-button label="Confirmar" icon="pi pi-check"
+                                (click)="confirmActionCompra(true)"></p-button>
+                        </div>
+                    </form>
+                </div>
+
             </p-dialog>
 
-        </div>    
+        </div>
+
+        <p-dialog [(visible)]="productDialogAbono" [style]="{width: '1000px', height: '500px' }" header="Abono Compra"
+            [modal]="true" class="p-fluid">
+            <div style="display: flex;">
+                <div style="flex: 1;">
+                    <form [formGroup]="formAbonoCompra">
+                        <div class="formgrid grid">
+                            <div class="field col-3">
+                                <label for="id">Id Compra</label>
+                                <input formControlName="id" id="id" type="number" pInputText readonly>
+                            </div>
+                            <div class="field col-9">
+                                <label for="proveedor">Proveedor</label>
+                                <input  formControlName="proveedor" id="proveedor" type="text" pInputText readonly >
+                                    
+                            </div>
+
+                        </div>
+                      
+
+                        <div class="formgrid grid">
+
+                            <div class="field col">
+                                <label for="valorAbono">Total</label>
+                                <div class="p-inputgroup">
+                                    <span class="p-inputgroup-addon">$</span>
+                                    <p-inputNumber formControlName="totalNeto" [readonly]="true"></p-inputNumber>
+
+                                </div>
+                            </div>
+                            
+                            <div class="field col">
+                                <label for="valorAbono">Restante</label>
+                                <div class="p-inputgroup">
+                                    <span class="p-inputgroup-addon" readonly>$</span>
+                                    <input type="number" formControlName="valorRestante" [readonly]="true"
+                                    formControlName="totalNeto" [style]="{ 'width': '100%' }">
+                                </div>
+                            </div>
+
+
+
+                        </div>
+
+                    </form>
+                    <div class="p-inputgroup mt-3">
+                        <span class="p-float-label">
+                            <input  pInputText class="w-full md:w-25rem" style="padding:1rem" id="valorAbono" name="valorAbono" 
+                                [(ngModel)]="value9" class="form-control" (input)="validarValorAbono()" 
+                                [ngClass]="{'is-invalid': errorMessages.valorAbono}" placeholder>
+                            <label for="valorAbono">Valor Abono*</label>
+                            <button (click)="confirm2($event)" pButton icon="pi pi-plus" 
+                                class="p-button-rounded p-button-success ml-3"></button>
+                            <p-confirmPopup key="confirm2"></p-confirmPopup>
+                        </span>
+                    </div>
+                    <div class="invalid-feedback error-message mt-2" *ngIf="errorMessages.valorAbono" style="color: red;">
+                        {{errorMessages.valorAbono}}
+                    </div>
+
+                    
+                </div>
+                <div style="flex: 1;">
+                    <div class="card m-5" [style]="{width: '500px', textAlign: 'center'}">
+                        <h5>Abonos De La Compra {{ id }}</h5>
+                        <p-table #dt [value]="listAbonoCompras" responsiveLayout="scroll" [rows]="10" dataKey="id">
+                            <ng-template pTemplate="header">
+                                <tr>
+                                    <th pSortableColumn="idAbono">Id Abono</th>
+                                    <th pSortableColumn="fechaAbono">Fecha</th>
+                                    <th pSortableColumn="valorAbono">Valor Abonado</th>
+                                </tr>
+                            </ng-template>
+                            <ng-template pTemplate="body" let-abonoCompra>
+                                <tr>
+                                    <td style="width:14%; min-width:5rem;"><span class="p-column-title">Id Abono</span>
+                                        {{ abonoCompra.id }}
+                                    </td>
+                                    <td style="width:14%; min-width:10rem;">
+                                        <span class="p-column-title">Fecha</span>
+                                        {{ abonoCompra.fechaAbono }}
+                                    </td>
+                                    <td style="width:14%; min-width:8rem;">
+                                        <span class="p-column-title">Valor Abonado</span>
+                                        {{ abonoCompra.valorAbono }}
+                                    </td>
+                                </tr>
+                            </ng-template>
+                        </p-table>
+                    </div>
+                </div>
+            </div>
+        </p-dialog>
     </div>
 </div>

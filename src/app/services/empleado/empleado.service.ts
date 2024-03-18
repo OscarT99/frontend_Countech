@@ -1,4 +1,4 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { environment } from 'src/enviroments/environment'; //Está mal escrito enviroments, debe ser environment
 import { Empleado } from 'src/app/interfaces/empleado/empleado.interface';
@@ -18,32 +18,50 @@ export class EmpleadoService {
 
   // getEmpleadoProcesos sirve para obtener los empleados junto con sus procesos
   getEmpleadoProcesos(): Observable<Empleado> {
-    return this.http.get<Empleado>(`${this.myAppUrl}api/empleado/proceso`)
+    const token = localStorage.getItem('token');
+    const headers = new HttpHeaders().set('x-token', token || '');
+
+    return this.http.get<Empleado>(`${this.myAppUrl}api/empleado/proceso`, { headers })
   }
 
   //getListEmpleados sirve para obtener todos los empleados
   getEmpleadoList(): Observable<Empleado> {
-    return this.http.get<Empleado>(`${this.myAppUrl}api/empleados`);
+    const token = localStorage.getItem('token');
+    const headers = new HttpHeaders().set('x-token', token || '');
+
+    return this.http.get<Empleado>(`${this.myAppUrl}api/empleados`,  { headers });
   }
 
   //getEmpleado sirve para obtener un empleado por su id
   getEmpleado(id: number): Observable<Empleado> {
-    return this.http.get<Empleado>(`${this.myAppUrl}${this.myApiUrl}${id}`);
+    const token = localStorage.getItem('token');
+    const headers = new HttpHeaders().set('x-token', token || '');
+
+    return this.http.get<Empleado>(`${this.myAppUrl}${this.myApiUrl}${id}`, { headers });
   }
 
 
   //postEmpleado sirve para crear un empleado
   postEmpleado(empleado: Empleado): Observable<void> {
-    return this.http.post<void>(`${this.myAppUrl}${this.myApiUrl}`, empleado);
+    const token = localStorage.getItem('token');
+    const headers = new HttpHeaders().set('x-token', token || '');
+
+    return this.http.post<void>(`${this.myAppUrl}${this.myApiUrl}`, empleado, { headers });
   }
 
   //putEmpleado sirve para actualizar un empleado
   putEmpleado(id: number, empleado: Empleado): Observable<void> {
-    return this.http.put<void>(`${this.myAppUrl}${this.myApiUrl}${id}`, empleado);
+    const token = localStorage.getItem('token');
+    const headers = new HttpHeaders().set('x-token', token || '');
+
+    return this.http.put<void>(`${this.myAppUrl}${this.myApiUrl}${id}`, empleado, { headers });
   }
 
   putEstadoEmpleado(id: number, empleado: Empleado): Observable<void> {
-    return this.http.put<void>(`${this.myAppUrl}${this.myApiUrl}/estado/${id}`, empleado);
+    const token = localStorage.getItem('token');
+    const headers = new HttpHeaders().set('x-token', token || '');
+
+    return this.http.put<void>(`${this.myAppUrl}${this.myApiUrl}/estado/${id}`, empleado, { headers });
   }
 
 

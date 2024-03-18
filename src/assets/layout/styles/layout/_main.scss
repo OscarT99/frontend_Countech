@@ -10,7 +10,7 @@ html {
 body {
     font-family: var(--font-family);
     color: var(--text-color);
-    background-color: var(--surface-ground);
+    background-color:rgb(205, 216, 223);
     margin: 0;
     padding: 0;
     min-height: 100%;
@@ -27,11 +27,10 @@ a {
     min-height: 100vh;
 }
 
-
-
-.inputs-pedido, .inputs-pedido .p-dropdown, .inputs-pedido .p-calendar, .inputs-pedido .p-autocomplete, .inputs-pedido .p-multiselect {
-    height: 35px;
-}
+.transparent-border {
+    border-color: transparent;
+  }
+  
 
 .p-table thead th,
 .p-table tbody td {
@@ -39,3 +38,28 @@ a {
 }
 
 
+/* Estilos para dispositivos con un ancho de 768px o menos */
+@media only screen and (max-width: 768px) {
+  .footer-pedido {
+    text-align: center;
+    margin-top: 10px;
+  }
+
+  .responsiveMediaQuery{
+    .col-6 , .col-5, .col-4, .col-3, .col-2, .p-table{
+        width: 100%;
+    }
+  }
+
+  .tallaColor{
+    .col-2{
+        width: 50%;
+    }
+  }  
+  
+  .insumosGastados{
+    .col-4, .col-3, .col-2{
+        width: 100%;
+    }
+  }
+}

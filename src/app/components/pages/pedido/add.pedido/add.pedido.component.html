@@ -1,217 +1,338 @@
-<div class="grid">    
+<div class="grid responsiveMediaQuery">
     <div class="col-12">
-        <div class="card px-6 ">
+        <div class="card px-6 p-fluid">
             <h4>{{ id === 0 ? 'Nuevo Pedido' : 'Editar Pedido' }}</h4>
-                <form  [formGroup]="formPedido" (ngSubmit)="addPedido()"  >                    
-                    <div class="grid p-fluid mt-3">
-                        <div class="col-4">
-                            <label >Cliente</label>
-                            <div>
-                              <p-autoComplete class="inputs-pedido"
-                                formControlName="cliente"
-                                [suggestions]="sugerenciasClientes"
-                                (completeMethod)="buscarClientes($event)"
-                                [dropdown]="true"
-                                [minLength]="1"                            
-                                [placeholder]="'Buscar cliente'"
-                                (onSelect)="seleccionarCliente($event)">
-                                <ng-template let-cliente pTemplate="item">
-                                  {{cliente.razonSocial}} - {{cliente.numeroIdentificacion}} - {{cliente.estado}}
-                                </ng-template>
-                              </p-autoComplete>                              
-                            </div>
-                            <span *ngIf="formPedido.get('cliente')?.hasError('required') && formPedido.get('cliente')?.touched" style="color: red;">
-                                El Cliente es <strong>requerido</strong>
-                            </span>
-                        </div>
-                                          
-                        <div class="col-4">
-                            <label htmlFor="contacto">Contacto</label>
-                            <div>
-                                <input  class="mt-1 inputs-pedido" type="text" pInputText  [disabled]="true"  [value]="formPedido.get('contacto')!.value" />
-                            </div>                            
-                        </div>
-    
-                        <div class="col-3">
-                            <label htmlFor="ordenTrabajo">Orden de Trabajo </label>
-                            <div>
-                                <input [maxLength]="8" formControlName="ordenTrabajo" class="mt-1 inputs-pedido" type="text" pInputText   />                                                        
-                            </div>
-                            <span *ngIf="formPedido.get('ordenTrabajo')?.hasError('required') && formPedido.get('ordenTrabajo')?.touched" style="color: red;">
-                                La orden es <strong>requerida</strong>
-                            </span>                            
-                        </div>                        
-                    </div>                                     
-                                               
-                    <div class="grid p-fluid">
-                        <div class="col-4">
-                            <label htmlFor="fechaOrdenTrabajo">Fecha de Orden</label>
-                            <div>
-                                <p-calendar class="inputs-pedido" formControlName="fechaOrdenTrabajo" [showIcon]="true" inputId="fechaOrdenTrabajo" dateFormat="yy-mm-dd"></p-calendar>
-                            </div>
-                            <span *ngIf="formPedido.get('fechaOrdenTrabajo')?.hasError('required') && formPedido.get('fechaOrdenTrabajo')?.touched" style="color: red;">
-                                La fecha de Orden es <strong>requerida</strong>
-                            </span>
-                        </div>
-    
-                        <div class="col-4">
-                            <label htmlFor="fechaEntregaOrden">Fecha Entrega Orden</label>
-                            <div>
-                                <p-calendar class="inputs-pedido" formControlName="fechaEntregaOrden" [showIcon]="true" inputId="fechaEntregaOrden" dateFormat="yy-mm-dd"></p-calendar>
-                            </div>
-                            <span *ngIf="formPedido.get('fechaEntregaOrden')?.hasError('required') && formPedido.get('fechaEntregaOrden')?.touched" style="color: red;">
-                                La fecha de Entrega es <strong>requerida</strong>
-                            </span>
-                        </div>                        
-                    </div>
-                    
-                    <strong>Detalles de Referencia</strong>
-                    <div class="grid p-fluid mt-1" style="border-top: 1px solid var(--surface-border);">                          
-                        <div class="col-4">
-                            <label htmlFor="referencia">Referencia</label>
-                            <div>
-                                <input class="mt-1 inputs-pedido" type="text" id="referencia" formControlName="referencia" pInputText />
-                            </div>
-                            <span *ngIf="formPedido.get('referencia')?.hasError('required') && formPedido.get('referencia')?.touched" style="color: red;">
-                                La Referencia es <strong>requerida</strong>
-                            </span>
-                        </div>
-
-                        <div class="col-4">
-                            <label htmlFor="descripcion">Descripción</label>
-                            <div>
-                                <input class="mt-1 inputs-pedido" type="text" id="descripcion" formControlName="descripcion" pInputText />
-                            </div>
-                            <span *ngIf="formPedido.get('descripcion')?.hasError('required') && formPedido.get('descripcion')?.touched" style="color: red;">
-                                La Descripción es <strong>requerida</strong>
-                            </span>
-                        </div>
-                        <div class="col-3">
-                            <label htmlFor="valorUnitario">Valor Unitario</label>
-                            <div>
-                                <p-inputNumber mode="currency" currency="USD" locale="en-US" class="mt-1 inputs-pedido" [min]=1  id="valorUnitario" formControlName="valorUnitario"></p-inputNumber>
-                            </div>
-                            <span *ngIf="formPedido.get('valorUnitario')?.hasError('required') && formPedido.get('valorUnitario')?.touched" style="color: red;">
-                                El valor es unitario <strong>requerido</strong>
-                            </span>                            
-                        </div>
-                    </div>
-    
-                    <strong>Detalles de procesos</strong>                    
-                    <div class="grid p-fluid mt-1" style="border-top: 1px solid var(--surface-border);">
-                        <div class="col-4">
-                            <label htmlFor="proceso">Proceso</label>
-                            <div>
-                                <input class="inputs-pedido" pInputText type="text" formControlName="proceso" id="proceso" #procesoInput/>
-                            </div>
-                            <span *ngIf="formPedido.get('proceso')?.hasError('required') && formPedido.get('proceso')?.touched 
-                            && procesosReferencia.length === 0"  style="color: red;">
-                                El procedimientos es <strong>requerido</strong>
-                            </span>
-                        </div>
-                        <div class="col-4">
-                            <label htmlFor="tipoMaquina">Tipo de Máquina</label>
-                            <div>
-                                <p-dropdown class="inputs-pedido" [autoDisplayFirst]="false" [options]="tipoMaquina" formControlName="tipoDeMaquina"
-                                    placeholder="Selecciona la maquina" >
-                                </p-dropdown>
-                            </div>
-                            <span *ngIf="formPedido.get('tipoDeMaquina')?.hasError('required') && formPedido.get('tipoDeMaquina')?.touched" style="color: red;">
-                                La maquina es <strong>requerida</strong>
-                            </span>
-                         </div>
-                            
-                        <div class="col-3">                                                                                    
-                            <button pButton pRipple type="button" class="p-button-secondary mt-3" (click)="agregarProceso()" label="Agregar Proceso"
-                                icon="pi pi-plus">
-                            </button>                                                        
-                        </div>                                                
-                    </div>
-    
-                    <div class="grid p-fluid">
-                        <div class="col-6" *ngIf="procesosReferencia.length > 0">
-                            <div class="card " style="overflow-y: 1px;">
-                                <p-table styleClass="p-datatable-sm" [value]="procesosReferencia" >
-                                    <ng-template pTemplate="header">
-                                        <tr>
-                                            <th>Procedimiento</th>
-                                            <th>Tipo Maquina</th>
-                                            <th ></th>
-                                        </tr>
-                                    </ng-template>
-                                    <ng-template pTemplate="body" let-proceso let-i="rowIndex">
-                                        <tr>
-                                            <td>{{proceso.proceso}}</td>
-                                            <td>{{proceso.tipoDeMaquina}}</td>
-                                            <td>
-                                                <button pButton pRipple type="button" class="p-button-rounded  p-button-text" (click)="eliminarProceso(i)">
-                                                    <i class="pi pi-trash" style="font-size: 1.5em; color: red;"></i>
-                                                </button>        
-                                            </td>
-                                        </tr>
-                                    </ng-template>
-                                </p-table>
-                            </div>                            
-                        </div>                        
-                    </div>
-
-                    <strong>Detalles de colores</strong>
-                    <div class="grid p-fluid mt-1" style="border-top: 1px solid var(--surface-border);">
-                        <div class="col-2">
-                            <label htmlFor="color">color</label>
-                            <div>
-                                <input class="inputs-pedido" pInputText type="text" formControlName="color" id="color" #colorInput/>
-                            </div>
-                            <span *ngIf="formPedido.get('color')?.hasError('required') && formPedido.get('color')?.touched " style="color: red;">
-                                El color es <strong>requerido</strong>
-                            </span>
-                        </div>                         
-                        <div class="col-1">
-                            <label htmlFor="tallaS">S</label>
-                            <p-inputNumber class="inputs-pedido" formControlName="tallaS"></p-inputNumber>
-                        </div>
-                        <div class="col-1">
-                            <label htmlFor="tallaM">M</label>
-                            <p-inputNumber class="inputs-pedido" formControlName="tallaM"></p-inputNumber>
-                        </div>
-                        <div class="col-1">
-                            <label htmlFor="tallaL">L</label>
-                            <p-inputNumber class="inputs-pedido" formControlName="tallaL"></p-inputNumber>
-                        </div>
-                        <!-- <div class="col-1">
-                            <label htmlFor="tallaXL">XL</label>
-                            <p-inputNumber class="inputs-pedido" formControlName="tallaXL"></p-inputNumber>
-                        </div>                     -->
-                    </div>
-                    
-                                                                                                                     
-                    <div class="grid p-fluid mt-1 col-12 justify-content-between" >
-                        <div class="col-4">
-                            <label htmlFor="formaPago"><strong>Formas de Pago</strong></label>
-                            <p-dropdown [autoDisplayFirst]="false" placeholder="Seleccione forma de pago" formControlName="formaPago" [options]="formaPago"></p-dropdown>
-                        </div>
-                        <div class="col-6">
-                            <label htmlFor="totalNeto"><h5>Total Neto:
-                                <input formControlName="totalNeto" [value]="formPedido.get('totalNeto')?.value | number:'1.2'" readonly pInputText />
-                            </h5></label>                                                        
-                        </div>
-                    </div>
-    
-                    <div class="grid p-fluid col-8" >
-                        <div><strong >Observaciones</strong></div>
-                        
-			            <textarea rows="2" cols="50" placeholder="Aqui puedes ingresar observaciones adicionales." pInputTextarea></textarea>   
-                    
-                    </div>
-                                                  
-                    <footer class="footer-pedido">
+            <form [formGroup]="formPedido" (ngSubmit)="addPedido()">
+                <div class="grid p-fluid mt-3">
+                    <div class="col-4">
+                        <label>Cliente *</label>
+                        <p-inputNumber *ngIf="mostrarID" formControlName="cliente"></p-inputNumber>
                         <div>
-                            <button pButton pRipple type="button" label="Cancelar" class="p-button-danger" routerLink="/pages/pedido" ></button>                                    
-                            <button pButton pRipple label="Guardar" class="p-button-success" ></button>
+                            <p-autoComplete formControlName="razonSocial" [suggestions]="sugerenciasClientes"
+                                (completeMethod)="buscarClientes($event)" [dropdown]="true"
+                                [placeholder]="'Buscar cliente'" (onSelect)="seleccionarCliente($event)"
+                                (keyup)="realizarBusquedaEnTiempoReal($event)" (onBlur)="validarClienteExistente()">
+                                <ng-template let-cliente pTemplate="item">
+                                    {{ cliente.tipoIdentificacion == 'NIT' ?
+                                    cliente.razonSocial + ' - ' + cliente.numeroIdentificacion :
+                                    cliente.razonSocial + ' ' + cliente.nombreComercial + ' - ' +
+                                    cliente.numeroIdentificacion }}
+                                </ng-template>
+                            </p-autoComplete>
                         </div>
-                    </footer>
-                                                                                                                
-                </form>                        
+                        <small
+                            *ngIf="formPedido.get('razonSocial')?.hasError('required') && formPedido.get('razonSocial')?.touched"
+                            style="color: red;">
+                            El cliente es <strong>requerido</strong>
+                        </small>
+                    </div>
+
+                    <div class="col-4">
+                        <label htmlFor="contacto">Contacto</label>
+                        <div>
+                            <input type="text" pInputText [readOnly]="true"
+                                [value]="formPedido.get('contacto')!.value" />
+                        </div>
+                    </div>
+
+                    <div class="col-4">
+                        <label htmlFor="ordenTrabajo">Orden de trabajo *</label>
+                        <div>
+                            <input type="text" (input)="validarOrdenTrabajo()" [maxLength]="8"
+                                formControlName="ordenTrabajo" pInputText />
+                        </div>
+                        <small
+                            *ngIf="formPedido.get('ordenTrabajo')?.hasError('required') && formPedido.get('ordenTrabajo')?.touched"
+                            style="color: red;">
+                            La orden de trabajo es <strong>requerida</strong>
+                        </small>
+                        <small *ngIf="formPedido.get('ordenTrabajo')?.hasError('soloNumeros')" style="color: red;">
+                            Ingrese solo números en la orden de trabajo.
+                        </small>
+                        <small *ngIf="formPedido.get('ordenTrabajo')?.hasError('ordenTrabajoExistente')"
+                            style="color: red;">
+                            Esta orden de trabajo ya existe para este cliente.
+                        </small>
+                    </div>
+                </div>
+
+                <div class="grid p-fluid">
+                    <div class="col-4">
+                        <label htmlFor="fechaOrdenTrabajo">Fecha de orden *</label>
+                        <div>
+                            <p-calendar formControlName="fechaOrdenTrabajo" [showIcon]="true"
+                                inputId="fechaOrdenTrabajo" dateFormat="yy-mm-dd" [maxDate]="maxDate"></p-calendar>
+                        </div>
+                        <small
+                            *ngIf="formPedido.get('fechaOrdenTrabajo')?.hasError('required') && formPedido.get('fechaOrdenTrabajo')?.touched"
+                            style="color: red;">
+                            La fecha de orden es <strong>requerida</strong>
+                        </small>
+                    </div>
+
+                    <div class="col-4">
+                        <label htmlFor="fechaEntregaOrden">Fecha entrega orden *</label>
+                        <div>
+                            <p-calendar formControlName="fechaEntregaOrden" [showIcon]="true"
+                                inputId="fechaEntregaOrden" dateFormat="yy-mm-dd" [minDate]="minDate"></p-calendar>
+                        </div>
+                        <small
+                            *ngIf="formPedido.get('fechaEntregaOrden')?.hasError('required') && formPedido.get('fechaEntregaOrden')?.touched"
+                            style="color: red;">
+                            La fecha de entrega es <strong>requerida</strong>
+                        </small>
+                    </div>
+                </div>
+
+                <strong>DETALLES DE REFERENCIA</strong>
+                <div class="grid p-fluid mt-1" style="border-top: 1px solid var(--surface-border);">
+                    <div class="col-4">
+                        <label htmlFor="referencia">Referencia *</label>
+                        <div>
+                            <input type="text" (input)="validarReferencia()" formControlName="referencia" pInputText />
+                        </div>
+                        <small
+                            *ngIf="formPedido.get('referencia')?.hasError('required') && formPedido.get('referencia')?.touched"
+                            style="color: red;">
+                            La referencia es <strong>requerida</strong>
+                        </small>
+                        <small *ngIf="formPedido.get('referencia')?.hasError('soloNumeros')" style="color: red;">
+                            Ingrese solo números en la referencia.
+                        </small>
+                    </div>
+
+                    <div class="col-4">
+                        <label htmlFor="descripcion">Descripción *</label>
+                        <div>
+                            <input type="text" id="descripcion" formControlName="descripcion" pInputText />
+                        </div>
+                        <small
+                            *ngIf="formPedido.get('descripcion')?.hasError('required') && formPedido.get('descripcion')?.touched"
+                            style="color: red;">
+                            La descripción es <strong>requerida</strong>
+                        </small>
+                    </div>
+                    <div class="col-4">
+                        <label htmlFor="valorUnitario">Valor unitario *</label>
+                        <div>
+                            <p-inputNumber mode="currency" currency="USD" locale="en-US" id="valorUnitario"
+                                formControlName="valorUnitario"></p-inputNumber>
+                        </div>
+                        <small *ngIf=" formPedido.get('valorUnitario')?.touched && formPedido.value.valorUnitario < 1"
+                            style="color: red;">
+                            El valor debe ser mayor a <strong>0</strong>
+                        </small>
+                    </div>
+                </div>
+
+                <strong>DETALLES DE PROCESOS</strong>
+                <div *ngIf="mostrarID != false">
+                    <label>id</label>
+                    <input type="text" formControlName="idTemporalProceso" />
+                    <p-inputNumber formControlName="idProceso"></p-inputNumber>
+                </div>
+
+                <div class="grid p-fluid mt-1" style="border-top: 1px solid var(--surface-border);">
+                    <div class="col-4">
+                        <label htmlFor="proceso">Proceso *</label>
+                        <div>
+                            <input pInputText type="text" formControlName="proceso" id="proceso" #procesoInput />
+                        </div>
+                        <small *ngIf="formPedido.get('proceso')?.hasError('required') && formPedido.get('proceso')?.touched 
+                            && procesosReferencia.length === 0 " style="color: red;">
+                            El procedimientos es <strong>requerido</strong>
+                        </small>
+                    </div>
+                    <div class="col-4">
+                        <label htmlFor="tipoMaquina">Tipo de máquina *</label>
+                        <div>
+                            <select pInputText formControlName="tipoDeMaquina">
+                                <option value="" disabled [selected]>Selecciona un tipo de maquina</option>
+                                <option *ngFor="let maquina of tipoMaquina" [value]="maquina.value">{{ maquina.label }}
+                                </option>
+                            </select>
+                        </div>
+                        <small *ngIf="formPedido.get('tipoDeMaquina')?.hasError('required') && formPedido.get('tipoDeMaquina')?.touched
+                            && procesosReferencia.length === 0" style="color: red;">
+                            La maquina es <strong>requerida</strong>
+                        </small>
+                    </div>
+
+                    <p-button
+                        *ngIf="formPedido.get('idTemporalProceso')!.value != null || formPedido.get('idProceso')!.value != null"
+                        (click)="agregarProceso()" label="Editar proceso" icon="pi pi-plus" severity="warning"
+                        styleClass="mt-5">
+                    </p-button>
+                    <p-button
+                        *ngIf="formPedido.get('idTemporalProceso')!.value == null && formPedido.get('idProceso')!.value == null"
+                        (click)="agregarProceso()" label="Agregar proceso" icon="pi pi-plus" styleClass="mt-5">
+                    </p-button>
+
+                </div>
+
+                <strong>DETALLES DE COLORES</strong>
+                <div *ngIf="mostrarID != false">
+                    <label>id</label>
+                    <input type="text" formControlName="idTemporalColor" />
+                    <p-inputNumber formControlName="idColor"></p-inputNumber>
+                </div>
+
+                <div class="grid p-fluid mt-1 tallaColor" style="border-top: 1px solid var(--surface-border);">
+                    <div class="col-2 color">
+                        <label htmlFor="color">Color *</label>
+                        <div>
+                            <input pInputText type="text" formControlName="color" id="color" #colorInput />
+                        </div>
+                        <small *ngIf="formPedido.get('color')?.hasError('required') && formPedido.get('color')?.touched 
+                            && coloresEnProceso.length === 0" style="color: red;">
+                            El color es <strong>requerido</strong>
+                        </small>
+                    </div>
+                    <div class="col-2 ">
+                        <label htmlFor="tallaS">S</label>
+                        <p-inputNumber formControlName="tallaS"></p-inputNumber>
+                    </div>
+                    <div class="col-2 ">
+                        <label htmlFor="tallaM">M</label>
+                        <p-inputNumber formControlName="tallaM"></p-inputNumber>
+                    </div>
+                    <div class="col-2 ">
+                        <label htmlFor="tallaL">L</label>
+                        <p-inputNumber formControlName="tallaL"></p-inputNumber>
+                    </div>
+                    <div class="col-2 ">
+                        <label htmlFor="tallaXL">XL</label>
+                        <p-inputNumber formControlName="tallaXL"></p-inputNumber>
+                    </div>
+
+                    <p-button
+                        *ngIf="formPedido.get('idTemporalColor')!.value != null || formPedido.get('idColor')!.value != null"
+                        (click)="agregarColor()" label="Editar color" icon="pi pi-plus" severity="warning"
+                        styleClass="mt-5">
+                    </p-button>
+                    <p-button
+                        *ngIf="formPedido.get('idTemporalColor')!.value == null && formPedido.get('idColor')!.value == null"
+                        (click)="agregarColor()" label="Agregar color" icon="pi pi-plus" styleClass="mt-5">
+                    </p-button>
+
+                </div>
+
+                <div class="grid p-fluid">
+                    <div class="col-6" *ngIf="procesosReferencia.length > 0">
+                        <div class="card " style="overflow-y: 1px;">
+                            <p-table styleClass="p-datatable-sm" [value]="procesosReferencia">
+                                <ng-template pTemplate="header">
+                                    <tr>
+                                        <th>Procedimiento</th>
+                                        <th>Tipo maquina</th>
+                                        <th></th>
+                                    </tr>
+                                </ng-template>
+                                <ng-template pTemplate="body" let-proceso let-i="rowIndex">
+                                    <tr>
+                                        <td>{{proceso.proceso}}</td>
+                                        <td>{{proceso.tipoDeMaquina}}</td>
+                                        <td>
+                                            <p-button icon="pi pi-pencil" [rounded]="true" [text]="true"
+                                                (click)="getProcesoModificar(proceso)" pTooltip="Editar"></p-button>
+                                            <p-button icon="pi pi-trash" [rounded]="true" [text]="true"
+                                                severity="danger " (click)="eliminarProceso(i)"
+                                                pTooltip="Eliminar"></p-button>
+                                        </td>
+                                    </tr>
+                                </ng-template>
+                            </p-table>
+                        </div>
+                    </div>
+
+                    <div class="col-6" *ngIf="coloresEnProceso.length > 0">
+                        <div class="card " style="overflow-y: 1px;">
+                            <p-table styleClass="p-datatable-sm" [value]="coloresEnProceso">
+                                <ng-template pTemplate="header">
+                                    <tr>
+                                        <th>Color</th>
+                                        <th>S</th>
+                                        <th>M</th>
+                                        <th>L</th>
+                                        <th>XL</th>
+                                        <th>Total</th>
+                                        <th></th>
+                                    </tr>
+                                </ng-template>
+                                <ng-template pTemplate="body" let-color let-i="rowIndex">
+                                    <tr>
+                                        <td>{{color.color}}</td>
+                                        <td>{{color.tallaS}}</td>
+                                        <td>{{color.tallaM}}</td>
+                                        <td>{{color.tallaL}}</td>
+                                        <td>{{color.tallaXL}}</td>
+                                        <td>{{color.cantidadTotal}}</td>
+                                        <td>
+                                            <p-button icon="pi pi-pencil" [rounded]="true" [text]="true"
+                                                (click)="getColorModificar(color)" pTooltip="Editar"></p-button>
+                                            <p-button icon="pi pi-trash" [rounded]="true" [text]="true"
+                                                severity="danger " (click)="eliminarColor(i)"
+                                                pTooltip="Eliminar"></p-button>
+                                        </td>
+                                    </tr>
+                                </ng-template>
+                                <ng-template pTemplate="footer">
+                                    <tr>
+                                        <td>Total</td>
+                                        <td>{{ totalTallaS }}</td>
+                                        <td>{{ totalTallaM }}</td>
+                                        <td>{{ totalTallaL }}</td>
+                                        <td>{{ totalTallaXL }}</td>
+                                        <td>{{ totalGeneral }}</td>
+                                        <td></td>
+                                    </tr>
+                                </ng-template>
+                            </p-table>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid p-fluid mt-1 justify-content-between">
+                    <div class="col-3">
+                        <label htmlFor="formaPago"><strong>Formas de pago *</strong></label>
+                        <select pInputText formControlName="formaPago">
+                            <option value="" disabled [selected]>Seleccione forma de pago</option>
+                            <option *ngFor="let forma of formaPago" [value]="forma.value">{{ forma.label }}</option>
+                        </select>
+                        <small
+                            *ngIf="formPedido.get('formaPago')?.hasError('required') && formPedido.get('formaPago')?.touched"
+                            style="color: red;">
+                            La forma de pago es <strong>requerida</strong>
+                        </small>
+                    </div>
+                    <div class="col-5">
+                        <label htmlFor="totalNeto">
+                            <h5>Total neto:
+                                <p-inputNumber mode="currency" currency="USD" locale="en-US" formControlName="totalNeto"
+                                    [readonly]="true"></p-inputNumber>
+                            </h5>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="grid p-fluid">
+                    <div class="col-12">
+                        <div><strong>Observaciones</strong></div>
+                        <textarea style="resize: none;" placeholder="Aqui puedes ingresar observaciones adicionales."
+                            pInputTextarea></textarea>
+                    </div>
+                </div>
+
+                <p-confirmDialog></p-confirmDialog>
+                <footer class="footer-pedido">
+                    <div>
+                        <button pButton pRipple type="button" label="Cancelar" class="p-button-danger"
+                            (click)="mostrarConfirmacionSalir()"></button>
+                        <button pButton pRipple label="Guardar" class="p-button-success"></button>
+                    </div>
+                </footer>
+
+            </form>
         </div>
     </div>
 </div>

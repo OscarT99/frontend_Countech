@@ -1,126 +1,158 @@
 <div class="grid">
     <div class="col-12">
-
-        <div class="card px-6 py-6">   
-            <div>
-                <h2 class="m-4">Ventas</h2>
-            </div>         
+        <div class="card">
             <p-toolbar styleClass="mb-4">
-                <ng-template pTemplate="right">                    
-                    <button pButton pRipple label="Exportar" icon="pi pi-upload" class="p-button-help" (click)="exportToExcel()"></button>
+                <ng-template pTemplate="left">
+                </ng-template>
+                <ng-template pTemplate="right">
+                    <button pButton class="p-button-success" label="Excel" icon="pi pi-file-excel" pTooltip="Descargar"
+                        (click)="exportToExcel()"></button>
                 </ng-template>
             </p-toolbar>
 
-            <p-table #dt [value]="listVentas"  responsiveLayout="scroll" [rows]="10" [globalFilterFields]="['cliente','ordenTrabajo','fechaVenta','formaPago','valorTotal','estadoPago']" [paginator]="true" [rowsPerPageOptions]="[5,10,15]" [showCurrentPageReport]="true" currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} registros" [rowHover]="true" dataKey="id">
+            <p-table #dt [value]="listVentas" responsiveLayout="scroll" [rows]="5"
+                [globalFilterFields]="['cliente','ordenTrabajo','fechaVenta','formaPago','valorTotal','estadoPago']"
+                [paginator]="true" [rowsPerPageOptions]="[5,10,15]" [showCurrentPageReport]="true"
+                currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} registros" [rowHover]="true"
+                dataKey="id">
                 <ng-template pTemplate="caption">
                     <div class="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
+                        <h5 class="m-0">Lista de Ventas</h5>
                         <span class="block mt-2 md:mt-0 p-input-icon-left">
                             <i class="pi pi-search"></i>
-                            <input pInputText type="text" (input)="onGlobalFilter(dt, $event)" placeholder="Buscar..."  class="w-full sm:w-auto"/>
+                            <input pInputText type="text" placeholder="Buscar..." (input)="onGlobalFilter(dt, $event)"
+                                class="w-full sm:w-auto" />
                         </span>
                     </div>
                 </ng-template>
                 <ng-template pTemplate="header">
-                    <tr>                        
+                    <tr>
                         <th pSortableColumn="cliente">Cliente<p-sortIcon field="cliente"></p-sortIcon></th>
-                        <th pSortableColumn="ordenTrabajo">Orden de Trabajo<p-sortIcon field="ordenTrabajo"></p-sortIcon></th>                        
+                        <th pSortableColumn="ordenTrabajo">Orden de Trabajo<p-sortIcon
+                                field="ordenTrabajo"></p-sortIcon></th>
                         <th pSortableColumn="formaPago">Forma de Pago<p-sortIcon field="formaPago"></p-sortIcon></th>
-                        <th pSortableColumn="valorTotal">Valor Total<p-sortIcon field="valorTotal"></p-sortIcon></th>                        
+                        <th pSortableColumn="valorTotal">Valor Total<p-sortIcon field="valorTotal"></p-sortIcon></th>
                         <th pSortableColumn="estadoPago">Estado de Pago<p-sortIcon field="estadoPago"></p-sortIcon></th>
                         <th pSortableColumn="acciones">Acciones</th>
                         <th></th>
                     </tr>
                 </ng-template>
                 <ng-template pTemplate="body" let-venta>
-                    <tr>                        
-                        <td style="width:14%; min-width:5rem;"><span class="p-column-title">Cliente</span>
+                    <tr>
+                        <td style="width:22%; min-width:5rem;"><span class="p-column-title">Cliente</span>
                             {{ getNombreCliente(venta.cliente) }}
                         </td>
-                        <td style="width:14%; min-width:10rem;">
+                        <td style="width:17%; min-width:10rem;">
                             <span class="p-column-title">Orden de Trabajo</span>
                             {{ venta.ordenTrabajo }}
-                        </td>                        
+                        </td>
                         <td style="width:14%; min-width:10rem;">
                             <span class="p-column-title">Forma de Pago</span>
                             {{ venta.formaPago }}
-                        </td>  
+                        </td>
                         <td style="width:14%; min-width:10rem;">
                             <span class="p-column-title">Valor Total</span>
-                            {{ venta.valorTotal }}
-                        </td>  
-                        <td style="width:14%; min-width:10rem;">
-                            <span class="p-column-title">Estado de Pago</span>
-                            {{ venta.estadoPago }}
+                            {{ venta.valorTotal | currency:'USD':'symbol':'1.2-2' }}
                         </td>
+                        <td style="width: 14%; min-width: 10rem;" class="text-center">
+                            <span class="p-column-title">Estado</span>
+                            <p-tag class="p-element" [severity]="venta.estadoPago === 'Pendiente' ? 'warning' : 'success'">                                                        
+                                <span class="p-tag-value">{{ venta.estadoPago }}</span>
+                            </p-tag>
+                        </td>
+
                         <td>
-                            <div class="flex">                                
-                                <button pButton pRipple icon="pi pi-book" class="p-button-rounded p-button-primary mr-2" (click)="detalleVenta(venta.id)"></button>
-                                <button (click)="newAbonoVenta(venta.id)" pButton pRipple icon="pi pi-dollar" class="p-button-rounded p-button-success mr-2"></button>    
+                            <div class="flex">
+                                <p-button icon="pi pi-file" [rounded]="true" severity="secondary"
+                                    class="p-button-rounded p-button-warning mr-2"
+                                    (click)="mostrarDetallePedido(venta.id)" pTooltip="Ver detalle">
+                                </p-button>
+
+                                <button *ngIf="venta.formaPago === 'Crédito' && venta.estadoPago === 'Pendiente'"
+                                    pButton pRipple icon="pi pi-dollar" class="p-button-rounded p-button-success mr-2"
+                                    (click)="newAbonoVenta(venta.id)" pTooltip="Abonar">
+                                </button>
+
+                                <button *ngIf="venta.estadoPago === 'Pago'" pButton pRipple icon="pi pi-book"
+                                    class="p-button-rounded p-button-primary mr-2" (click)="comprobanteVenta1(venta.id)"
+                                    pTooltip="Comprobante">
+                                </button>
                             </div>
-                            
+
                         </td>
                     </tr>
                 </ng-template>
-            </p-table>            
-        </div>
+                <ng-template pTemplate="emptymessage">
+                    <tr>
+                        <td colspan="6" class="text-center">No se encontraron ventas</td>
+                    </tr>
+                </ng-template>
+            </p-table>
 
-        <p-dialog [(visible)]="productDialogAbono" [style]="{width: '1000px', height: '500px' }" header="Abono Venta" [modal]="true" class="p-fluid">         
-            <div style="display: flex;">
-                <div style="flex: 1;">    
-                    <form [formGroup]="formVenta" (ngSubmit)="addVenta()">
-                        <div class="formgrid grid">
-                            <div class="field col">
-                                <label for="id">Id Venta</label>
-                                    <input formControlName="id" id="id" type="number" pInputText readonly >
-                            </div>
-                            <div class="field col">
-                                <label for="cliente">Cliente</label>
-                                    <input id="cliente" type="text" pInputText readonly [value]="getNombreCliente(venta.cliente)">
-                            </div>
-                            
-                        </div>
-
-                        <div class="formgrid grid">
-
-                            <div class="field col">
-                                <label for="valorAbono">Total</label>
-                                <div class="p-inputgroup">
-                                    <span class="p-inputgroup-addon">$</span>
-                                    <p-inputNumber formControlName="valorTotal" [(ngModel)]="value8" [readonly]="true"></p-inputNumber>
+            <p-dialog [(visible)]="productDialogAbono" [style]="{width: '1000px', height: '500px', 'overflow-x': 'auto' }"
+                header="Abono Venta" [modal]="true" class="p-fluid">
+                <div style="display: flex;">
+                    <div style="flex: 1;">
+                        <form [formGroup]="formVenta">
+                            <div class="formgrid grid">
+                                <div class="field col-3">
+                                    <label for="id">Id Venta</label>
+                                    <input formControlName="id" id="id" type="number" pInputText readonly>
                                 </div>
-                            </div>
-                            <div class="field col">
-                                <label for="valorAbono">Restante</label>
-                                <div class="p-inputgroup">
-                                    <span class="p-inputgroup-addon" readonly>$</span>
-                                    <p-inputNumber formControlName="valorRestante" [readonly]="true"></p-inputNumber>
+                                <div class="field col-9">
+                                    <label for="cliente">Cliente</label>
+                                    <input id="cliente" type="text" pInputText readonly
+                                        [value]="getNombreCliente(venta.cliente)">
                                 </div>
-                            </div>                                            
-                        </div>                       
-                    </form> 
+
+                            </div>
+
+                            <div class="formgrid grid">
+                                <div class="field col">
+                                    <label for="valorAbono">Total</label>
+                                    <div class="p-inputgroup">
+                                        <span class="p-inputgroup-addon">$</span>
+                                        <p-inputNumber formControlName="valorTotal" 
+                                            [readonly]="true" [style]="{ 'width': '100%' }"></p-inputNumber>
+                                    </div>
+                                </div>
+
+                                <div class="field col">
+                                    <label for="valorAbono">Restante</label>
+                                    <div class="p-inputgroup">
+                                        <span class="p-inputgroup-addon" readonly>$</span>
+                                        <input type="number" formControlName="valorRestante" [readonly]="true"
+                                            value="{{ getValorRestante() }}" [style]="{ 'width': '100%' }">
+                                    </div>
+                                </div>
+
+                            </div>
 
 
-                    <div class="mb-2">
-                        <label for="valorAbono">Valor Abono</label>
-                    </div>
-                     
-                    <form [formGroup]="formAddAbono">
-                        <div class="p-inputgroup">
-                            <span class="p-inputgroup-addon">$</span>
-                            <p-inputNumber  formControlName="valorAbonoRegistrar" placeholder="000.000.000" ></p-inputNumber>
-                            <span *ngIf="formAbonoVenta.get('valorAbono')?.hasError('required') && formAbonoVenta.get('valorAbono')?.touched" style="color: red;">
-                                El valor del abono es <strong>requerido</strong>
+
+                        </form>
+
+                       
+                        <div class="p-inputgroup mt-3">
+                            <span class="p-float-label">
+                                <input  pInputText class="w-full md:w-25rem" style="padding:1rem" id="valorAbono" name="valorAbono" 
+                                    [(ngModel)]="value9" class="form-control" (input)="validarValorAbono()" 
+                                    [ngClass]="{'is-invalid': errorMessages.valorAbono}" placeholder>
+                                <label for="valorAbono">Valor Abono*</label>
+                                <button (click)="confirm2($event)" pButton icon="pi pi-plus" 
+                                    class="p-button-rounded p-button-success ml-3"></button>
+                                <p-confirmPopup key="confirm2"></p-confirmPopup>
                             </span>
-                            <p-toast></p-toast>
-                            <button class="ml-1" (click)="confirm2($event)" pButton icon="pi pi-plus" class="p-button-rounded p-button-success"></button>
-                            <p-confirmPopup key="confirm2"></p-confirmPopup>
                         </div>
-                    </form>
-                    
-                </div>
-                <div style="flex: 1;"> 
-                    <div class="card m-5" [style]="{width: '500px'}">
-                            <h5 >Abonos De La Venta {{ id }}</h5>
+                        <div class="invalid-feedback error-message mt-2" *ngIf="errorMessages.valorAbono" style="color: red;">
+                            {{errorMessages.valorAbono}}
+                        </div>
+                        
+                    </div>
+
+                    <div style="flex: 1;">
+                        <div class="card m-5" [style]="{width: '500px', textAlign: 'center'}">
+                            <h5>Abonos de la Venta {{ id }}</h5>
                             <p-table #dt [value]="listAbonoVentas" responsiveLayout="scroll" [rows]="10" dataKey="id">
                                 <ng-template pTemplate="header">
                                     <tr>
@@ -131,7 +163,8 @@
                                 </ng-template>
                                 <ng-template pTemplate="body" let-abonoVenta>
                                     <tr>
-                                        <td style="width:14%; min-width:5rem;"><span class="p-column-title">Id Abono</span>
+                                        <td style="width:14%; min-width:5rem;"><span class="p-column-title">Id
+                                                Abono</span>
                                             {{ abonoVenta.id }}
                                         </td>
                                         <td style="width:14%; min-width:10rem;">
@@ -139,76 +172,166 @@
                                             {{ abonoVenta.fechaAbono }}
                                         </td>
                                         <td style="width:14%; min-width:8rem;">
-                                            <span class= "p-column-title">Valor Abonado</span>
-                                            {{ abonoVenta.valorAbono  }}
+                                            <span class="p-column-title">Valor Abonado</span>
+                                            {{ abonoVenta.valorAbono }}
                                         </td>
                                     </tr>
                                 </ng-template>
+                                <ng-template pTemplate="emptymessage">
+                                    <tr>
+                                        <td colspan="6" class="text-center">No se encontraron abonos en esta venta</td>
+                                    </tr>
+                                </ng-template>
                             </p-table>
-                    </div>
-                    <div style="display: flex; justify-content: flex-end; flex: 1;">
-                        <div class="field">
-                            <button pButton pRipple label="Regresar" class="p-button-rounded p-button-info" (click)="hideDialog()"></button>
-                        </div>
-                    </div>
-                    
-                    
-                
-                </div>
-                
-            </div>
-        </p-dialog>
-
-
-        <p-dialog [(visible)]="productDialogDetalle" [style]="{width: '1300px', height: '800px' }" header="Detalle Venta" [modal]="true" class="p-fluid">         
-            <div style="display: flex;">
-                <div style="flex: 1;">    
-                    <form [formGroup]="formVenta" (ngSubmit)="addVenta()">
-                        <div class="formgrid grid">
-                            <div class="field col">
-                                <label for="id">Id Venta</label>
-                                    <input formControlName="id" id="id" type="number" pInputText readonly >
-                            </div>
-                            <div class="field col">
-                                <label for="cliente">Cliente</label>
-                                    <input id="cliente" type="text" pInputText readonly [value]="getNombreCliente(venta.cliente)">
-                            </div>
-                            <div class="field col">
-                                <label for="ordenTrabajo">Orden Trabajo</label>
-                                    <input formControlName="ordenTrabajo" id="ordenTrabajo" type="text" pInputText readonly >
-                            </div>
                         </div>
 
-                        <div class="formgrid grid">
-                            <div class="field col">
-                                <label for="fechaVenta">Fecha Venta</label>
-                                    <input formControlName="fechaVenta" id="fechaVenta" type="text" pInputText readonly >
-                            </div>
-                            <div class="field col">
-                                <label for="formaPago">Forma de Pago</label>
-                                    <input formControlName="formaPago" id="formaPago" type="text" pInputText readonly >
-                            </div>
-                            <div class="field col">
-                                <label for="valorAbono">Valor Total</label>
-                                <div class="p-inputgroup">
-                                    <span class="p-inputgroup-addon">$</span>
-                                    <p-inputNumber formControlName="valorTotal" [(ngModel)]="value8" [readonly]="true"></p-inputNumber>
-                                </div>
-                            </div>
-                        </div>   
-                        <div class="formgrid grid">
-                            <div class="field col-4">
-                                <label for="estadoPago">Estado de Pago</label>
-                                    <input formControlName="estadoPago" id="estadoPago" type="text" pInputText readonly >
-                            </div>
-                        </div>     
-                            
-                    
-                    </form> 
+
+
+
+
+                    </div>
+
                 </div>
-                <div style="flex: 1;"> 
-                    <div class="card m-5" [style]="{width: '500px'}">
-                            <h5 >Abonos De La Venta {{ id }}</h5>
+            </p-dialog>
+
+
+            <p-dialog header="Detalle de Venta" [(visible)]="mostrarModalDetalle" [modal]="true" [responsive]="true"
+                [style]="{width: '900px', height: '510spx' }">
+                <div *ngIf="detallePedido">
+                    <div class="grid mt-1" style="justify-content: center">
+
+                        <div class="col-4">
+                            <span style="font-weight: bold;">Id venta:</span>
+                            <div>
+                                <span>{{ detallePedido.id }}</span>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <span style="font-weight: bold;">Cliente:</span>
+                            <div>
+                                <span> {{ detallePedido.Cliente.tipoIdentificacion !== 'NIT' ?
+                                    detallePedido.Cliente.razonSocial + ' ' + detallePedido.Cliente.nombreComercial :
+                                    detallePedido.Cliente.razonSocial }}</span>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <span style="font-weight: bold;">Contacto:</span>
+                            <div>
+                                <span>{{ detallePedido.Cliente.contacto }}</span>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <span style="font-weight: bold;">Orden de Trabajo:</span>
+                            <div>
+                                <span>{{ detallePedido.ordenTrabajo }}</span>
+                            </div>
+                        </div>
+
+                        <div class="col-4">
+                            <span style="font-weight: bold;">Fecha Orden:</span>
+                            <div>
+                                <span>{{ detallePedido.fechaOrdenTrabajo }}</span>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <span style="font-weight: bold;">Fecha Entrega:</span>
+                            <div>
+                                <span>{{ detallePedido.fechaEntregaOrden }}</span>
+                            </div>
+                        </div>
+
+                        <div class="col-4">
+                            <span style="font-weight: bold;">Referencia:</span>
+                            <div>
+                                <span>{{ detallePedido.referencia }}</span>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <span style="font-weight: bold;">Descripción:</span>
+                            <div>
+                                <span>{{ detallePedido.descripcion }}</span>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <span style="font-weight: bold;">Valor Unitario:</span>
+                            <div>
+                                <span>{{ detallePedido.valorUnitario }}</span>
+                            </div>
+                        </div>
+
+                        <p-table class="col-6" [value]="detallePedido.ProcesoEnReferenciaEnPedidos">
+                            <ng-template pTemplate="header">
+                                <tr>
+                                    <th>Proceso</th>
+                                    <th>Tipo Maquina</th>
+                                </tr>
+                            </ng-template>
+                            <ng-template pTemplate="body" let-proceso>
+                                <tr>
+                                    <td>{{proceso.proceso}}</td>
+                                    <td>{{proceso.tipoDeMaquina}}</td>
+                                </tr>
+                            </ng-template>
+                        </p-table>
+
+                        <p-table class="col-6"
+                            [value]="detallePedido.ProcesoEnReferenciaEnPedidos[0]?.ColorEnProcesoEnReferenciaEnPedidos">
+                            <ng-template pTemplate="header">
+                                <tr>
+                                    <th>Color/Talla</th>
+                                    <th>S</th>
+                                    <th>M</th>
+                                    <th>L</th>
+                                    <th>XL</th>
+                                    <th>Cantidad Total</th>
+                                </tr>
+                            </ng-template>
+                            <ng-template pTemplate="body" let-color>
+                                <tr>
+                                    <td>{{color.color}}</td>
+                                    <td>{{color.tallaS}}</td>
+                                    <td>{{color.tallaM}}</td>
+                                    <td>{{color.tallaL}}</td>
+                                    <td>{{color.tallaXL}}</td>
+                                    <td>{{color.cantidadTotal}}</td>
+                                </tr>
+                            </ng-template>
+                        </p-table>
+
+                        <div class="col-4">
+                            <span style="font-weight: bold;">Forma Pago:</span>
+                            <div style="display: flex; align-items: center;">
+                                <span>{{ detallePedido.formaPago }}</span>
+                                <!--Mostrar el boton de abonos si la venta tiene la abonos relacionado-->
+                                <button *ngIf="detallePedido && venta.formaPago === 'Crédito'"
+                                    style="margin-left: 10px; margin-top: 5px; padding: 5px 10px; font-size: 12px;"
+                                    pButton type="button" class="btn btn-sm btn-secondary"
+                                    [label]="mostrarTablaAbonos ? 'Ocultar Abonos' : 'Ver Abonos'"
+                                    (click)="mostrarTablaAbonos = !mostrarTablaAbonos">
+                                </button>
+                            </div>
+
+                        </div>
+                        <div class="col-4">
+                            <span style="font-weight: bold;">Valor Total:</span>
+                            <div>
+                                <span>$ {{ detallePedido.valorTotal | number: '1.2-2' }}</span>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <span style="font-weight: bold;">Estado Pago:</span>
+                            <div>
+                                <span>{{ detallePedido.estadoPago }}</span>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <!--TABLA ABONOS-->
+                    <!-- Tabla de abonos si se muestra -->
+                    <div *ngIf="mostrarTablaAbonos" style="margin: 0 auto; margin-left: 20%;">
+                        <div class="card m-5" [style]="{width: '500px'}">
+                            <h5 style="text-align: center;">Abonos de la Venta {{ venta.id }}</h5>
                             <p-table #dt [value]="listAbonoVentas" responsiveLayout="scroll" [rows]="10" dataKey="id">
                                 <ng-template pTemplate="header">
                                     <tr>
@@ -219,7 +342,8 @@
                                 </ng-template>
                                 <ng-template pTemplate="body" let-abonoVenta>
                                     <tr>
-                                        <td style="width:14%; min-width:5rem;"><span class="p-column-title">Id Abono</span>
+                                        <td style="width:14%; min-width:5rem;"><span class="p-column-title">Id
+                                                Abono</span>
                                             {{ abonoVenta.id }}
                                         </td>
                                         <td style="width:14%; min-width:10rem;">
@@ -227,26 +351,71 @@
                                             {{ abonoVenta.fechaAbono }}
                                         </td>
                                         <td style="width:14%; min-width:8rem;">
-                                            <span class= "p-column-title">Valor Abonado</span>
-                                            {{ abonoVenta.valorAbono  }}
+                                            <span class="p-column-title">Valor Abonado</span>
+                                            {{ abonoVenta.valorAbono }}
                                         </td>
                                     </tr>
                                 </ng-template>
+                                <ng-template pTemplate="emptymessage">
+                                    <tr>
+                                        <td colspan="6" class="text-center">No se encontraron abonos en esta venta</td>
+                                    </tr>
+                                </ng-template>
                             </p-table>
-                    </div>
-                    <div style="display: flex; justify-content: flex-end; flex: 1;">
-                        <div class="field">
-                            <button pButton pRipple label="Regresar" class="p-button-rounded p-button-info" (click)="hideDialog()"></button>
                         </div>
                     </div>
-                    
-                    
-                
-                </div>
-                
-            </div>
-        </p-dialog>
 
-          
-    </div>
-</div>
+                </div>
+            </p-dialog>
+
+
+
+            <p-dialog header="Comprobante de Venta" [(visible)]="mostrarComprobante" [modal]="true" [responsive]="true"
+                [style]="{ width: '410px', height: '100%' }">
+                <div #comprobanteVenta class="align-items-center">
+                    <p-panel header=""
+                        [style]="{ marginTop: '0px', borderBottom: '1px solid #ccc', padding: '0.5rem' }">
+                        <div style="text-align: center;">
+                            <div class="cuatrosoles-info">
+                                <h2 style="font-size: 22px;">Cuatro Soles</h2>
+                                <p><strong>Cuidad:</strong> Bello Antioquia</p>
+                                <p><strong>Dirección:</strong> Bello Antioquia</p>
+                                <p> <strong>Teléfono:</strong> 210292837</p>
+                                <p><strong>Email:</strong> cuatrosoles@empresa.com</p>
+                            </div>
+                            <div class="cliente-info">
+                                <h4 style="font-size: 16px;">__________________________</h4>
+                                <p><strong>Cliente:</strong> <span style="font-size: 14px;">{{
+                                        detallePedido?.Cliente?.razonSocial }}</span></p>
+                                <p><strong>Télefono:</strong> <span style="font-size: 14px;">{{
+                                        detallePedido?.Cliente?.telefono }}</span></p>
+                                <p><strong>Dirección:</strong> <span style="font-size: 14px;">{{
+                                        detallePedido?.Cliente?.direccion }}</span></p>
+                            </div>
+                            <div class="venta-info">
+                                <h4 style="font-size: 16px;">__________________________</h4>
+                                <p><strong>Id Venta:</strong> <span style="font-size: 14px;">{{ detallePedido?.id
+                                        }}</span></p>
+                                <p><strong>Fecha Venta:</strong> <span style="font-size: 14px;">{{
+                                        detallePedido?.fechaVenta }}</span></p>
+                                <p><strong>Orden de Trabajo:</strong> <span style="font-size: 14px;">{{
+                                        detallePedido?.ordenTrabajo }}</span></p>
+                                <p><strong>Forma de Pago:</strong> <span style="font-size: 14px;">{{
+                                        detallePedido?.formaPago }}</span></p>
+                                <p><strong>Estado de Pago:</strong> <span style="font-size: 14px;">{{
+                                        detallePedido?.estadoPago }}</span></p>
+                                <p><strong>Valor Total:</strong> <span style="font-size: 14px;">{{
+                                        detallePedido?.valorTotal | currency }}</span></p>
+                            </div>
+                        </div>
+                    </p-panel>
+                </div>
+
+                <div style="text-align:right; margin-top: 20px; margin-bottom: 20px;">
+                    <button pButton class="p-button-danger" label="PDF" icon="pi pi-file-pdf" pTooltip="Descargar"
+                        (click)="generarPDF()" style="width: 75px; height: 35px; font-size: 14px;"></button>
+                </div>
+            </p-dialog>
+        </div>
+        </div>
+        </div>

@@ -8,9 +8,7 @@ import { TagModule } from 'primeng/tag';
 import { FileUploadModule } from 'primeng/fileupload';
 import { ButtonModule } from 'primeng/button';
 import { RippleModule } from 'primeng/ripple';
-import { TooltipModule } from 'primeng/tooltip';
 import { ToastModule } from 'primeng/toast';
-import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ToolbarModule } from 'primeng/toolbar';
 import { RatingModule } from 'primeng/rating';
 import { InputTextModule } from 'primeng/inputtext';
@@ -22,7 +20,11 @@ import { DialogModule } from 'primeng/dialog';
 import { InputSwitchModule } from 'primeng/inputswitch';
 import { KeyFilterModule } from 'primeng/keyfilter';
 import { CalendarModule } from 'primeng/calendar';
-import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+import { TooltipModule } from 'primeng/tooltip';
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import { MessageService } from 'primeng/api';
+import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core'
+
 
 
 @NgModule({
@@ -50,8 +52,10 @@ import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
         DialogModule,
         InputSwitchModule,
         KeyFilterModule,
-
+        TooltipModule,
+        ConfirmDialogModule
     ],
+    providers:[MessageService],
     schemas: [CUSTOM_ELEMENTS_SCHEMA],
     declarations: [EmpleadoComponent]
 })

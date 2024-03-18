@@ -12,13 +12,13 @@ export class AppMenuComponent implements OnInit {
     constructor(public layoutService: LayoutService) { }
 
     ngOnInit() {
-        this.model = [
-            {
-                label: 'Home',
-                items: [
-                    { label: 'Inicio', icon: 'pi pi-fw pi-home', routerLink: ['/pages/inicio'] }
-                ]
-            },
+        this.model = [            
+            // {
+            //     label: 'Home',
+            //     items: [
+            //         { label: 'Inicio', icon: 'pi pi-fw pi-home', routerLink: ['/pages/crud'] }
+            //     ]
+            // },
             {
                 label: 'Usuarios',
                 items: [

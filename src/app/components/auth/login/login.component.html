@@ -1,32 +1,90 @@
-<div class="surface-ground flex align-items-center justify-content-center h-screen w-screen overflow-hidden">
-<!--contenedor login-->            <div class="w-full surface-card py-8 px-3 sm:px-5" style="border-radius:53px; max-width: 30rem; max-height: 45rem;">
-             <div class="text-center mb-5">
-                    <img src="https://previews.123rf.com/images/deskcube/deskcube1605/deskcube160500088/56930894-logotipo-de-sol-vector-ilustraci%C3%B3n-gr%C3%A1fica.jpg" alt="Image" height="80" class="mb-3">
-                    <div class="text-900 text-3xl font-medium mb-3">Countech</div>
-                    <span class="text-600 font-medium text-xl ">Iniciar Sesión</span>
-                </div>
-                <div>
-                    <form  [formGroup]="formLogin" (ngSubmit)="login()">
 
-                        <label for="email1" class="block text-900 text-xl font-medium mb-2">Email</label>
-                        <input formControlName="email"  type="text" placeholder="Email" pInputText class="w-full md:w-25rem mb-5" style="padding:1rem">
-                        <span *ngIf="formLogin.get('email')?.hasError('required') && formLogin.get('email')?.touched" style="color: red;">
-                            El email es <strong>requerido</strong>
-                        </span>
 
-                        <label for="contrasena" class="block text-900 text-xl font-medium mb-2">Contraseña</label>
-                        <input formControlName="contrasena"  type="password" placeholder="Contraseña" pInputText class="w-full md:w-25rem mb-5" style="padding:1rem">
-                        <span *ngIf="formLogin.get('contrasena')?.hasError('required') && formLogin.get('contrasena')?.touched"  style="color: red;">
-                            La contraseña es <strong>requerida</strong>
-                        </span>
-                        
-                        
-                        <div class="flex align-items-center justify-content-between mb-5 gap-5">
-                            <a class="font-medium no-underline ml-2 text-right cursor-pointer" style="color: #00bcd4;" (click)="olvidoContrasena()" >¿Olvidaste tu contraseña?</a>
-                        </div>
-                        <button type="submit" pButton pRipple label="Ingresar" class="w-full p-3 text-xl" style="background-color: #00bcd4; color: white; border: 2px solid #00bcd4;"></button>
-                    </form>
-                </div>
-                
-            </div>
+<div style="display: flex; justify-content: center; align-items: center; background-size: cover; background-position: center; height: 100vh; background-image: url('assets/layout/images/fondoLogin.png');">
+    <div class="w-full surface-card py-8 px-3 sm:px-5" style="border-radius: 53px; max-width: 30rem; height: 100%; max-height: 45rem;">
+
+
+        <div class="text-center mb-5">
+
+            <img src="assets/layout/images/logo.png" class="logo" alt="logo"
+                style="max-width: 100px; max-height: 100px;">
+
+            <div class="text-900 text-3xl font-medium mb-3"></div>
+            <span class="text-600 font-medium text-xl ">Iniciar Sesión</span>
         </div>
+        <div>
+            <form [formGroup]="formLogin" (ngSubmit)="login()">
+                <div class="" style="margin-top: 40px;">
+                    <div class="field col" style="margin-top: 10px;">
+                        <span class="p-float-label">
+                            <input formControlName="email" type="text" pInputText class="w-full md:w-25rem"
+                            input formControlName="email" id="email" type="text" pInputText
+                            (input)="validarEmail()" [ngClass]="{'is-invalid': errorMessages.email}" style="padding:1rem">
+                            <label for="email">Email*</label>
+                            <div *ngIf="errorMessages.email" style="color: red;">
+                                {{errorMessages.email}}
+                            </div>
+                        </span>
+                    </div>
+
+                    <div class="field col" style="margin-top: 10px;">
+
+                        <span class="p-float-label">
+                            <input formControlName="contrasena" type="password" pInputText class="w-full md:w-25rem"
+                            (input)="validarContrasena()" [ngClass]="{'is-invalid': errorMessages.contrasena}" style="padding:1rem">
+                            <label for="contrasena">Contraseña*</label>
+                            <div *ngIf="errorMessages.contrasena" style="color: red;">
+                                {{errorMessages.contrasena}}
+                            </div>
+                        </span>
+                    </div>
+                </div>
+
+                <div class="flex align-items-center justify-content-between mb-5 gap-5" style="margin-top: 15px;">
+                    <a class="font-medium no-underline ml-2 text-right cursor-pointer" style="color: #4e5fbb;"
+                        (click)="abrirRecuperar()">¿Olvidaste tu contraseña?</a>
+                </div>
+                <button type="submit" pButton pRipple label="Ingresar" class="w-full p-3 text-xl custom-button"
+                    style="background-color: #4e5fbb; color: white; border: 2px solid #4351a2;"></button>
+
+            </form>
+        </div>
+
+    </div>
+</div>
+
+
+<!--
+<div class="surface-ground flex align-items-center justify-content-center h-screen w-screen overflow-hidden">
+                 <div class="text-center mb-5">
+                        <img src="src\assets\demo\images\login\logo_countech.png" alt="Image" height="80" class="mb-3">
+                        <div class="text-900 text-3xl font-medium mb-3">Countech</div>
+                        <span class="text-600 font-medium text-xl ">Iniciar Sesión</span>
+                    </div>
+                    <div>
+                        <form  [formGroup]="formLogin" (ngSubmit)="login()">
+    
+                            <label for="email1" class="block text-900 text-xl font-medium mb-2">Email</label>
+                            <input formControlName="email"  type="text" placeholder="Email" pInputText class="w-full md:w-25rem mb-5" style="padding:1rem">
+                            <span *ngIf="formLogin.get('email')?.hasError('required') && formLogin.get('email')?.touched" style="color: red;">
+                                El email es <strong>requerido</strong>
+                            </span>
+    
+                            <label for="contrasena" class="block text-900 text-xl font-medium mb-2">Contraseña</label>
+                            <input formControlName="contrasena"  type="password" placeholder="Contraseña" pInputText class="w-full md:w-25rem mb-5" style="padding:1rem">
+                            <span *ngIf="formLogin.get('contrasena')?.hasError('required') && formLogin.get('contrasena')?.touched"  style="color: red;">
+                                La contraseña es <strong>requerida</strong>
+                            </span>
+                            
+                            
+                            <div class="flex align-items-center justify-content-between mb-5 gap-5">
+                                <a class="font-medium no-underline ml-2 text-right cursor-pointer" style="color: #00bcd4;" (click)="abrirRecuperar()" >¿Olvidaste tu contraseña?</a>
+                            </div>
+                            <button type="submit" pButton pRipple label="Ingresar" class="w-full p-3 text-xl" style="background-color: #00bcd4; color: white; border: 2px solid #00bcd4;"></button>
+                        </form>
+                    </div>
+                    
+                </div>
+            </div>
+
+        -->

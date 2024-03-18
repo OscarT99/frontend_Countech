@@ -17,6 +17,12 @@ import { AppFooterComponent } from './footer/app.footer.component';
 import { AppConfigModule } from './config/config.module'; 
 import { AppSidebarComponent } from './sidebar/app.sidebar.component';
 import { AppLayoutComponent } from './app.layout.component';
+import { TooltipModule } from 'primeng/tooltip';
+import { ConfirmPopupModule } from 'primeng/confirmpopup';
+import { ConfirmationService } from 'primeng/api';
+import { ButtonModule } from 'primeng/button';
+import { DialogModule } from 'primeng/dialog';
+import { TagModule } from 'primeng/tag';
 
 @NgModule({
     declarations: [
@@ -39,8 +45,16 @@ import { AppLayoutComponent } from './app.layout.component';
         InputSwitchModule,
         RippleModule,
         RouterModule,
-        AppConfigModule
+        AppConfigModule,
+        TooltipModule,
+        ConfirmPopupModule,
+        ButtonModule,
+        DialogModule,
+        TagModule,
     ],
-    exports: [AppLayoutComponent]
+    exports: [AppLayoutComponent],
+    providers: [
+        ConfirmationService
+    ]
 })
 export class AppLayoutModule { }

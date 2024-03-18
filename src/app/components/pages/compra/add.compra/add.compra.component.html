@@ -1,154 +1,228 @@
-<div class="grid">    
+<div class="grid responsiveMediaQuery">
     <div class="col-12">
         <div class="card px-6 ">
-            <h4>{{ id === 0 ? 'Nueva Compra' : 'Editar Compra' }}</h4>
-                <form [formGroup]="formCompra">
-                        <div class="grid p-fluid mt-3">
-                            <div class="col-4">                            
-                                <Label>Proveedor</Label>                            
-                                <p-autoComplete class="inputs-pedido"
-                                formControlName="proveedor"
-                                [suggestions]="sugerenciasProveedores"
-                                (completeMethod)="buscarProveedores($event)"
-                                [dropdown]="true"
-                                [minLength]="1"                            
-                                [placeholder]="'Buscar Proveedor'"
-                                (onSelect)="seleccionarProveedor($event)">
-                                <ng-template let-proveedor pTemplate="item">
-                                  {{proveedor.razonSocial}} - {{proveedor.numeroIdentificacion}} - {{proveedor.estado}}
-                                </ng-template>
-                              </p-autoComplete>                                                                  
-                            </div>
-                            <div class="col-4">                            
-                                <Label>Contacto</Label>                            
-                                <div>
-                                    <input  class="inputs-pedido" type="text" pInputText [disabled]="true"  [value]="formCompra.get('contacto')!.value"/>
-                                </div>                        
-                            </div>
-                            <div class="col-3">
-                                <label >N° Factura</label>
-                                <div>
-                                    <input formControlName="numeroFactura" class="inputs-pedido" type="text" pInputText/>
-                                </div>
-                            </div>
-                        </div>                        
-                        
-                        <div class="grid p-fluid">
-                            <div class="col-4">
-                                <label>Fecha Compra</label>
-                                <div>
-                                    <p-calendar formControlName="fechaCompra" class="inputs-pedido" dateFormat="yy-mm-dd" [showIcon]="true"></p-calendar>
-                                </div>
-                            </div>
-                        </div>
-
-                        <strong >Detalles de Insumos</strong>
-                        <div *ngIf="mostrarID != false" class="col-8">
-                            <label >id</label>
-                            <input type="text"  class="inputs-pedido" formControlName="idTemporal"/>
-                        </div>
-
-                        <div class="grid p-fluid mt-1" style="border-top: 1px solid var(--surface-border);">
-                            <div class="col-3">
-                                <label>Insumo</label>
-                                <p-autoComplete class="inputs-pedido"
-                                formControlName="insumo"
-                                [suggestions]="sugerenciasInsumos"
-                                (completeMethod)="buscarInsumos($event)"
-                                [dropdown]="true"
-                                [minLength]="1"                            
-                                [placeholder]="'Buscar Insumo'"
-                                (onSelect)="seleccionarInsumo($event)">
-                                <ng-template let-insumo pTemplate="item">
-                                  {{insumo.nombre}}
-                                </ng-template>
-                              </p-autoComplete>
-                            </div>
-                            <div class="col-3">
-                                <label >Cantidad</label>
-                                <p-inputNumber  class="inputs-pedido" formControlName="cantidad" [style]="{'width': '30rem'}" [showButtons]="true" buttonLayout="horizontal" spinnerMode="horizontal" inputId="vertical" decrementButtonClass="p-button-secondary"
-                                incrementButtonClass="p-button-secondary" incrementButtonIcon="pi pi-plus" decrementButtonIcon="pi pi-minus"></p-inputNumber>
-                            </div>                            
-                            <div class="col-2">
-                                <label>Valor Unitario</label>
-                                <p-inputNumber class="inputs-pedido" formControlName="valorUnitario" inputId="locale-user" [minFractionDigits]="2"></p-inputNumber>
-                            </div>
-                            <div class="col-2">
-                                <label >Impuesto</label>
-                                <p-dropdown class="inputs-pedido" formControlName="ivaInsumo" [options]="impuestos" optionLabel="label"></p-dropdown>
-                            </div>
-                            <div class="col-2 mt-3">
-                                <button pButton pRipple type="button" icon="pi pi-plus" class="p-button-rounded" (click)="agregarInsumo()" ></button>
-                            </div>
-                        </div>
-                        
-                        <div class="grid p-fluid">
-                            <div class="col-11">
-                                <p-table styleClass="p-datatable-gridlines p-datatable-sm" [value]="detallesInsumo"   [tableStyle]="{ 'min-width': '50rem' }">
-                                    <ng-template pTemplate="header">
-                                        <tr>
-                                            <th >Insumo</th>
-                                            <th >Cantidad</th>
-                                            <th >Valor Unitario</th>
-                                            <th >Iva</th>
-                                            <th> SubTotal</th>
-                                            <th></th>
-                                        </tr>
-                                    </ng-template>
-                                    <ng-template pTemplate="body" let-insumo let-i="index" >
-                                        <tr>
-                                            <td>{{insumo.insumo}}</td>
-                                            <td>{{insumo.cantidad}}</td>
-                                            <td>{{insumo.valorUnitario | currency}}</td>
-                                            <td>{{insumo.impuestoIva | currency}}</td>
-                                            <td>{{insumo.valorTotal | currency}}</td>                                            
-                                            <td>
-                                                <p-button icon="pi pi-pencil" [rounded]="true" [text]="true" (click)="getInsumoModificar(insumo)"></p-button>
-                                                <p-button icon="pi pi-trash" [rounded]="true" [text]="true" severity="danger " (click)="eliminarInsumo(insumo)"></p-button>
-                                            </td>
-                                        </tr>
-                                    </ng-template>
-                                </p-table>
-                            </div>
-                        </div>
-
-                        <div class="grid p-fluid mt-3 justify-content-between">
-                            <div class="col-3">
-                                <label>Forma Pago</label>
-                                <div>
-                                    <p-dropdown formControlName="formaPago" [options]="formaPago" class="inputs-pedido" placeholder="Seleciona forma Pago"></p-dropdown>
-                                </div>
-                            </div>
-                            <div class="col-7 ">
-                                <div>
-                                    <label >Total bruto</label>
-                                    <p-inputNumber  formControlName="totalBruto" class="inputs-pedido col-4"  mode="decimal"></p-inputNumber>
-                                </div>
-                                <div>
-                                    <label >Iva</label>
-                                    <p-inputNumber formControlName="ivaTotal" class="inputs-pedido col-4"  mode="decimal"></p-inputNumber>
-                                </div>
-                                <div>
-                                    <label><h5>Total Neto
-                                        <p-inputNumber  formControlName="totalNeto" class="inputs-pedido col-4"  mode="decimal"></p-inputNumber>
-                                    </h5></label>
-                                    
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="grid p-fluid col-8" >
-                            <div><strong >Observaciones</strong></div>                            
-                            <textarea formControlName="observaciones" rows="2" cols="50" placeholder="Aqui puedes ingresar observaciones adicionales." pInputTextarea></textarea>                           
-                        </div>
-                    
-                    <footer class="footer-pedido">
+            <h4>Nueva Compra</h4>
+            <form [formGroup]="formCompra">
+                <div class="grid p-fluid mt-3">
+                    <div class="col-4">
+                        <Label>Proveedor *</Label>
                         <div>
-                            <button pButton pRipple type="button" label="Cancelar" class="p-button-danger" routerLink="/pages/compra" ></button>                                    
-                            <button pButton pRipple label="Guardar" class="p-button-success" (click)="addCompra()"></button>
+                            <input *ngIf="mostrarID" type="text" pInputText formControlName="proveedor" />
+                            <p-autoComplete formControlName="razonSocial" [suggestions]="sugerenciasProveedores"
+                                (completeMethod)="buscarProveedores($event)" [dropdown]="true"
+                                [placeholder]="'Buscar proveedor'" (onSelect)="seleccionarProveedor($event)"
+                                (keyup)="realizarBusquedaEnTiempoReal($event)" (onBlur)="validarProveedorExistente()">
+                                <ng-template let-proveedor pTemplate="item">
+                                    {{ proveedor.tipoIdentificacion == 'NIT' ?
+                                    proveedor.razonSocial + ' - ' + proveedor.numeroIdentificacion :
+                                    proveedor.razonSocial + ' ' + proveedor.nombreComercial + ' - ' +
+                                    proveedor.numeroIdentificacion }}
+                                </ng-template>
+                            </p-autoComplete>
                         </div>
-                    </footer>
-                </form>                       
+                        <small
+                            *ngIf="formCompra.get('razonSocial')?.hasError('required') && formCompra.get('razonSocial')?.touched"
+                            style="color: red;">
+                            El proveedor es <strong>requerido</strong>
+                        </small>
+                    </div>
+
+                    <div class="col-4">
+                        <Label>Contacto</Label>
+                        <div>
+                            <input type="text" pInputText [readOnly]="true"
+                                [value]="formCompra.get('contacto')!.value" />
+                        </div>
+                    </div>
+
+
+                    <div class="col-4">
+                        <label>N° Factura *</label>
+                        <div>
+                            <input formControlName="numeroFactura" (input)="validarNumeroFactura()" type="text"
+                                pInputText />
+                        </div>
+                        <small
+                            *ngIf="formCompra.get('numeroFactura')?.hasError('required') && formCompra.get('numeroFactura')?.touched"
+                            style="color: red;">
+                            El N° factura es <strong>requerido</strong>
+                        </small>
+                        <small *ngIf="formCompra.get('numeroFactura')?.hasError('numeroFacturaExistente')"
+                            style="color: red;">
+                            Este numero factura ya existe para este proveedor.
+                        </small>
+                    </div>
+                </div>
+
+                <div class="grid p-fluid">
+                    <div class="col-4">
+                        <label>Fecha compra *</label>
+                        <div>
+                            <p-calendar formControlName="fechaCompra" dateFormat="yy-mm-dd" [showIcon]="true"
+                                [maxDate]="maxDate"></p-calendar>
+                        </div>
+                        <small
+                            *ngIf="formCompra.get('fechaCompra')?.hasError('required') && formCompra.get('fechaCompra')?.touched"
+                            style="color: red;">
+                            La fecha compra es <strong>requerida</strong>
+                        </small>
+                    </div>
+                </div>
+
+                <strong>DETALLES DE INSUMOS</strong>
+                <div *ngIf="mostrarID != false">
+                    <label>id</label>
+                    <input type="text" formControlName="idTemporal" />
+                </div>
+
+                <div class="grid p-fluid mt-1" style="border-top: 1px solid var(--surface-border);">
+                    <div class="col-3">
+                        <label>Insumo *</label>
+                        <div>
+                            <input *ngIf="mostrarID" type="text" pInputText formControlName="insumo" />
+                            <p-autoComplete formControlName="insumoNombre" [suggestions]="sugerenciasInsumos"
+                                (completeMethod)="buscarInsumos($event)" [dropdown]="true"
+                                [placeholder]="'Buscar Insumo'" (onSelect)="seleccionarInsumo($event)"
+                                (keyup)="realizarBusquedaEnTiempoRealInsumo($event)"
+                                (onBlur)="validacionInsumoExistente()">
+                                <ng-template let-insumo pTemplate="item">
+                                    {{insumo.nombre}}
+                                </ng-template>
+                            </p-autoComplete>
+                        </div>
+                        <small *ngIf="formCompra.get('insumoNombre')?.hasError('required') && formCompra.get('insumoNombre')?.touched 
+                                && detallesInsumo.length === 0" style="color: red;">
+                            El insumo es <strong>requerido</strong>
+                        </small>
+                    </div>
+                    <div class="col-2">
+                        <label>Cantidad *</label>
+                        <div>
+                            <p-inputNumber [min]="0" formControlName="cantidad"></p-inputNumber>
+                        </div>
+                        <small *ngIf="formCompra.get('cantidad')?.touched 
+                                && formCompra.get('cantidad')?.value < 1 && detallesInsumo.length === 0"
+                            style="color: red;">
+                            La cantidad debe ser mayor a <strong>0</strong>
+                        </small>
+                    </div>
+                    <div class="col-2">
+                        <label>Valor unitario *</label>
+                        <div>
+                            <p-inputNumber [min]="0" mode="currency" currency="USD" locale="en-US"
+                                formControlName="valorUnitario"></p-inputNumber>
+                        </div>
+                        <small *ngIf="formCompra.get('valorUnitario')?.touched 
+                                && formCompra.get('valorUnitario')?.value < 1 && detallesInsumo.length === 0"
+                            style="color: red;">
+                            El valor debe ser mayor a <strong>0</strong>
+                        </small>
+                    </div>
+                    <div class="col-2">
+                        <label>Impuesto</label>
+                        <select pInputText formControlName="ivaInsumo">
+                            <option *ngFor="let iva of impuestos" [value]="iva.value">{{ iva.label }}</option>
+                        </select>
+                    </div>
+                    <div class="mt-5">
+                        <p-button class="mt-4" *ngIf="formCompra.get('idTemporal')!.value != null"
+                            (click)="agregarInsumo()" icon="pi pi-plus" label="Editar insumo" severity="warning">
+                        </p-button>
+                        <p-button class="mt-4" *ngIf="formCompra.get('idTemporal')!.value === null"
+                            (click)="agregarInsumo()" icon="pi pi-plus" label="Agregar insumo"></p-button>
+                    </div>
+                </div>
+
+                <div class="grid p-fluid">
+                    <div class="col-12">
+                        <p-table styleClass="p-datatable-gridlines p-datatable-sm" [value]="detallesInsumo"
+                            [tableStyle]="{ 'min-width': '50rem' }">
+                            <ng-template pTemplate="header">
+                                <tr>
+                                    <th>Insumo</th>
+                                    <th>Cantidad</th>
+                                    <th>Valor unitario</th>
+                                    <th>Iva</th>
+                                    <th> Subtotal</th>
+                                    <th></th>
+                                </tr>
+                            </ng-template>
+                            <ng-template pTemplate="body" let-insumo let-i="index">
+                                <tr>
+                                    <td>{{insumo.insumoNombre}}</td>
+                                    <td>{{insumo.cantidad}}</td>
+                                    <td>{{insumo.valorUnitario | currency}}</td>
+                                    <td>{{insumo.impuestoIva | currency}}</td>
+                                    <td>{{insumo.valorTotal | currency}}</td>
+                                    <td>
+                                        <p-button icon="pi pi-pencil" [rounded]="true" [text]="true"
+                                            (click)="getInsumoModificar(insumo)" pTooltip="Editar"></p-button>
+                                        <p-button icon="pi pi-trash" [rounded]="true" [text]="true" severity="danger "
+                                            (click)="eliminarInsumo(insumo)" pTooltip="Eliminar"></p-button>
+                                    </td>
+                                </tr>
+                            </ng-template>
+                        </p-table>
+                    </div>
+                </div>
+
+                <div class="grid p-fluid mt-3 justify-content-between">
+                    <div class="col-3">
+                        <div>
+                            <label htmlFor="formaPago"><strong>Formas de Pago *</strong></label>
+                            <select pInputText formControlName="formaPago">
+                                <option value="" disabled [selected]>Seleccione forma de pago</option>
+                                <option *ngFor="let forma of formaPago" [value]="forma.value">{{ forma.label }}</option>
+                            </select>
+                            <small
+                                *ngIf="formCompra.get('formaPago')?.hasError('required') && formCompra.get('formaPago')?.touched"
+                                style="color: red;">
+                                La forma de pago es <strong>requerida</strong>
+                            </small>
+                        </div>
+                    </div>
+                    <div class="col-7 text-right">
+                        <div>
+                            <label>Total bruto</label>
+                            <p-inputNumber mode="currency" currency="USD" locale="en-US" formControlName="totalBruto"
+                                class="transparent-border inputs-pedido col-4 transparent-border"
+                                [readonly]="true"></p-inputNumber>
+                        </div>
+                        <div>
+                            <label>Iva</label>
+                            <p-inputNumber mode="currency" currency="USD" locale="en-US" formControlName="ivaTotal"
+                                class="inputs-pedido col-4" [readonly]="true"></p-inputNumber>
+                        </div>
+                        <div>
+                            <label>
+                                <h5>Total neto
+                                    <p-inputNumber mode="currency" currency="USD" locale="en-US"
+                                        formControlName="totalNeto" class="inputs-pedido col-4"
+                                        [readonly]="true"></p-inputNumber>
+                                </h5>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid p-fluid">
+                    <div class="col-12">
+                        <div><strong>Observaciones</strong></div>
+                        <textarea style="resize:none" formControlName="observaciones"
+                            placeholder="Aqui puedes ingresar observaciones adicionales." pInputTextarea></textarea>
+                    </div>
+                </div>
+
+                <p-confirmDialog></p-confirmDialog>
+
+                <footer class="footer-pedido">
+                    <div>
+                        <button pButton pRipple type="button" label="Cancelar" class="p-button-danger"
+                            (click)="mostrarConfirmacionSalir()"></button>
+                        <button pButton pRipple label="Guardar" class="p-button-success" (click)="addCompra()"></button>
+                    </div>
+                </footer>
+            </form>
         </div>
     </div>
 </div>

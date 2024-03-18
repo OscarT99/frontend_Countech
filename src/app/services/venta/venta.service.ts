@@ -1,4 +1,4 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { environment } from 'src/enviroments/environment';
 import { Venta } from 'src/app/interfaces/venta/venta.interface';
@@ -15,15 +15,24 @@ import { Observable } from 'rxjs';
     }
   
     getVenta(id:number): Observable<Venta>{
-      return this.http.get<Venta>(`${this.myAppUrl}${this.myApiUrl}${id}`)
+      const token = localStorage.getItem('token');
+      const headers = new HttpHeaders().set('x-token', token || '');
+  
+      return this.http.get<Venta>(`${this.myAppUrl}${this.myApiUrl}${id}`, {headers})
     }
   
     getListVentas(): Observable<Venta[]>{
-      return this.http.get<Venta[]>(`${this.myAppUrl}${this.myApiUrl}`)    
+      const token = localStorage.getItem('token');
+      const headers = new HttpHeaders().set('x-token', token || '');
+  
+      return this.http.get<Venta[]>(`${this.myAppUrl}${this.myApiUrl}`, {headers})    
     }
   
     putVenta(id:number,venta:Venta):Observable<void>{
-      return this.http.put<void>(`${this.myAppUrl}${this.myApiUrl}${id}`,venta)
+      const token = localStorage.getItem('token');
+      const headers = new HttpHeaders().set('x-token', token || '');
+  
+      return this.http.put<void>(`${this.myAppUrl}${this.myApiUrl}${id}`,venta, {headers})
     }
     
   }
