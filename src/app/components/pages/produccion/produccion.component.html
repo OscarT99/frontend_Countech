@@ -285,7 +285,6 @@
                 <ng-template pTemplate="header">
                     <tr>
                         <th style="width: 5rem"></th>
-                        <!-- <th>Code</th> -->
                         <th>Empleado</th>
                         <th>Cantidad asignada</th>
                         <th>Cantidad restante</th>
@@ -296,65 +295,74 @@
                 </ng-template>
                 <ng-template pTemplate="body" let-proceso let-expanded="expanded">
                     <tr>
-                        <td>
-                            <ng-container *ngIf="proceso.estadoAnular === false">
-                                <button type="button" pButton pRipple [pRowToggler]="proceso" class="p-button-text p-button-rounded p-button-plain" [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"></button>
-                            </ng-container>
+                        <td *ngIf="proceso.estadoAnular === true">
+
                         </td>
-                        <!-- <td>{{proceso.id}}</td> -->
+                        <td *ngIf="proceso.estadoAnular === false">
+                                <button type="button" pButton pRipple [pRowToggler]="proceso" class="p-button-text p-button-rounded p-button-plain" [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"></button>
+                        </td>
+
                         <td>{{proceso.nombreEmpleado}}</td>
+
                         <td>{{proceso.cantidadAsignada}}</td>
+
                         <td>{{proceso.cantRestante}}</td>
-                        <ng-container *ngIf="proceso.estadoProcAsig === true && proceso.estadoAnular === false">
-                            <td>
+                        
+                            <td *ngIf="proceso.estadoProcAsig === true && proceso.estadoAnular === false">
                                 {{proceso.cantidadAsignada}}
                             </td>
-                        </ng-container>
-                        <ng-container *ngIf="proceso.estadoProcAsig === true && proceso.estadoAnular === true">
-                            <td>
+
+                            <td *ngIf="proceso.estadoProcAsig === true && proceso.estadoAnular === true">
                                 0
                             </td>
-                        </ng-container>
-                        <ng-container *ngIf="proceso.estadoProcAsig === false">
                             
-                            <td *ngIf="proceso.estadoProcAsig === false">
-                                <form [formGroup]="formAvance" (ngSubmit)="crearAvance(proceso.id)">
-                                    <div class="formgrid col grid mt-2 justify-content-end" style="display: flex; flex-direction: row; padding: 0;">
-                                        <div style="flex: 1;">
-                                            <span class="p-float-label">
-                                                <input type="number" pInputText formControlName="cantidadHecha" (input)="validateCantHecha(proceso.cantRestante)"/>
-                                                <label for="cantidadHecha">Cantidad hecha*</label>
+                        <td *ngIf="proceso.estadoProcAsig === false">
+                            <form [formGroup]="formArray">
+                              <div [formGroup]="formArray">
+                                <ng-container formArrayName="data">
+                                  <ng-container *ngFor="let i = index; let value of data.controls">
+                                    <div [formGroupName]="i" *ngIf="i === proceso.num">
+                                      <div class="formgrid col grid mt-2" style="display: flex;">
+                                        <div style="margin-right: 4px;">
+                                          <span class="p-float-label">
+                                            <input type="number" pInputText formControlName="cantidadHecha" (ngModelChange)="validateCantHecha(i, proceso.cantRestante)" />
+                                            <label for="cantidadHechas">Cantidad hecha</label>
+                                          </span>
+                                          <small>
+                                            <span *ngIf="value.get('cantidadHecha')?.hasError('min') && value.get('cantidadHecha')?.dirty" style="color: red;">
+                                              La cantidad debe ser mayor a 0.
                                             </span>
-                                            <small>
-                                                <span *ngIf="formAvance.get('cantidadHecha')?.hasError('required') && formAvance.get('cantidadHecha')?.touched" style="color: red;">
-                                                    La cantidad es <strong>requerida.</strong>
-                                                </span>
-                                                <span *ngIf="formAvance.get('cantidadHecha')?.hasError('min') && formAvance.get('cantidadHecha')?.touched" style="color: red;">
-                                                    La cantidad debe ser mayor a 0.
-                                                </span>
-                                                <span *ngIf="formAvance.get('cantidadHecha')?.hasError('cantError') && formAvance.get('cantidadHecha')?.touched" style="color: red;">
-                                                    La cantidad no debe ser mayor a la <strong>cantidad restante</strong>.
-                                                </span>
-                                            </small>
+                                            <span *ngIf="value.get('cantidadHecha')?.hasError('required') && value.get('cantidadHecha')?.touched" style="color: red;">
+                                              La cantidad es <strong>requerida.</strong>
+                                            </span>
+                                            <span *ngIf="value.get('cantidadHecha')?.hasError('cantError') && value.get('cantidadHecha')?.touched" style="color: red;">
+                                              La cantidad no debe ser mayor a la <strong>cantidad restante</strong>.
+                                            </span>
+                                          </small>
                                         </div>
-                                        <div style="margin-left: 8px;">
-                                            <p-button type="submit" icon="pi pi-save" [rounded]="true" [text]="true" severity="success" pTooltip="Guardar"></p-button>        
+                                        <div>
+                                          <p-button type="submit" icon="pi pi-save" [rounded]="true" [text]="true" severity="success" pTooltip="Guardar" (click)="avanceData(proceso.id, i)"></p-button>
                                         </div>
+                                      </div>
                                     </div>
-                                </form>
-                            </td>
+                                  </ng-container>
+                                </ng-container>
+                              </div>
+                            </form>
+                        </td>
 
-                        </ng-container>
                         <td>
                             <p-tag [value]="changeEstadoProd(proceso.estadoProcAsig, proceso.estadoAnular)" [severity]="getEstadoProd(proceso.estadoProcAsig, proceso.estadoAnular)"></p-tag>
                         </td>
+
                             <td *ngIf="proceso.estadoAnular === true">
                                 <p-tag [value]="changeEstadoAnular(proceso.estadoAnular)" [severity]="styleEstadoAnular(proceso.estadoAnular)"></p-tag>
                             </td>
                         
                             <td class="padding: 0;" *ngIf="proceso.estadoAnular === false && proceso.estadoProcAsig === false && proceso.cantidadAsignada === proceso.cantRestante">
-                                <p-button (click)="anularProceso(proceso.id)" icon="pi pi-times-circle" [rounded]="true" severity="danger" pTooltip="Anular"></p-button>
+                                <p-button (click)="confirm(proceso.id)" icon="pi pi-times-circle" [rounded]="true" severity="danger" pTooltip="Anular"></p-button>
                             </td>
+
                             <td *ngIf="proceso.estadoProcAsig === true && proceso.estadoAnular === false || proceso.estadoProcAsig === false && proceso.estadoAnular === false && proceso.cantidadAsignada !== proceso.cantRestante">
 
                             </td>
@@ -401,3 +409,4 @@
 
 </div>
 </div>
+

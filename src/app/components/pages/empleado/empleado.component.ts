@@ -4,7 +4,7 @@ import { Table } from 'primeng/table';
 import { Empleado } from 'src/app/interfaces/empleado/empleado.interface';
 import { PedidoService } from 'src/app/services/pedido/pedido.service';
 import { PedidoInstance } from 'src/app/interfaces/pedido/pedido.interface'; 
-import { AsyncValidatorFn, FormBuilder, FormControl, FormControlName, FormGroup } from '@angular/forms';
+import { AsyncValidatorFn, FormArray, FormBuilder, FormControl, FormControlName, FormGroup } from '@angular/forms';
 import { ValidatorFn, AbstractControl, Validators } from '@angular/forms';
 import { ToastrService } from 'ngx-toastr';
 import { ActivatedRoute } from '@angular/router';
@@ -14,10 +14,6 @@ import { Observable } from 'rxjs';
 import { ConfirmationService, MessageService, ConfirmEventType } from 'primeng/api';
 
 
-interface OptionTipoIdentidad {
-  label: string;
-  value: string;
-}
 
 @Component({
   templateUrl: './empleado.component.html',
@@ -28,6 +24,8 @@ export class EmpleadoComponent implements OnInit {
   listEmpleados: Empleado[] = [];
 
   infoDialog: boolean = false;
+
+  detalleEmpleado:  any;
   
   editDialog: boolean = false;
   
@@ -39,7 +37,7 @@ export class EmpleadoComponent implements OnInit {
 
   form: FormGroup;
 
-  formAvance: FormGroup;
+  // formAvance: FormGroup;
 
   pedido: PedidoInstance = {};
 
@@ -51,12 +49,28 @@ export class EmpleadoComponent implements OnInit {
 
   cols: any[] = [];
 
-  listTipoIdentidad: OptionTipoIdentidad[] | undefined;
+  listTipoIdentidad: any[] = [
+  'Cédula de ciudadanía',
+  'Tarjeta de extranjería',
+  'Cédula de extranjero',
+  'Pasaporte'
+  ];
+
+  contador: number = 0;
 
   maxDate: Date = new Date();
 
 
   formulariosAvance: FormGroup[] = [];
+
+
+  listProcesos: any[] = [];
+  
+  formArray = this.fb.group({
+    data: this.fb.array([])
+  });
+
+  count = 0;
 
 
   constructor(private fb: FormBuilder,
@@ -67,8 +81,9 @@ export class EmpleadoComponent implements OnInit {
     private toastr: ToastrService,      
     private aRouter:ActivatedRoute,
       ) {
+
         this.form = this.fb.group({
-          tipoIdentidad: [''],
+          tipoIdentidad: ['', [Validators.required]],
           numIdentidad: ['', [Validators.required]],
           nombre: ['', [Validators.required, Validators.maxLength(30), this.customTextRegExpValidator(/^[A-Za-záéíóúüÜÁÉÍÓÚÑñ ]+$/), this.customLengthtRegExpValidator(/^(\S+\s){0,2}\S*$/)]],
           apellido: ['', [Validators.required, Validators.maxLength(30), this.customTextRegExpValidator(/^[A-Za-záéíóúüÜÁÉÍÓÚÑñ ]+$/), this.customLengthtRegExpValidator(/^(\S+\s){0,2}\S*$/)]],
@@ -80,9 +95,6 @@ export class EmpleadoComponent implements OnInit {
           estado: [''],
           estadoOcupado: [''],
         });
-        this.formAvance = this.fb.group({
-          cantidadHecha: ['', [Validators.required, Validators.min(1)]],
-        });
         this.aRouter.params.subscribe(params => {
           this.id = +params['id'];
         });
@@ -90,17 +102,97 @@ export class EmpleadoComponent implements OnInit {
 
   ngOnInit(): void {
 
+    // this.getProcesos();
     this.getEmpleadoProceso();
-
-    this.listTipoIdentidad = [
-      { label: 'Cédula de ciudadanía', value:'Cédula de ciudadanía' },
-      { label: 'Tarjeta de extranjería', value:'Tarjeta de extranjería' },
-      { label: 'Cédula de extranjero', value:'Cédula de extranjería' },
-      { label: 'Pasaporte', value:'Pasaporte' },
-    ];
+    this.getProcesos();
 
   }
 
+  get data(){
+    return this.formArray.get('data') as FormArray;
+  }
+
+  getProcesos(): void{
+    this.count = 0;
+    this.data.clear();
+
+    this._empleadoService.getEmpleadoProcesos().subscribe((data: any) => {
+      data.EmpleadoProcesos
+      .forEach((empleado: any) => {
+        empleado.asignarProcesoEmpleados.forEach((procAsig: any) => {
+          if (procAsig.estadoProcAsig === false) {
+            const formAvance = this.fb.group({
+              cantidadHecha: new FormControl('', [Validators.required, Validators.min(1)])
+            });
+            this.data.push(formAvance);
+          }
+
+        });
+      });
+  
+      // console.log(this.listProcesos);
+      console.log(this.formArray);
+
+      // const con = this.formArray.get('data')?.value[0];
+      // console.log(con);
+    });
+  }
+
+    avanceData(id: number, value: number) {
+
+      const getValue = (this.formArray.get('data')?.value[value] as any).cantidadHecha as number;
+      const cantidadHechaControl = (this.formArray.get('data') as FormArray)?.controls[value].get('cantidadHecha');
+
+      const dataAvance: AvanceProcesoEmpleado = {
+        cantidadHecha: getValue,
+        asignarProcesoEmpleadoId: id
+      }
+
+      try{
+        if(cantidadHechaControl?.valid){
+          this._avanceProcesoService.postAvanceProcesoEmpleado(dataAvance).subscribe(() => {
+            this.toastr.success('Registro de avance exitoso', 'Éxito');
+            this.getProcesos();
+            this.getEmpleadoProceso();
+          });
+        }else{
+          this.toastr.error('Por favor, complete todos los campos obligatorios', 'Error de validación');
+        }
+      }catch(error){
+        console.error('Ha ocurrido un error al registrar el avance:', error);
+        this.toastr.error('Ha ocurrido un error al registrar el avance', 'Error');
+      }
+
+      console.log(dataAvance);
+      console.log(id);
+      // this.getProcesos();
+    }
+
+  
+  getEmpleadoProceso() {
+    this._empleadoService.getEmpleadoProcesos().subscribe((data: any) => {
+      this.listEmpleados = data.EmpleadoProcesos.map((empleadoProceso: any) => {
+        empleadoProceso.asignarProcesoEmpleados = empleadoProceso.asignarProcesoEmpleados.filter((asignacion: any) => !asignacion.estadoProcAsig);
+        return empleadoProceso;
+      });
+      this.listEmpleados.forEach((empleado: any) => {
+        empleado.asignarProcesoEmpleados.forEach((procAsig: any) => {
+          this._pedidoService.getPedidoProcesoById(procAsig.pedidoprocesoId).subscribe((proceso: any) => {
+            procAsig.num = this.count;
+            procAsig.procesoNom = proceso.proceso;
+            this.count = this.count + 1;
+            // console.log(proceso.pedido)
+            this._pedidoService.getPedido(proceso.pedido).subscribe((pedido: any) => {
+              procAsig.ordenTrabajo = pedido.ordenTrabajo;
+            });
+          });
+        });
+      });
+    
+      console.log(this.listEmpleados);
+      // console.log(this.formArray);
+    });
+  }
 
 
   validateNumIdentidad() {
@@ -164,40 +256,20 @@ export class EmpleadoComponent implements OnInit {
     };
   }
 
-  validateCantHecha(cantRestante: number) {
-    const cantidadHechaControl = this.formAvance.get('cantidadHecha');
+  
+
+  validateCantHecha(num: number, cantRestante: number) {
+    const dataFormGroup = this.formArray.get('data') as FormGroup;
+    const cantidadHechaControl = dataFormGroup.controls[num].get('cantidadHecha');
     const cantidadHechaValue = cantidadHechaControl?.value;
     const cantidadRestanteControl = cantRestante;
-
+  
     if (cantidadHechaValue && cantidadHechaValue > cantidadRestanteControl) {
       cantidadHechaControl?.setErrors({ cantError: true });
-        return;
+      return;
     }
   }
 
-
-  getEmpleadoProceso() {
-    this._empleadoService.getEmpleadoProcesos().subscribe((data: any) => {
-      this.listEmpleados = data.EmpleadoProcesos.map((empleadoProceso: any) => {
-        empleadoProceso.asignarProcesoEmpleados = empleadoProceso.asignarProcesoEmpleados.filter((asignacion: any) => !asignacion.estadoProcAsig);
-        return empleadoProceso;
-      });
-
-      this.listEmpleados.forEach((empleado: any) => {
-        empleado.asignarProcesoEmpleados.forEach((procAsig: any) => {
-          this._pedidoService.getPedidoProcesoById(procAsig.pedidoprocesoId).subscribe((proceso: any) => {
-              procAsig.procesoNom = proceso.proceso;
-              // console.log(proceso.pedido)
-              this._pedidoService.getPedido(proceso.pedido).subscribe((pedido: any) => {
-                procAsig.ordenTrabajo = pedido.ordenTrabajo;
-              });
-          })
-        })
-      });
-
-      console.log(this.listEmpleados);
-    });
-  }
 
   showInfoDialog(id: number) {
     this.infoDialog = true;
@@ -270,29 +342,6 @@ export class EmpleadoComponent implements OnInit {
     };
   }
 
-    // Registrar una cantidad hecha de un proceso asignado a un empleado
-    crearAvance(id: number){
-      this.form.markAllAsTouched();
-
-      const dataAvance: AvanceProcesoEmpleado = {
-        cantidadHecha: this.formAvance.value.cantidadHecha,
-        asignarProcesoEmpleadoId: id
-      }
-      try{
-        if(this.formAvance.valid){
-          this._avanceProcesoService.postAvanceProcesoEmpleado(dataAvance).subscribe(() => {
-            this.toastr.success('Registro de avance exitoso', 'Éxito');
-            this.getEmpleadoProceso();
-          });
-        }else{
-          this.toastr.error('Por favor, complete todos los campos obligatorios', 'Error de validación');
-        }
-      }catch(error){
-        console.error('Ha ocurrido un error al registrar el avance:', error);
-        this.toastr.error('Ha ocurrido un error al registrar el avance', 'Error');
-      }
-    }
-
 
   addEmpleado() {
       this.form.markAllAsTouched();
@@ -345,9 +394,20 @@ export class EmpleadoComponent implements OnInit {
   }
 
   confirm(empleado: Empleado) {
+    
     this.empleadoSeleccionado = empleado;
 
+    const messageTemplate = `
+    <div class="flex flex-column align-items-center w-full gap-3 border-bottom-1 surface-border">
+    <i class="pi pi-exclamation-circle text-6xl text-primary-500"></i>
+    <p>
+      ¿Está seguro de que desea
+      <strong>${ this.empleadoSeleccionado?.estado ? 'ACTIVAR' : 'DESACTIVAR' }</strong> el empleado?
+    </p>
+  </div>`;
+    
     this.confirmationService.confirm({
+      message: messageTemplate,
       header: 'Confirmación',
       acceptLabel: 'Sí',
       rejectLabel: 'No',
@@ -378,6 +438,39 @@ export class EmpleadoComponent implements OnInit {
       }
     });
   }
+
+  confirmChangeState(confirmacion: boolean) {
+    // this.empleadoInfoDialog = false;
+    if (confirmacion && this.empleadoSeleccionado && this.empleadoSeleccionado.estadoOcupado === false) {
+      if (this.empleadoSeleccionado.id){
+        this._empleadoService.putEmpleado(this.empleadoSeleccionado.id, this.empleadoSeleccionado).subscribe(() => {
+          this.empleado.estado = !this.empleado.estado;
+          if (this.empleado.estado == false) {
+            this.toastr.success('Empleado activo', 'Éxito');
+          } else{
+            this.toastr.error('Empleado inactivo', 'Éxito');
+          }
+          this.getEmpleadoProceso();
+        });
+      
+      }
+    }
+    else{
+      this.toastr.error('No se puedo cambiar el estado', 'Error');
+      this.getEmpleadoProceso();
+    }
+    this.changeStateDialog = false;
+  }
+
+  async mostrarDetalleEmpleado(id: number) {
+    try {
+      this.detalleEmpleado = await this._empleadoService.getEmpleado(id).toPromise();
+      this.infoDialog = true;
+      console.log(this.detalleEmpleado);
+    } catch (error) {
+      console.error('Error al obtener el detalle del empleado:', error);
+    }
+  }  
 
   getEmpleado(id:number) {
     
