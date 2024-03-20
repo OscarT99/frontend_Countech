@@ -189,7 +189,7 @@
                             <div>
                                 <span>{{ detalleCompra.estadoPago }}</span>
                             </div>
-                        </div> 
+                        </div>
 
                         <div class="col-4">
                             <div>
@@ -287,8 +287,8 @@
 
         </div>
 
-        <p-dialog [(visible)]="productDialogAbono" [style]="{width: '1000px', height: '500px',  'overflow-x': 'auto'  }" header="Abono Compra"
-            [modal]="true" class="p-fluid">
+        <p-dialog [(visible)]="productDialogAbono" [style]="{width: '1000px', height: '500px',  'overflow-x': 'auto'  }"
+            header="Abono Compra" [modal]="true" class="p-fluid">
             <div style="display: flex;">
                 <div style="flex: 1;">
                     <form [formGroup]="formAbonoCompra">
@@ -300,12 +300,12 @@
                             <div class="field col-9">
                                 <label for="proveedeor">Proveedor</label>
                                 <input id="proveedor" type="text" pInputText readonly
-                                [value]="getNombreProveedor(compra.proveedor)">
-                               
+                                    [value]="getNombreProveedor(compra.proveedor)">
+
                             </div>
 
                         </div>
-                      
+
 
                         <div class="formgrid grid">
 
@@ -317,8 +317,8 @@
 
                                 </div>
                             </div>
-                            
-                            
+
+
                             <div class="field col">
                                 <label for="valorAbono">Restante</label>
                                 <div class="p-inputgroup">
@@ -335,20 +335,23 @@
                     </form>
                     <div class="p-inputgroup mt-3">
                         <small class="p-float-label">
-                            <input  pInputText class="w-full md:w-25rem" style="padding:1rem" id="valorAbono" name="valorAbono" 
-                                [(ngModel)]="value9" class="form-control" (input)="validarValorAbono()" 
-                                [ngClass]="{'is-invalid': errorMessages.valorAbono}" placeholder>
+                            <input pInputText class="w-full md:w-25rem" style="padding:1rem" id="valorAbono"
+                                name="valorAbono" [(ngModel)]="value9" class="form-control"
+                                (input)="validarValorAbono()" [ngClass]="{'is-invalid': errorMessages.valorAbono}"
+                                placeholder>
                             <label for="valorAbono">Valor Abono*</label>
-                            <button (click)="confirm2($event)" pButton icon="pi pi-plus" 
+                            <button (click)="confirm2($event)" pButton icon="pi pi-plus"
                                 class="p-button-rounded p-button-success ml-3"></button>
                             <p-confirmPopup key="confirm2"></p-confirmPopup>
                         </small>
                     </div>
-                    <div class="invalid-feedback error-message mt-1" *ngIf="errorMessages.valorAbono" style="color: red;">
-                        {{errorMessages.valorAbono}}
-                    </div>
+                    <small>
+                        <div class="invalid-feedback error-message mt-1" *ngIf="errorMessages.valorAbono"
+                            style="color: red;">
+                            {{errorMessages.valorAbono}}
+                        </div>
+                    </small>
 
-                    
                 </div>
                 <div style="flex: 1;">
                     <div class="card m-5" [style]="{width: '500px', textAlign: 'center'}">

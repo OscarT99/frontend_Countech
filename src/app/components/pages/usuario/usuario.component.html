@@ -4,7 +4,7 @@
             <p-toolbar styleClass="mb-4">
                 <ng-template pTemplate="left">
                     <div>
-                        <button pButton pRipple label="Registrar Usuario" icon="pi pi-plus"
+                        <button pButton pRipple label="Registrar usuario" icon="pi pi-plus"
                             (click)="openNew()"></button>
                     </div>
                 </ng-template>
@@ -22,7 +22,7 @@
                 dataKey="id">
                 <ng-template pTemplate="caption">
                     <div class="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
-                        <h5 class="m-0">Lista de Usuarios</h5>
+                        <h5 class="m-0">Lista de usuarios</h5>
                         <span class="block mt-2 md:mt-0 p-input-icon-left">
                             <i class="pi pi-search"></i>
                             <input pInputText type="text" placeholder="Buscar..." (input)="onGlobalFilter(dt, $event)"
@@ -83,7 +83,7 @@
         </div>
 
         <p-dialog [(visible)]="productDialog" [style]="{width: '650px'}"
-            [header]="id !== 0 ? 'Editar Usuario' : 'Nuevo Usuario'" [modal]="true" class="p-fluid">
+            [header]="id !== 0 ? 'Editar usuario' : 'Nuevo usuario'" [modal]="true" class="p-fluid">
             <form [formGroup]="formUsuario" (ngSubmit)="addUsuario()">
 
                 <div class="formgrid grid" style="margin-top: 20px;">
@@ -118,10 +118,10 @@
 
                 <div class="formgrid grid" style="margin-top: 20px;">
                     <div class="field col-4">
-                        <span class="p-float-label">
+                        <small class="p-float-label">
                             <input formControlName="contrasena" id="contrasena" type="password" pInputText readonly>
                             <label for="contrasena">Contraseña</label>
-                        </span>
+                        </small>
                     </div>
                     
                     <div class="field col-8">

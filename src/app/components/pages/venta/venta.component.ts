@@ -300,7 +300,7 @@ export class VentaComponent implements OnInit {
 
 
   //Cambiar estado de pago
-  actualizarEstadoPago(id: number, estado: "Pago" | "Pendiente"): void {
+  actualizarEstadoPago(id: number, estado: "Pago"): void {
     const ventaActualizada: Venta = {
       estadoPago: estado
     };

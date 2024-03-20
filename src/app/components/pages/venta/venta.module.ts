@@ -23,7 +23,6 @@ import { PanelModule } from 'primeng/panel';
 import { TooltipModule } from 'primeng/tooltip';
 import { TagModule } from 'primeng/tag';
 
-
 @NgModule({
     imports: [
         CommonModule,
