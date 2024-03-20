@@ -193,7 +193,8 @@ export class ListCompraComponent implements OnInit {
                         }
                     });
             } else {
-                this.toastr.error('Complete los campos requeridos')
+                this.toastr.error('Por favor, Complete todos los campos obligatorios','Error de validación')
+                return;
             }
         }
 

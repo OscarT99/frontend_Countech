@@ -22,7 +22,7 @@
             </p-toolbar>
 
             <p-table #dt [value]="mostrarPedidosActivos ? listPedidosActivos : listPedidosAnulados" [scrollable]="false"
-                responsiveLayout="scroll" [rows]="5" [globalFilterFields]="['Cliente.razonSocial','estado']"
+                responsiveLayout="scroll" [rows]="5" [globalFilterFields]="['Cliente.razonSocial','ordenTrabajo','estado']"
                 [paginator]="true" [rowsPerPageOptions]="[5,10,15]" [showCurrentPageReport]="true"
                 currentPageReportTemplate="Mostrando del {first} al {last} de {totalRecords} pedidos" [rowHover]="true"
                 dataKey="id">

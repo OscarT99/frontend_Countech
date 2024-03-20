@@ -118,7 +118,8 @@ export class ListPedidoComponent implements OnInit {
                     }
                 );                
             } else {
-                this.toastr.error('Complete los campos requeridos')
+                this.toastr.error('Complete los campos requeridos');
+                return;
             }
         }
 

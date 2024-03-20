@@ -541,8 +541,6 @@ export class AddPedidoComponent implements OnInit {
       this.toastr.error('Por favor, complete todos los campos obligatorios.', 'Error de validación');
     }
 
-
-
   }
 
 
@@ -620,5 +618,9 @@ export class AddPedidoComponent implements OnInit {
       this.formPedido.get('cliente')!.setValue('');
       this.formPedido.get('contacto')!.setValue('');
     }
+  }
+
+  actualizarValorTotal(){
+      this.actualizarSumatoriaYTotal();    
   }
 }

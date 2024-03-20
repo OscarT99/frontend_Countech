@@ -235,10 +235,13 @@
                 ¿Está seguro de que los datos estan correctos?
                 Despues no podras deshacer los cambios
             </p>
-            <button pButton type="button" label="Sí" icon="pi pi-check"
-                (click)="confirmActionSalidaInsumo(true)"></button>
-            <button pButton type="button" label="No" icon="pi pi-times"
-                (click)="confirmActionSalidaInsumo(false)"></button>
+            <div class="formgrid col grid mt-2 justify-content-end gap-3">                
+                <p-button label="Cancelar" [text]="true" icon="pi pi-times"
+                (click)="confirmActionSalidaInsumo(false)"></p-button>
+                <p-button label="Confirmar" icon="pi pi-check"
+                (click)="confirmActionSalidaInsumo(true)"></p-button>
+            </div>
+            
         </p-dialog>
 
     </div>

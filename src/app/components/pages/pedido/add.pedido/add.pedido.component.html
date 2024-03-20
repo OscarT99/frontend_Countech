@@ -115,7 +115,7 @@
                     <div class="col-4">
                         <label htmlFor="valorUnitario">Valor unitario *</label>
                         <div>
-                            <p-inputNumber mode="currency" currency="USD" locale="en-US" id="valorUnitario"
+                            <p-inputNumber (onBlur)="actualizarValorTotal()" mode="currency" currency="USD" locale="en-US" id="valorUnitario"
                                 formControlName="valorUnitario"></p-inputNumber>
                         </div>
                         <small *ngIf=" formPedido.get('valorUnitario')?.touched && formPedido.value.valorUnitario < 1"
