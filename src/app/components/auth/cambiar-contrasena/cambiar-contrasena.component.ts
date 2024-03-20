@@ -86,7 +86,7 @@ camposCompletos(): boolean {
     } else if (contrasena === confirmar) {
       this.errorMessages.confirmarContrasena = '';
       this.camposValidos = true;
-      console.log('Las contraseñas coinciden');
+      //console.log('Las contraseñas coinciden');
     } else if (!confirmar) {
       this.errorMessages.confirmarContrasena = '';
       this.camposValidos = false;
@@ -103,11 +103,11 @@ camposCompletos(): boolean {
       // Llamar al servicio para cambiar la contraseña
       this.authService.changePassword(this.token, this.newPassword).subscribe(
         (response) => {
-          console.log('Respuesta del servidor para cambiar contraseña:', response);
+          //console.log('Respuesta del servidor para cambiar contraseña:', response);
           if (response.message) {
             // Mostrar el mensaje de éxito usando Toastr
-            this.toastr.success(response.message);
-    
+            this.toastr.success(response.message, 'Éxito');
+
             // Establecer un temporizador para borrar el mensaje después de 2 segundos
             setTimeout(() => {
               this.camposHabilitados = false;
@@ -121,7 +121,9 @@ camposCompletos(): boolean {
           this.passworsdChange = true;
         },
         (error) => {
-          console.error('Error en la solicitud para cambiar contraseña:', error);
+          //console.error('Error en la solicitud para cambiar contraseña:', error);
+          this.toastr.error('No se pudo cambiar la contraseña', 'Error');
+
           if (error.error && error.error.error) {
             this.errorMessages.recuperar = error.error.error;
             setTimeout(() => {
@@ -131,8 +133,7 @@ camposCompletos(): boolean {
         }
       );
     } else {
-      console.error('El token es undefined');
-      // Aquí puedes manejar el caso en que this.token sea undefined, por ejemplo, mostrar un mensaje de error al usuario.
+      //console.error('El token es undefined');
     }
   }
   

@@ -11,16 +11,16 @@
       <form>
         <div class="">
           <div class="field col">
-            <span class="p-float-label">
-              <input [type]="showPassword ? 'text' : 'password'" pInputText class="w-full md:w-25rem"
+            <small class="p-float-label">
+              <input [type]="showPassword ? 'text' : 'password'"  class="w-full md:w-25rem"
                 style="padding:1rem" id="contrasena" name="contrasena" [(ngModel)]="newPassword" class="form-control"
-                (input)="validarContrasena()" [ngClass]="{'is-invalid': errorMessages.contrasena}" placeholder
+                (input)="validarContrasena()" [ngClass]="{'is-invalid': errorMessages.contrasena}" placeholder pInputText
                 [disabled]="!camposHabilitados">
-              <label for="contrasena">Nueva contraseña</label>
+              <label for="contrasena">Nueva contraseña*</label>
               <div class="invalid-feedback error-message" *ngIf="errorMessages.contrasena" style="color: red;">
                 {{errorMessages.contrasena}}
               </div>
-            </span>
+            </small>
             <div class="eye-icon col-2 check" (click)="togglePasswordVisibility()">
               <i class="fa-solid fa-eye" *ngIf="showPassword"></i>
               <i class="fa-solid fa-eye-slash" *ngIf="!showPassword"></i>
@@ -31,16 +31,16 @@
 
         <div class="formgrid grid">
           <div class="field col">
-            <span class="p-float-label">
+            <small class="p-float-label">
               <input [type]="showConfirmPassword ? 'text' : 'password'" pInputText class="w-full md:w-25rem"
                 style="padding:1rem" id="confirmarContrasena" name="confirmarContrasena"
                 [(ngModel)]="confirmarContrasena" class="form-control" placeholder="" (input)="validarConfirmar()"
                 [ngClass]="{'is-invalid': errorMessages.confirmarContrasena}" [disabled]="!camposHabilitados">
-              <label for="contrasena">Confirmar contraseña</label>
+              <label for="contrasena">Confirmar contraseña*</label>
               <div class="invalid-feedback error-message" *ngIf="errorMessages.confirmarContrasena" style="color: red;">
                 {{errorMessages.confirmarContrasena}}
               </div>
-            </span>
+            </small>
             <div class="eye-icon col-2 checkk" (click)="toggleConfirmPasswordVisibility()">
               <i class="fa-solid fa-eye" *ngIf="showConfirmPassword"></i>
               <i class="fa-solid fa-eye-slash" *ngIf="!showConfirmPassword"></i>

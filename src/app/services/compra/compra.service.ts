@@ -56,6 +56,13 @@ import { Observable, catchError } from 'rxjs';
         );
     }
 
+    putEstadoCompra(id:number, compra:CompraInstance):Observable<void>{
+      const token = localStorage.getItem('token');
+      const headers = new HttpHeaders().set('x-token', token || '');
+        
+      return this.http.put<void>(`${this.myAppUrl}${this.myApiUrl}cambiarEstado/${id}`,compra, {headers})
+    }
+
     putCompra(id:number, compra : CompraInstance):Observable<void>{
 
       const token = localStorage.getItem('token');

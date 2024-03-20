@@ -1,7 +1,6 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { AppLayoutComponent } from './shared/app.layout.component';
-import { OlvidoContrasenaComponent } from './components/auth/olvido-contrasena/olvido-contrasena.component';
 import { AuthGuard } from './guards/auth.guard';
 import { CambiarContrasenaComponent } from './components/auth/cambiar-contrasena/cambiar-contrasena.component';
 
@@ -26,10 +25,6 @@ const routes: Routes = [
   {
     path: 'cambiar-contrasena/:token',
     component: CambiarContrasenaComponent,
-  },
-  { 
-    path: 'olvidoContrasena', 
-    component: OlvidoContrasenaComponent 
   },
   // Ruta de captura para rutas desconocidas
   {

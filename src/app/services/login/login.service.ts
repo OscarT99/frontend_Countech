@@ -38,7 +38,7 @@ export class AuthService {
   }
 
   logout() {
-    console.log('Logging out...');
+    //console.log('Logging out...');
     this._currentUser.next(null);
     this._authStatus.next(AuthStatus.notAuthenticated);
 

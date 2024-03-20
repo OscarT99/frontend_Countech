@@ -127,7 +127,7 @@ export class VentaComponent implements OnInit {
   async mostrarDetallePedido(id: number) {
     try {
       this.detallePedido = await this._pedidoService.getPedido(id).toPromise();
-      console.log('Detalle del pedido:', this.detallePedido);
+      //console.log('Detalle del pedido:', this.detallePedido);
       this.mostrarModalDetalle = true;
       this.mostrarTablaAbonos = false;
       this.id = id;
@@ -136,17 +136,17 @@ export class VentaComponent implements OnInit {
       this.filtrarAbonosPorVenta(id);
       this.getListAbonoVentas();
     } catch (error) {
-      console.error('Error al obtener el detalle de la venta:', error);
+      //console.error('Error al obtener el detalle de la venta:', error);
     }
   }
 
   async comprobanteVenta1(id: number) {
     try {
       this.detallePedido = await this._pedidoService.getPedido(id).toPromise();
-      console.log('Comprobante de Venta:', this.detallePedido);
+      //console.log('Comprobante de Venta:', this.detallePedido);
       this.mostrarComprobante = true;
     } catch (error) {
-      console.error('Error al obtener el comprobante de venta:', error);
+      //console.error('Error al obtener el comprobante de venta:', error);
     }
   }
 
@@ -175,7 +175,7 @@ export class VentaComponent implements OnInit {
 
   getVenta(id: number) {
     this._ventaService.getVenta(id).subscribe((data: Venta) => {
-      console.log(data)
+      //console.log(data)
       this.formVenta = this.fb.group({
         id: ['', Validators.required],
         cliente: ['', Validators.required],
@@ -307,7 +307,7 @@ export class VentaComponent implements OnInit {
 
     const valorRestante = this.getValorRestante()
     const nuevoValorRestante = valorRestante - this.value9
-    console.log(nuevoValorRestante)
+    //console.log(nuevoValorRestante)
     if (nuevoValorRestante === 0) {
       this._ventaService.putVenta(id, ventaActualizada).subscribe(
         () => {
@@ -317,7 +317,7 @@ export class VentaComponent implements OnInit {
 
         },
         (error) => {
-          console.error('Error al actualizar el estado de pago:', error);
+          //console.error('Error al actualizar el estado de pago:', error);
         }
       );
     }
@@ -345,6 +345,7 @@ export class VentaComponent implements OnInit {
       venta: this.id
     };
     const valorRestante = this.getValorRestante();
+    
     if (valorRestante > 0) {
 
       this._abonoVentaService.postAbonoVenta(nuevoAbono).subscribe(
@@ -354,7 +355,7 @@ export class VentaComponent implements OnInit {
           this.getListAbonoVentas();
         },
         (error) => {
-          console.error('Error al agregar abono de venta:', error);
+          //console.error('Error al agregar abono de venta:', error);
           this.toastr.error('Hubo un error al agregar el abono a la venta', 'Error');
         }
       );
@@ -369,6 +370,7 @@ export class VentaComponent implements OnInit {
   newAbonoVenta(id: number) {
     this.id = id;
     this.value9 = null;
+    this.errorMessages.valorAbono = "";
 
     this.productDialogAbono = true;
     this.getVenta(id);
@@ -430,8 +432,9 @@ export class VentaComponent implements OnInit {
   validarValorAbono() {
     const valorAbono = this.value9;
     const valorRestante = this.getValorRestante();
-    const minValorAbono = 5000;
-    const validacion = /^\d+$/;
+    const minValorAbono = 99;
+    const validacion = /^[\d,.]+$/;
+
    
     if (valorAbono) {
       if (valorAbono === null || valorAbono.trim() === '' || valorAbono === "") {
@@ -443,8 +446,8 @@ export class VentaComponent implements OnInit {
       } else if (valorAbono > valorRestante) {
         this.errorMessages.valorAbono = 'El valor abono no puede ser mayor al valor restante.';
         this.camposValidos = false;
-      } else if (valorAbono < minValorAbono) {
-        this.errorMessages.valorAbono = `El valor mínimo permitido es $5.000.`;
+      }  else if (valorAbono < minValorAbono) {
+        this.errorMessages.valorAbono = `Ingrese un valor válido.`;
         this.camposValidos = false;
       } else {
         this.errorMessages.valorAbono = '';

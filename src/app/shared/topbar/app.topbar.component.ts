@@ -56,7 +56,7 @@ export class AppTopBarComponent {
       this.id = user.id;
       this.productDialog = true;
       this.getUsuarioLogin(this.id); 
-      console.log(user);
+      //console.log(user);
     }
   }
   

@@ -6,7 +6,7 @@
         <span>CounTech</span> -->
     </a>
 
-    <button #menubutton class="p-link layout-menu-button layout-topbar-button" (click)="layoutService.onMenuToggle()" >
+    <button #menubutton class="p-link layout-menu-button layout-topbar-button" (click)="layoutService.onMenuToggle()">
         <i class="pi pi-bars"></i>
     </button>
 
@@ -37,11 +37,15 @@
 
 
             <!-- Confirmación de cerrar sesión -->
-            <p-confirmPopup key="confirmCerrarSesion"></p-confirmPopup>
+            <p-confirmPopup key="confirmCerrarSesion" 
+                [style]="{ 'margin-top': '5%', 'margin-left': '83%' }">
+            </p-confirmPopup>
+
+
 
         </div>
 
-        
+
 
         <p-dialog [(visible)]="productDialog" [style]="{width: '450px'}" header="Perfil Usuario" [modal]="true"
             [responsive]="true" class="p-fluid">

@@ -66,7 +66,6 @@ export class UsuarioComponent implements OnInit {
   ngOnInit(): void {
     this.getListUsuarios()
     const loginUser = this._authService.getUser();
-    console.log(loginUser);
   }
 
 
@@ -78,15 +77,13 @@ export class UsuarioComponent implements OnInit {
       this._usuarioService.getListUsuarios().subscribe((data: any) => {
         this.listUsuarios = data.listUsuarios.filter((usuario: any) => usuario.id !== currentUser.id);
       });
-    } else {
-      console.error('No se pudo obtener el usuario actual.');
     }
   }
 
 
   getUsuario(id: number) {
     this._usuarioService.getUsuario(id).subscribe((data: Usuario) => {
-      console.log(data)
+      //console.log(data)
       this.formUsuario.setValue({
         nombre: data.nombre,
         cedula: data.cedula,
@@ -167,7 +164,7 @@ export class UsuarioComponent implements OnInit {
         },
         error => {
           // Error al registrar usuario
-          console.error('Error al registrar usuario:', error);
+          //console.error('Error al registrar usuario:', error);
           this.toastr.error('Por favor, complete los campos correctamente.', 'Error de validación');
         }
         );
@@ -249,8 +246,6 @@ export class UsuarioComponent implements OnInit {
       },
       reject: () => {
         this.getListUsuarios();
-        this.toastr.error(`El usuario ${usuario.nombre} no fue <strong>${usuario.estado ? 'activado' : 'desactivado'}</strong>`, 'Cancelado', { enableHtml: true });
-
       }
 
     });

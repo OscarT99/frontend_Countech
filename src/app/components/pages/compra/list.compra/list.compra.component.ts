@@ -42,6 +42,7 @@ export class ListCompraComponent implements OnInit {
     listComprasActivas: CompraInstance[] = [];
     listComprasAnuladas: CompraInstance[] = [];
 
+    valorNetoCompra: number | undefined = 0;
 
     id: number = 0;
     totalNeto: number = 0;
@@ -89,17 +90,27 @@ export class ListCompraComponent implements OnInit {
         this.getListComprasAtivas();
         this.getListComprasAnuladas();
         this.formAbonoCompra.get('valorRestante')?.setValue(this.getValorRestante());
+        this.getTotalNeto(this.id);
+        this.getListProveedores();
+    }
+
+
+    getTotalNeto1(id: number): void {
+        this._compraService.getCompra(id).subscribe((data: CompraInstance) => {
+            const valorNetoCompra = data.totalNeto;
+        });
     }
 
 
     getTotalNeto(id: number): void {
-        this._compraService.getCompra(id).subscribe((data: CompraInstance) => {
-            const valorNetoCompra = data.totalNeto;
-            console.log('Valor neto de la compra con ID', id, ':', valorNetoCompra);
-            // Aquí puedes hacer lo que necesites con el valor neto de la compra, como almacenarlo en una variable
-        });
+        if (!isNaN(id)) { // Verifica si id es un número válido
+            this._compraService.getCompra(id).subscribe((data: CompraInstance) => {
+                this.valorNetoCompra = data.totalNeto;
+                //console.log('Valor neto de la compra con ID', id, ':', this.valorNetoCompra);
+            });
+        }
     }
-
+    
     getListComprasAtivas() {
         this._compraService.getListCompras().subscribe((data: any) => {
             this.listComprasActivas = data.listaCompras.filter((compra: any) => {
@@ -123,14 +134,14 @@ export class ListCompraComponent implements OnInit {
     }
 
     getNombreProveedor(proveedorId?: number): string {
-        if (proveedorId === undefined) {
+        if (proveedorId === undefined || this.listProveedores.length === 0) {
             return 'Proveedor no encontrado';
         }
-
+    
         const proveedor = this.listProveedores.find(c => c.id === proveedorId);
         return proveedor ? proveedor.razonSocial || 'Nombre no disponible' : 'Proveedor no encontrado';
     }
-
+    
 
     mostrarCompras() {
         if (this.mostrarComprasActivas === true) {
@@ -145,8 +156,6 @@ export class ListCompraComponent implements OnInit {
         this.detalleCompra = await this._compraService.getCompra(id).toPromise();
 
         this.totalNeto = this.detalleCompra.totalNeto;
-        console.log('total neto detalle de compra', this.totalNeto);
-
 
         this.mostrarModalDetalle = true;
         this.mostrarTablaAbonos = false;
@@ -234,6 +243,8 @@ export class ListCompraComponent implements OnInit {
                 estadoPago: data.estadoPago,
             })
 
+            this.compra = data;
+
             //Llama el nombre del proveedor
             if (this.compra.proveedor) {
                 this.getNombreProveedor(this.compra.proveedor);
@@ -244,13 +255,13 @@ export class ListCompraComponent implements OnInit {
     }
 
 
-
     //ABONOS
     newAbonoCompra(id: number) {
         this.id = id;
         this.value9 = null;
-
+        this.errorMessages.valorAbono = "";
         this.productDialogAbono = true;
+
         this.getCompra(id);
 
         // Filtra los abonos por la compra seleccionada
@@ -258,32 +269,6 @@ export class ListCompraComponent implements OnInit {
         this.getListAbonoCompras();
 
         this.getTotalNeto(id);
-    }
-
-    confirm21(event: Event) {
-        this.confirmationService.confirm({
-            key: 'confirm2',
-            target: event.target || new EventTarget,
-            message: '¿Está seguro de realizar el abono?',
-            icon: 'pi pi-exclamation-triangle',
-            acceptLabel: 'Sí',
-            accept: () => {
-                this.agregarAbonoCompra(this.value9);
-                const valorRestante = this.getValorRestante();
-                this.value9 = undefined;
-                this.formAbonoCompra.get('valorRestante')?.setValue(valorRestante);
-
-
-
-            },
-            reject: () => {
-                this.messageService.add({
-                    severity: 'error',
-                    summary: 'Cancelado',
-                    detail: 'El abono no fue agregado a la compra'
-                });
-            }
-        });
     }
 
     confirm2(event: Event) {
@@ -315,18 +300,106 @@ export class ListCompraComponent implements OnInit {
     }
 
 
+    actualizarEstadoPago(id: number, estado: "Pago" | "Pendiente"): void {
+        const compraActualizada: CompraInstance = {
+            estadoPago: estado
+        };
+
+        const valorRestante = this.getValorRestante()
+        const nuevoValorRestante = valorRestante - this.value9
+        //console.log("vr actualizarestado " + nuevoValorRestante)
+        if (nuevoValorRestante === 0) {
+            this._compraService.putEstadoCompra(id, compraActualizada).subscribe(
+                () => {
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 7000);
+
+                },
+                (error) => {
+                    //console.error('Error al actualizar el estado de pago:', error);
+                }
+            );
+        }
+    }
+
+
+    agregarAbonoCompra(valorAbono: number) {
+        const nuevoAbono: AbonoCompra = {
+            valorAbono: valorAbono,
+            fechaAbono: new Date(),
+            compra: this.id
+        };
+        const valorRestante = this.getValorRestante();
+
+        if (valorRestante > 0) {
+
+            this._abonoCompraService.postAbonoCompra(nuevoAbono).subscribe(
+                () => {
+                    this.value9 = null;
+                    this.toastr.success('El abono se agregó exitosamente a la compra', 'Agregado');
+                    this.getListAbonoCompras();
+                },
+                (error) => {
+                    //console.error('Error al agregar abono a la compra:', error);
+                    this.toastr.error('Hubo un error al agregar el abono a la compra', 'Error');
+                }
+            );
+        } else {
+            this.toastr.error('No se pueden agregar más abonos, el valor restante es 0', 'Error de validación');
+        }
+
+
+    }
+
+
+    getValorRestante(): number {
+        if (
+            this.compra &&
+            this.totalNeto !== undefined &&
+            this.listAbonoCompras &&
+            this.listAbonoCompras.length > 0
+        ) {
+            const abonosRelacionados = this.listAbonoCompras.filter(abono => abono.compra === this.id);
+
+            if (abonosRelacionados.length > 0 && !isNaN(parseFloat(this.totalNeto.toString()))) {
+                let totalAbonos = 0;
+
+                abonosRelacionados.forEach(abono => {
+                    if (abono.valorAbono !== undefined) {
+                        const valorAbono = parseFloat(abono.valorAbono.toString());
+                        if (!isNaN(valorAbono)) {
+                            totalAbonos += valorAbono;
+                        }
+                    }
+                });
+
+                //this.getTotalNeto(this.id);
+                const valorRestante = this.valorNetoCompra !== undefined ? this.valorNetoCompra - totalAbonos : 0;
+
+                return valorRestante;
+            }
+        }
+
+        // Si no hay abonos relacionados o si falta información, devuelve el total neto del servicio o 0 si no está definido
+        return this.valorNetoCompra !== undefined ? parseFloat(this.valorNetoCompra.toString()) : 0;
+    }
+
+    
+
     //VALIDACIÓN valor abono
     errorMessages = {
         valorAbono: ''
     }
 
-    camposValidos: boolean = false;
+    camposValidos: boolean = true;
 
     validarValorAbono() {
         const valorAbono = this.value9;
-        const valorRestante = 10000000;
-        const minValorAbono = 5000;
-        const validacion = /^\d+$/;
+        const valorRestante = this.getValorRestante();
+        const minValorAbono = 99;
+        const validacion = /^[\d,.]+$/;
+
 
         if (valorAbono) {
             if (valorAbono === null || valorAbono.trim() === '' || valorAbono === "") {
@@ -339,7 +412,7 @@ export class ListCompraComponent implements OnInit {
                 this.errorMessages.valorAbono = 'El valor abono no puede ser mayor al valor restante.';
                 this.camposValidos = false;
             } else if (valorAbono < minValorAbono) {
-                this.errorMessages.valorAbono = `El valor mínimo permitido es $5.000.`;
+                this.errorMessages.valorAbono = `Ingrese un valor válido.`;
                 this.camposValidos = false;
             } else {
                 this.errorMessages.valorAbono = '';
@@ -349,106 +422,8 @@ export class ListCompraComponent implements OnInit {
     }
 
 
-    agregarAbonoCompra1(valorAbono: number) {
-        const nuevoAbono: AbonoCompra = {
-            valorAbono: valorAbono,
-            fechaAbono: new Date(),
-            compra: this.id
-        };
-
-        // Verificar si el valor restante es 0 antes de agregar un nuevo abono
-        //const valorRestante = this.getValorRestante();
-        const valorRestante = 10000000
-        if (valorRestante > 0) {
-            // Verificar si el valorAbono es mayor al valorRestante
-            if (valorAbono > valorRestante) {
-                this.messageService.add({
-                    severity: 'error',
-                    summary: 'Error',
-                    detail: 'El valor del abono no puede ser mayor al valor restante'
-                });
-            } else {
-                this._abonoCompraService.postAbonoCompra(nuevoAbono).subscribe(
-                    () => {
-                        this.messageService.add({
-                            severity: 'success',
-                            summary: 'Agregado',
-                            detail: 'El abono se agregó exitosamente a la compra'
-                        });
-                        this.getListAbonoCompras(); // Actualiza la lista de abonos de compra después de agregar uno nuevo
-                        //this.hideDialog(); // Cierra el diálogo después de agregar el abono de compra
-                    },
-                    (error) => {
-                        console.error('Error al agregar abono de compra:', error);
-                        this.messageService.add({
-                            severity: 'error',
-                            summary: 'Error',
-                            detail: 'Hubo un error al agregar el abono a la compra'
-                        });
-                    }
-                );
-            }
-        } else {
-            // Mostrar un mensaje o deshabilitar el botón de agregar abono si el valor restante es 0
-            this.messageService.add({
-                severity: 'info',
-                summary: 'Información',
-                detail: 'No se pueden agregar más abonos, el valor restante es 0'
-            });
-        }
-    }
-
-    agregarAbonoCompra(valorAbono: number) {
-        const nuevoAbono: AbonoCompra = {
-            valorAbono: valorAbono,
-            fechaAbono: new Date(),
-            compra: this.id
-        };
-       //const valorRestante = this.getValorRestante();
-        const valorRestante = 10000000
-
-        if (valorRestante > -1) {
-
-            this._abonoCompraService.postAbonoCompra(nuevoAbono).subscribe(
-                () => {
-                    this.value9 = null;
-                    this.toastr.success('El abono se agregó exitosamente a la compra', 'Agregado');
-                    this.getListAbonoCompras();
-                },
-                (error) => {
-                    console.error('Error al agregar abono a la compra:', error);
-                    this.toastr.error('Hubo un error al agregar el abono a la compra', 'Error');
-                }
-            );
-        } else {
-            this.toastr.error('No se pueden agregar más abonos, el valor restante es 0', 'Error de validación');
-        }
 
 
-    }
-
-    actualizarEstadoPago(id: number, estado: "Pago" | "Pendiente"): void {
-        const compraActualizada: CompraInstance = {
-            estadoPago: estado
-        };
-
-        const valorRestante = this.getValorRestante()
-        const nuevoValorRestante = valorRestante - this.value9
-        console.log(nuevoValorRestante)
-        if (nuevoValorRestante === 0) {
-            this._compraService.putCompra(id, compraActualizada).subscribe(
-                () => {
-                    setTimeout(() => {
-                        window.location.reload();
-                    }, 7000);
-
-                },
-                (error) => {
-                    console.error('Error al actualizar el estado de pago:', error);
-                }
-            );
-        }
-    }
 
 
     mostrarTablaAbonos: boolean = false;
@@ -472,92 +447,9 @@ export class ListCompraComponent implements OnInit {
 
 
 
-    calcularTotales(): void {
-        let totalBruto = 0;
-        let ivaTotal = 0;
-        let totalNeto = 0;
-
-        this.detallesInsumo.forEach(detalle => {
-            totalBruto += detalle.cantidad! * detalle.valorUnitario!;
-            ivaTotal += detalle.cantidad! * detalle.impuestoIva!;
-        });
-
-        totalNeto = totalBruto + ivaTotal;
-
-    }
 
 
 
-
-    getValorRestante(): number {
-        if (
-            this.totalNeto !== undefined &&
-            this.listAbonoCompras &&
-            this.listAbonoCompras.length > 0
-        ) {
-            const abonosRelacionados = this.listAbonoCompras.filter(abono => abono.compra === this.id);
-
-            if (abonosRelacionados.length > 0 && !isNaN(parseFloat(this.totalNeto.toString()))) {
-                let totalAbonos = 0;
-
-                abonosRelacionados.forEach(abono => {
-                    if (abono.valorAbono !== undefined) {
-                        const valorAbono = parseFloat(abono.valorAbono.toString());
-                        if (!isNaN(valorAbono)) {
-                            totalAbonos += valorAbono;
-                        }
-                    }
-                });
-
-                const valorRestante = this.totalNeto - totalAbonos;
-                return valorRestante;
-            }
-        }
-
-        // Si no hay abonos relacionados o si falta información, devuelve el total neto del servicio o 0 si no está definido
-        return this.totalNeto !== undefined ? parseFloat(this.totalNeto.toString()) : 0;
-    }
-
-
-    getValorRestante1(): number {
-
-        const abonosRelacionados = this.listAbonoCompras.filter(abono => abono.compra === this.id);
-
-        let totalAbonos = 0;
-
-        abonosRelacionados.forEach(abono => {
-            if (abono.valorAbono !== undefined) {
-                const valorAbono = parseFloat(abono.valorAbono.toString());
-                if (!isNaN(valorAbono)) {
-                    totalAbonos += valorAbono;
-                }
-            }
-        });
-
-        //const valorTotal = parseFloat(this.totalNeto.toString());
-        // Suponiendo que valorTotal es un objeto con una propiedad 'valor'
-        const valorTotal = this.getTotalNeto(this.id);
-        console.log("Este es el valor total en getValorRestante1: ", valorTotal);
-
-        const valorRestante = 0;
-        // Verificar si valorTotal es un número antes de realizar la operación
-        if (typeof valorTotal === 'number') {
-            console.log("Este es el valor total en getValorRestante: ", valorTotal);
-            const valorRestante = valorTotal - totalAbonos;
-            return valorRestante;
-
-            // Lógica adicional con valorRestante
-        } else {
-            console.error('El valor total no es un número.');
-        }
-
-        return valorRestante;
-
-
-
-        // Si no hay abonos relacionados o si falta información, devuelve el valor total de la venta o 0 si no está definido
-        //return this.compra && this.totalNeto !== undefined ? parseFloat(this.totalNeto.toString()) : 0;
-    }
 
 
 

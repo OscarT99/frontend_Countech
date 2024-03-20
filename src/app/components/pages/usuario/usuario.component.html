@@ -36,7 +36,6 @@
                         <th pSortableColumn="cedula">Cédula<p-sortIcon field="cedula"></p-sortIcon></th>
                         <th pSortableColumn="nombre">Nombre<p-sortIcon field="nombre"></p-sortIcon></th>
                         <th pSortableColumn="email">Email<p-sortIcon field="email"></p-sortIcon></th>
-                        <th pSortableColumn="acciones">Acciones</th>
 
                         <th></th>
                     </tr>
@@ -90,7 +89,7 @@
                 <div class="formgrid grid" style="margin-top: 20px;">
 
                     <div class="field col-4">
-                        <span class="p-float-label">
+                        <small class="p-float-label">
                             <input formControlName="cedula" id="cedula" type="text" pInputText (input)="validarCedula()"
                                 [ngClass]="{'is-invalid': errorMessages.cedula}" (keyup)="updatePassword($event)"
                                 [readonly]="id !== 0">
@@ -98,19 +97,19 @@
                             <div *ngIf="errorMessages.cedula && id == 0" style="color: red;">
                                 {{errorMessages.cedula}}
                             </div>
-                        </span>
+                        </small>
 
                     </div>
 
                     <div class="field col-8">
-                        <span class="p-float-label">
+                        <small class="p-float-label">
                             <input formControlName="nombre" id="nombre" type="text" pInputText (input)="validarNombre()"
                                 [ngClass]="{'is-invalid': errorMessages.nombre}" [readonly]="id !== 0">
                             <label for="nombre">Nombre*</label>
                             <div *ngIf="errorMessages.nombre" style="color: red;">
                                 {{errorMessages.nombre}}
                             </div>
-                        </span>
+                        </small>
 
                     </div>
 
@@ -126,14 +125,14 @@
                     </div>
                     
                     <div class="field col-8">
-                        <span class="p-float-label">
+                        <small class="p-float-label">
                             <input formControlName="email" id="email" type="text" pInputText
                             (input)="validarEmail()" [ngClass]="{'is-invalid': errorMessages.email}">
                             <label for="email">Email*</label>
                             <div *ngIf="errorMessages.email" style="color: red;">
                                 {{errorMessages.email}}
                             </div>
-                        </span>
+                        </small>
                         
                     </div>
                 </div>

@@ -11,3 +11,10 @@ $gutter: 1rem; //for primeflex grid system
 @import "assets/demo/styles/flags/flags.css";
 @import "assets/demo/styles/badges.scss";
 @import "assets/demo/styles/code.scss";
+
+::ng-deep .p-password {
+    /* Estilos personalizados */
+    width: 900px;
+    background-color: red !important;
+}
+

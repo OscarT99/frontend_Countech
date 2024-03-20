@@ -287,7 +287,7 @@
 
         </div>
 
-        <p-dialog [(visible)]="productDialogAbono" [style]="{width: '1000px', height: '500px' }" header="Abono Compra"
+        <p-dialog [(visible)]="productDialogAbono" [style]="{width: '1000px', height: '500px',  'overflow-x': 'auto'  }" header="Abono Compra"
             [modal]="true" class="p-fluid">
             <div style="display: flex;">
                 <div style="flex: 1;">
@@ -298,9 +298,10 @@
                                 <input formControlName="id" id="id" type="number" pInputText readonly>
                             </div>
                             <div class="field col-9">
-                                <label for="proveedor">Proveedor</label>
-                                <input  formControlName="proveedor" id="proveedor" type="text" pInputText readonly >
-                                    
+                                <label for="proveedeor">Proveedor</label>
+                                <input id="proveedor" type="text" pInputText readonly
+                                [value]="getNombreProveedor(compra.proveedor)">
+                               
                             </div>
 
                         </div>
@@ -317,12 +318,13 @@
                                 </div>
                             </div>
                             
+                            
                             <div class="field col">
                                 <label for="valorAbono">Restante</label>
                                 <div class="p-inputgroup">
                                     <span class="p-inputgroup-addon" readonly>$</span>
                                     <input type="number" formControlName="valorRestante" [readonly]="true"
-                                    formControlName="totalNeto" [style]="{ 'width': '100%' }">
+                                        value="{{ getValorRestante() }}" [style]="{ 'width': '100%' }">
                                 </div>
                             </div>
 
@@ -332,7 +334,7 @@
 
                     </form>
                     <div class="p-inputgroup mt-3">
-                        <span class="p-float-label">
+                        <small class="p-float-label">
                             <input  pInputText class="w-full md:w-25rem" style="padding:1rem" id="valorAbono" name="valorAbono" 
                                 [(ngModel)]="value9" class="form-control" (input)="validarValorAbono()" 
                                 [ngClass]="{'is-invalid': errorMessages.valorAbono}" placeholder>
@@ -340,9 +342,9 @@
                             <button (click)="confirm2($event)" pButton icon="pi pi-plus" 
                                 class="p-button-rounded p-button-success ml-3"></button>
                             <p-confirmPopup key="confirm2"></p-confirmPopup>
-                        </span>
+                        </small>
                     </div>
-                    <div class="invalid-feedback error-message mt-2" *ngIf="errorMessages.valorAbono" style="color: red;">
+                    <div class="invalid-feedback error-message mt-1" *ngIf="errorMessages.valorAbono" style="color: red;">
                         {{errorMessages.valorAbono}}
                     </div>
 
